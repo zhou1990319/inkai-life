@@ -97,7 +97,57 @@
     .btn-secondary:hover {
       background: rgba(230,57,70,0.1);
       transform: translateY(-2px);
-    }
+    }<!-- 把下面这段代码加到hero板块后面、features板块前面 -->
+<div id="generator" class="generator-section" style="max-width: 1200px; margin: 0 auto; padding: 60px 5%;">
+  <h2 style="text-align: center; color: #E63946; font-size: 36px; margin-bottom: 40px;">AI纹身生成器</h2>
+  <div style="background: rgba(20,18,17,0.7); padding: 40px; border-radius: 12px; border: 1px solid #332F2E;">
+    <form id="tattoo-form">
+      <div style="margin-bottom: 20px;">
+        <label style="font-size: 18px; margin-bottom: 10px; display: block; color: #D9D9D9;">纹身关键词</label>
+        <input type="text" placeholder="例如：水墨龙、禅意莲花、书法纹、山海经异兽" style="width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid #332F2E; background: #141211; color: white; font-size: 16px;">
+      </div>
+      <div style="margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+        <div>
+          <label style="font-size: 18px; margin-bottom: 10px; display: block; color: #D9D9D9;">风格选择</label>
+          <select style="width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid #332F2E; background: #141211; color: white; font-size: 16px;">
+            <option>水墨风格</option>
+            <option>线描风格</option>
+            <option>新中式风格</option>
+            <option>传统刺青风格</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 18px; margin-bottom: 10px; display: block; color: #D9D9D9;">纹身部位</label>
+          <select style="width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid #332F2E; background: #141211; color: white; font-size: 16px;">
+            <option>手臂</option>
+            <option>胸口</option>
+            <option>后背</option>
+            <option>脚踝</option>
+          </select>
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary" style="width: 100%;" onclick="generateTattoo()">生成纹身设计</button>
+    </form>
+    <!-- 生成结果展示区 -->
+    <div id="result-area" style="margin-top: 40px; display: none;">
+      <h3 style="color: #E63946; margin-bottom: 20px;">你的AI纹身设计</h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+        <img src="https://picsum.photos/id/64/300/300" style="width: 100%; border-radius: 8px; border: 1px solid #332F2E;">
+        <img src="https://picsum.photos/id/65/300/300" style="width: 100%; border-radius: 8px; border: 1px solid #332F2E;">
+        <img src="https://picsum.photos/id/66/300/300" style="width: 100%; border-radius: 8px; border: 1px solid #332F2E;">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 在body最后加JS代码 -->
+<script>
+  function generateTattoo() {
+    // 显示生成结果
+    document.getElementById('result-area').style.display = 'block';
+    alert('AI正在生成你的纹身设计，请稍候...');
+  }
+</script>
     /* 功能板块 */
     .features {
       padding: 60px 5%;
