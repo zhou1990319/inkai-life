@@ -1,16 +1,186 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>InkAI.life - Chinese Style AI Tattoo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InkAI.life - 全球中式风格AI纹身生成器与社交社区</title>
   <style>
-    body { background: #0A0A0A; color: #fff; font-family: Arial; text-align: center; padding: 50px; }
-    h1 { color: #E63946; font-size: 50px; }
-    .content { max-width: 800px; margin: 0 auto; font-size: 20px; }
+    /* 全局样式 - 国风暗黑风格 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #0A0908; /* 墨黑底色 */
+      color: #F2F2F2;
+      font-family: "Microsoft Yahei", "SimHei", Arial;
+      min-height: 100vh;
+      background-image: url("https://picsum.photos/id/175/1920/1080"); /* 国风暗纹背景 */
+      background-blend-mode: overlay;
+      background-size: cover;
+      background-attachment: fixed;
+    }
+    /* 导航栏 */
+    .navbar {
+      padding: 20px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #332F2E;
+      background: rgba(10,9,8,0.8);
+      backdrop-filter: blur(10px);
+    }
+    .logo {
+      font-size: 28px;
+      color: #E63946; /* 朱砂红 */
+      font-weight: bold;
+    }
+    .nav-links a {
+      color: #F2F2F2;
+      text-decoration: none;
+      margin-left: 30px;
+      font-size: 16px;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover {
+      color: #E63946;
+    }
+    /* 核心内容区 */
+    .hero {
+      padding: 80px 5%;
+      text-align: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .hero h1 {
+      font-size: 60px;
+      color: #E63946;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px rgba(230,57,70,0.3);
+    }
+    .hero p {
+      font-size: 22px;
+      margin-bottom: 40px;
+      color: #D9D9D9;
+      line-height: 1.8;
+    }
+    /* 功能按钮 */
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+    }
+    .btn-primary {
+      background: #E63946;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #C1121F;
+      transform: translateY(-2px);
+    }
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid #E63946;
+      color: #E63946;
+    }
+    .btn-secondary:hover {
+      background: rgba(230,57,70,0.1);
+      transform: translateY(-2px);
+    }
+    /* 功能板块 */
+    .features {
+      padding: 60px 5%;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+    .feature-card {
+      background: rgba(20,18,17,0.7);
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid #332F2E;
+      transition: transform 0.3s;
+    }
+    .feature-card:hover {
+      transform: translateY(-5px);
+    }
+    .feature-card h3 {
+      color: #E63946;
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+    .feature-card p {
+      color: #D9D9D9;
+      line-height: 1.6;
+    }
+    /* 页脚 */
+    .footer {
+      padding: 30px 5%;
+      text-align: center;
+      border-top: 1px solid #332F2E;
+      margin-top: 80px;
+      background: rgba(10,9,8,0.8);
+    }
+    .footer p {
+      color: #999;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
-  <h1>InkAI.life</h1>
-  <div class="content">Global Chinese Style AI Tattoo Generator & Social Community</div>
+  <!-- 导航栏 -->
+  <div class="navbar">
+    <div class="logo">InkAI.life</div>
+    <div class="nav-links">
+      <a href="#generator">AI纹身生成</a>
+      <a href="#community">纹身社区</a>
+      <a href="#artist">纹身师入驻</a>
+      <a href="#about">关于我们</a>
+    </div>
+  </div>
+
+  <!-- 核心横幅 -->
+  <div class="hero">
+    <h1>全球中式风格AI纹身生成器</h1>
+    <p>融合东方美学与AI技术，生成专属你的国风纹身设计 | 连接全球纹身爱好者与顶尖纹身师</p>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="alert('AI生成功能开发中，即将上线！')">立即生成纹身</button>
+      <button class="btn btn-secondary" onclick="alert('社区功能开发中，即将上线！')">进入纹身社区</button>
+    </div>
+  </div>
+
+  <!-- 功能板块 -->
+  <div class="features">
+    <div class="feature-card">
+      <h3>AI智能生成</h3>
+      <p>输入关键词（如：水墨龙、禅意莲花、书法纹），AI自动生成多款中式纹身设计稿，支持自定义尺寸、风格、配色。</p>
+    </div>
+    <div class="feature-card">
+      <h3>全球纹身社区</h3>
+      <p>分享你的纹身作品、设计灵感，与全球纹身爱好者交流，找到志同道合的伙伴。</p>
+    </div>
+    <div class="feature-card">
+      <h3>纹身师入驻</h3>
+      <p>顶尖纹身师可入驻平台，展示作品、承接定制，对接全球客户资源。</p>
+    </div>
+  </div>
+
+  <!-- 页脚 -->
+  <div class="footer">
+    <p>© 2025 InkAI.life - 全球中式风格AI纹身生成器与社交社区 | 版权所有</p>
+  </div>
 </body>
 </html>
