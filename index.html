@@ -3,249 +3,180 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>InkAI.life - 全球AI国风纹身商用平台</title>
+  <title>InkAI.life - 中国风AI纹身生成器</title>
   <style>
-    /* 全局重置+基础样式 */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: "Microsoft Yahei", "PingFang SC", sans-serif;
     }
     body {
-      background: #0A0908; /* 墨黑底色 */
+      background: #0A0908;
       color: #F2F2F2;
-      min-height: 100vh;
-      background-image: url("https://picsum.photos/id/175/1920/1080"); /* 国风暗纹背景 */
+      font-family: "Microsoft Yahei", "SimHei", serif;
+      background-image: url("https://picsum.photos/id/175/1920/1080");
       background-blend-mode: overlay;
       background-size: cover;
       background-attachment: fixed;
-      padding-bottom: 50px;
     }
-    /* 导航栏 - 悬浮置顶+半透明 */
     .navbar {
       padding: 20px 5%;
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid #332F2E;
-      background: rgba(10,9,8,0.9);
+      background: rgba(10,9,8,0.8);
       backdrop-filter: blur(10px);
-      position: sticky;
-      top: 0;
-      z-index: 999;
     }
     .logo {
       font-size: 28px;
-      color: #E63946; /* 朱砂红 */
+      color: #E63946;
       font-weight: bold;
     }
-    .nav-buttons {
-      display: flex;
-      gap: 12px;
+    .nav-links a {
+      color: #F2F2F2;
+      text-decoration: none;
+      margin-left: 30px;
+      font-size: 16px;
+    }
+    .lang {
+      background: #E63946;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    .hero {
+      padding: 120px 5%;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: 60px;
+      color: #E63946;
+      margin-bottom: 20px;
+    }
+    .hero p {
+      font-size: 22px;
+      margin-bottom: 40px;
+      color: #D9D9D9;
     }
     .btn {
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
+      padding: 15px 30px;
+      background: #E63946;
+      color: white;
       border: none;
-    }
-    .btn-login {
-      background: transparent;
-      border: 1px solid #E63946;
-      color: #E63946;
-    }
-    .btn-login:hover {
-      background: rgba(230,57,70,0.1);
-    }
-    .btn-register {
-      background: #E63946;
-      color: white;
-    }
-    .btn-register:hover {
-      background: #C1121F;
-    }
-    .btn-vip {
-      background: linear-gradient(45deg, #E63946, #FF9F43);
-      color: white;
-    }
-    /* 核心容器 - 居中+留白 */
-    .container {
-      max-width: 800px;
-      margin: 60px auto;
-      padding: 0 20px;
-    }
-    /* AI生成卡片 - 半透明+阴影+圆角 */
-    .ai-card {
-      background: rgba(20,18,17,0.9);
-      padding: 40px;
-      border-radius: 16px;
-      border: 1px solid #332F2E;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-    }
-    .ai-title {
-      font-size: 28px;
-      color: #E63946;
-      margin-bottom: 30px;
-      text-align: center;
-    }
-    /* 输入框+下拉框样式 */
-    .input-group {
-      margin-bottom: 20px;
-    }
-    label {
-      display: block;
-      margin-bottom: 8px;
-      color: #D9D9D9;
-      font-size: 16px;
-    }
-    input, select {
-      width: 100%;
-      padding: 14px 16px;
       border-radius: 8px;
-      border: 1px solid #444;
-      background: #141211;
-      color: white;
-      font-size: 16px;
-      outline: none;
-    }
-    input:focus, select:focus {
-      border-color: #E63946;
-    }
-    /* 生成按钮 */
-    .btn-generate {
-      width: 100%;
-      padding: 16px;
-      background: #E63946;
-      color: white;
       font-size: 18px;
-      font-weight: bold;
-      border: none;
-      border-radius: 8px;
       cursor: pointer;
-      margin-top: 10px;
     }
-    .btn-generate:hover {
-      background: #C1121F;
-      transform: translateY(-2px);
-    }
-    /* 生成结果区 */
-    .result-area {
-      margin-top: 30px;
-      display: none;
-    }
-    .result-title {
-      color: #E63946;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    .result-grid {
+    .features {
+      padding: 60px 5%;
+      max-width: 1200px;
+      margin: 0 auto;
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
     }
-    .result-img {
-      width: 100%;
-      border-radius: 10px;
-      border: 2px solid #332F2E;
+    .feature-card {
+      background: rgba(20,18,17,0.7);
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid #332F2E;
     }
-    /* 加载动画 */
-    .loading {
+    .feature-card h3 {
+      color: #E63946;
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+    .feature-card p {
+      color: #D9D9D9;
+    }
+    .footer {
+      padding: 30px;
       text-align: center;
-      padding: 20px;
-      color: #FFCC00;
+      border-top: 1px solid #332F2E;
+      margin-top: 50px;
+    }
+    [lang=en] {
       display: none;
     }
   </style>
 </head>
 <body>
-  <!-- 导航栏 -->
-  <div class="navbar">
-    <div class="logo">InkAI.life</div>
-    <div class="nav-buttons">
-      <button class="btn btn-login" onclick="alert('登录功能即将上线，暂支持游客生成（每天2次）')">登录</button>
-      <button class="btn btn-register" onclick="alert('注册功能即将上线，注册后可保存作品')">注册</button>
-      <button class="btn btn-vip" onclick="alert('VIP开通：Stripe/PayPal支付$9.9，解锁无限生成+商用权限')">开通VIP $9.9</button>
-    </div>
+
+<div class="navbar">
+  <div class="logo">InkAI.life</div>
+  <div class="nav-links">
+    <a lang="zh">首页</a>
+    <a lang="zh">AI生成</a>
+    <a lang="zh">纹身社区</a>
+    <a lang="zh">关于我们</a>
+
+    <a lang="en" style="display:none;">Home</a>
+    <a lang="en" style="display:none;">AI Generator</a>
+    <a lang="en" style="display:none;">Community</a>
+    <a lang="en" style="display:none;">About</a>
+
+    <button class="lang" onclick="toggleLang()">中文 / EN</button>
+  </div>
+</div>
+
+<div class="hero">
+  <h1 lang="zh">中国风 · AI纹身生成器</h1>
+  <h1 lang="en" style="display:none;">Chinese Style AI Tattoo Generator</h1>
+
+  <p lang="zh">东方美学 · 水墨意境 · 传统纹样 · 专属你的文化纹身</p>
+  <p lang="en" style="display:none;">Oriental Art | Ink Painting | Traditional Patterns</p>
+
+  <button class="btn" lang="zh">开始生成纹身</button>
+  <button class="btn" lang="en" style="display:none;">Generate Tattoo</button>
+</div>
+
+<div class="features">
+  <div class="feature-card">
+    <h3 lang="zh">水墨国风</h3>
+    <h3 lang="en" style="display:none;">Ink Painting</h3>
+    <p lang="zh">传承东方水墨艺术，让纹身更有中国味道。</p>
+    <p lang="en" style="display:none;">Traditional Oriental ink art, unique Chinese tattoo style.</p>
   </div>
 
-  <!-- 核心内容区 -->
-  <div class="container">
-    <div class="ai-card">
-      <h2 class="ai-title">🎨 AI商用纹身生成器（国风专属）</h2>
-      
-      <div class="input-group">
-        <label>纹身关键词（例：水墨龙、禅意莲花、凤凰、锦鲤）</label>
-        <input type="text" id="prompt" placeholder="请输入你想要的纹身主题..." value="莲花">
-      </div>
-
-      <div class="input-group">
-        <label>风格选择</label>
-        <select id="style">
-          <option value="水墨国风">水墨国风</option>
-          <option value="新中式">新中式</option>
-          <option value="传统刺青">传统刺青</option>
-          <option value="暗黑国风">暗黑国风</option>
-          <option value="极简线条">极简线条</option>
-        </select>
-      </div>
-
-      <button class="btn-generate" onclick="generateTattoo()">🚀 生成高清纹身（无水印可商用）</button>
-      
-      <div class="loading" id="loading">⏳ AI正在生成高清纹身设计，预计3~6秒...</div>
-      
-      <div class="result-area" id="result">
-        <h3 class="result-title">✅ 生成完成（点击图片可下载）</h3>
-        <div class="result-grid">
-          <img class="result-img" id="img1" onclick="downloadImg(this)">
-          <img class="result-img" id="img2" onclick="downloadImg(this)">
-        </div>
-      </div>
-    </div>
+  <div class="feature-card">
+    <h3 lang="zh">AI智能生成</h3>
+    <h3 lang="en" style="display:none;">AI Generation</h3>
+    <p lang="zh">一键生成专属纹身设计，简单、快速、高清。</p>
+    <p lang="en" style="display:none;">One-click AI tattoo design, fast & high-quality.</p>
   </div>
 
-  <script>
-    // AI生成核心函数（修复调用逻辑，保证生成不同高清图）
-    function generateTattoo() {
-      const prompt = document.getElementById('prompt').value.trim();
-      if (!prompt) {
-        alert('请输入纹身关键词！');
-        return;
-      }
+  <div class="feature-card">
+    <h3 lang="zh">传统文化</h3>
+    <h3 lang="en" style="display:none;">Chinese Culture</h3>
+    <p lang="zh">龙凤、锦鲤、莲花、书法，真正属于中国人的纹身。</p>
+    <p lang="en" style="display:none;">Dragon, Phoenix, Lotus, unique Chinese cultural tattoos.</p>
+  </div>
+</div>
 
-      // 显示加载，隐藏结果
-      document.getElementById('loading').style.display = 'block';
-      document.getElementById('result').style.display = 'none';
+<div class="footer">
+  <p lang="zh">© 2025 InkAI.life 中国风AI纹身平台</p>
+  <p lang="en" style="display:none;">© 2025 InkAI.life Chinese Style AI Tattoo Platform</p>
+</div>
 
-      // 构造专属关键词，保证每次生成不同图
-      const style = document.getElementById('style').value;
-      const uniqueTag = prompt + style + Date.now(); // 加时间戳避免重复
-      const encodedTag = encodeURIComponent(uniqueTag);
+<script>
+// 语言切换功能
+let isZh = true;
+function toggleLang() {
+  isZh = !isZh;
+  document.querySelectorAll('[lang=zh]').forEach(e => e.style.display = isZh ? '' : 'none');
+  document.querySelectorAll('[lang=en]').forEach(e => e.style.display = isZh ? 'none' : '');
+}
 
-      // 高清AI图片接口（非随机图，按关键词生成）
-      const imgUrl1 = `https://picsum.photos/seed/${encodedTag}1/800/800`;
-      const imgUrl2 = `https://picsum.photos/seed/${encodedTag}2/800/800`;
-
-      // 模拟AI生成延迟，更真实
-      setTimeout(() => {
-        document.getElementById('img1').src = imgUrl1;
-        document.getElementById('img2').src = imgUrl2;
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('result').style.display = 'block';
-      }, 3000);
-    }
-
-    // 下载图片功能
-    function downloadImg(img) {
-      const a = document.createElement('a');
-      a.href = img.src;
-      a.download = `InkAI纹身设计_${Date.now()}.png`;
-      a.click();
-      alert('高清纹身图片已下载！可直接商用，无水印');
-    }
-  </script>
+// 自动识别国外用户 → 默认显示英文
+const userLang = navigator.language || navigator.userLanguage;
+const foreignLang = ['en', 'es', 'fr', 'de', 'ru', 'ja', 'ko'];
+if (foreignLang.some(l => userLang.startsWith(l))) {
+  toggleLang();
+}
+</script>
 </body>
 </html>
