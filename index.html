@@ -2,181 +2,76 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>InkAI.life - AI国风纹身商用平台</title>
+  <title>InkAI.life - 商用AI纹身平台</title>
   <style>
-    *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,"Microsoft YaHei",sans-serif}
-    body{background:#070707;color:#fff;background-image:url(https://picsum.photos/id/29/1920/1080);background-blend-mode:overlay;background-attachment:fixed;background-size:cover}
-    .header{position:sticky;top:0;z-index:999;background:rgba(0,0,0,0.9);backdrop-filter:blur(10px);border-bottom:1px solid #222}
-    .nav{max-width:1200px;margin:auto;display:flex;justify-content:space-between;align-items:center;padding:18px 20px}
-    .logo{font-size:24px;color:#f72a4b;font-weight:700}
-    .menu a{color:#eee;margin:0 14px;text-decoration:none;font-size:15px}
-    .menu a:hover{color:#f72a4b}
-    .user{display:flex;gap:10px}
-    .btn{padding:10px 16px;border-radius:8px;border:none;font-weight:600;cursor:pointer}
-    .btn-primary{background:#f72a4b;color:#fff}
-    .btn-outline{background:transparent;border:1px solid #f72a4b;color:#f72a4b}
+    *{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+    body{background:#050505;color:#fff;background-image:url(https://picsum.photos/id/29/1920/1080);background-blend-mode:overlay}
+    .nav{display:flex;justify-content:space-between;padding:20px;max-width:1200px;margin:auto}
+    .logo{color:#f72a4b;font-size:24px;font-weight:bold}
+    .btn{padding:10px 18px;border-radius:8px;border:none;background:#f72a4b;color:#fff;cursor:pointer}
     .container{max-width:1200px;margin:auto;padding:40px 20px}
-    .hero{text-align:center;margin-bottom:50px}
-    .hero h1{font-size:42px;color:#f72a4b;margin-bottom:12px}
-    .hero p{color:#ccc;font-size:17px;max-width:700px;margin:auto}
-    .ai-box{background:rgba(20,20,20,0.95);border:1px solid #333;border-radius:16px;padding:32px;margin-bottom:50px}
-    .ai-title{text-align:center;font-size:26px;color:#f72a4b;margin-bottom:24px}
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-    .form-item{margin-bottom:16px}
-    label{display:block;margin-bottom:8px;color:#ddd;font-size:14px}
-    input,select,textarea{width:100%;padding:14px;background:#121212;border:1px solid #333;border-radius:8px;color:#fff;font-size:15px}
-    .loading{text-align:center;padding:20px;color:#ffcc00;display:none}
-    .result{margin-top:24px;display:none}
-    .result h3{color:#f72a4b;text-align:center;margin-bottom:16px}
-    .result-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-    .result img{width:100%;border-radius:12px;border:2px solid #444}
-    .download{margin-top:16px;text-align:center}
-    .section{margin-bottom:60px}
-    .title{text-align:center;font-size:28px;color:#f72a4b;margin-bottom:32px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
-    .card{background:#141414;border:1px solid #333;border-radius:14px;padding:24px}
-    .card h3{color:#f72a4b;margin-bottom:10px}
-    .card p{color:#bbb;line-height:1.6;font-size:14px}
-    .vip{background:linear-gradient(45deg,#ff416c,#ff4b2b);padding:20px;border-radius:12px;text-align:center;margin:30px 0}
-    .footer{text-align:center;padding:30px;color:#777;border-top:1px solid #222}
-    .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:none;justify-content:center;align-items:center;z-index:9999}
-    .modal-box{background:#141414;border:1px solid #444;border-radius:16px;padding:30px;width:90%;max-width:400px}
-    .modal-title{color:#f72a4b;font-size:22px;margin-bottom:20px;text-align:center}
+    .ai-box{background:#111;padding:30px;border-radius:16px;margin-bottom:30px}
+    input,select{width:100%;padding:14px;margin:10px 0;background:#222;border:none;border-radius:8px;color:#fff}
+    .result{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+    .result img{width:100%;border-radius:12px}
+    .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:none;place-items:center}
+    .modal-box{background:#111;padding:30px;border-radius:16px;width:400px}
   </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="nav">
-    <div class="logo">InkAI.life</div>
-    <div class="menu">
-      <a href="#ai">AI生成</a>
-      <a href="#community">作品社区</a>
-      <a href="#artist">纹身师</a>
-      <a href="#vip">会员</a>
-    </div>
-    <div class="user">
-      <button class="btn btn-outline" onclick="openLogin()">登录</button>
-      <button class="btn btn-primary" onclick="openRegister()">注册</button>
-    </div>
+<div class="nav">
+  <div class="logo">InkAI.life</div>
+  <div>
+    <button class="btn" onclick="login()">登录</button>
+    <button class="btn" onclick="register()">注册</button>
+    <button class="btn" onclick="pay()">开通VIP $9.9</button>
   </div>
 </div>
 
 <div class="container">
-  <div class="hero">
-    <h1>AI国风纹身商用生成平台</h1>
-    <p>高清无水印 · 支持商用 · 作品保存 · 会员无限生成 · 全球纹身师接单</p>
-  </div>
-
-  <div class="ai-box" id="ai">
-    <h2 class="ai-title">🎨 商用AI纹身生成</h2>
-    <div class="form-grid">
-      <div class="form-item">
-        <label>纹身关键词</label>
-        <input id="prompt" placeholder="例如：水墨龙、禅意莲花、凤凰、锦鲤、书法">
-      </div>
-      <div class="form-item">
-        <label>风格</label>
-        <select id="style">
-          <option>水墨国风</option>
-          <option>新中式</option>
-          <option>传统刺青</option>
-          <option>暗黑国风</option>
-          <option>极简线条</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-item">
-      <label>纹身部位</label>
-      <select id="pos">
-        <option>手臂</option>
-        <option>胸口</option>
-        <option>后背</option>
-        <option>手腕</option>
-        <option>脚踝</option>
-      </select>
-    </div>
-    <button class="btn btn-primary" style="width:100%" onclick="startAI()">🚀 立即生成（免费2次/天）</button>
-    <div class="loading" id="loading">⏳ 高清AI生成中（3~6秒）</div>
-    <div class="result" id="result">
-      <h3>✅ 生成完成（无水印可商用）</h3>
-      <div class="result-grid">
-        <img id="img1">
-        <img id="img2">
-      </div>
-      <div class="download">
-        <button class="btn btn-primary" onclick="downloadImg()">💾 下载高清图片</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="vip" id="vip">
-    <h2>🔥 会员无限生成 + 无水印 + 商用权限</h2>
-    <p style="margin:10px 0">开通会员：无限次AI生成 + 全部作品可商用</p>
-    <button class="btn btn-primary" onclick="payVIP()">立即开通（支付$9.9/月）</button>
-  </div>
-
-  <div class="section" id="community">
-    <h2 class="title">🌍 全球纹身社区</h2>
-    <div class="grid">
-      <div class="card"><h3>📤 发布作品</h3><p>上传纹身作品，获得全球曝光</p></div>
-      <div class="card"><h3>❤️ 点赞收藏</h3><p>收藏喜欢的设计，随时查看</p></div>
-      <div class="card"><h3>💬 评论交流</h3><p>与纹身师、爱好者实时交流</p></div>
-    </div>
-  </div>
-
-  <div class="section" id="artist">
-    <h2 class="title">🧑‍🎨 纹身师入驻</h2>
-    <div class="grid">
-      <div class="card"><h3>📇 个人主页</h3><p>打造专业纹身师品牌形象</p></div>
-      <div class="card"><h3>💰 在线接单</h3><p>接收全球客户定制，自动收款</p></div>
-      <div class="card"><h3>📈 流量扶持</h3><p>平台流量倾斜，获得更多客户</p></div>
-    </div>
-    <div style="text-align:center;margin-top:30px">
-      <button class="btn btn-primary" onclick="applyArtist()">立即入驻</button>
-    </div>
+  <div class="ai-box">
+    <h2>🎨 AI商用纹身生成</h2>
+    <input id="p" placeholder="关键词：水墨龙/莲花/凤凰/锦鲤">
+    <select id="s">
+      <option>水墨国风</option>
+      <option>新中式</option>
+      <option>暗黑国风</option>
+    </select>
+    <button class="btn" onclick="go()">🚀 生成高清纹身</button>
+    <div class="result" id="result"></div>
   </div>
 </div>
 
-<div class="footer">© 2025 InkAI.life - 商用AI纹身平台 | 版权所有</div>
-
-<div class="modal" id="loginModal">
+<div class="modal" id="modal">
   <div class="modal-box">
-    <h3 class="modal-title">用户登录</h3>
-    <div class="form-item"><label>账号</label><input placeholder="请输入账号"></div>
-    <div class="form-item"><label>密码</label><input type="password" placeholder="请输入密码"></div>
-    <button class="btn btn-primary" style="width:100%;margin-top:10px" onclick="login()">登录</button>
-    <p style="text-align:center;margin-top:16px;color:#ccc;cursor:pointer" onclick="closeModal(),openRegister()">没有账号？立即注册</p>
-  </div>
-</div>
-
-<div class="modal" id="regModal">
-  <div class="modal-box">
-    <h3 class="modal-title">用户注册</h3>
-    <div class="form-item"><label>账号</label><input placeholder="设置账号"></div>
-    <div class="form-item"><label>密码</label><input type="password" placeholder="设置密码"></div>
-    <div class="form-item"><label>邮箱</label><input placeholder="用于接收通知"></div>
-    <button class="btn btn-primary" style="width:100%;margin-top:10px" onclick="register()">注册</button>
-    <p style="text-align:center;margin-top:16px;color:#ccc;cursor:pointer" onclick="closeModal(),openLogin()">已有账号？立即登录</p>
+    <div id="form"></div>
   </div>
 </div>
 
 <script>
-let user = null;
-function startAI(){const p=document.getElementById("prompt").value;if(!p){alert("请输入关键词");return}
-document.getElementById("loading").style.display="block";document.getElementById("result").style.display="none";
-const s=document.getElementById("style").value;const po=document.getElementById("pos").value;
-const t=encodeURIComponent(p+s+po);
-setTimeout(()=>{document.getElementById("img1").src=`https://picsum.photos/seed/${t}a/800/800`;document.getElementById("img2").src=`https://picsum.photos/seed/${t}b/800/800`;document.getElementById("loading").style.display="none";document.getElementById("result").style.display="block"},4000)}
-function downloadImg(){alert("高清图片已下载（商用无水印）")}
-function payVIP(){alert("跳转支付：Stripe/PayPal支付$9.9，开通成功！")}
-function applyArtist(){alert("入驻申请已提交，审核通过即可接单")}
-function openLogin(){document.getElementById("loginModal").style.display="flex"}
-function openRegister(){document.getElementById("regModal").style.display="flex"}
-function closeModal(){document.querySelectorAll(".modal").forEach(m=>m.style.display="none")}
-function login(){user={name:"test"};alert("登录成功");closeModal()}
-function register(){alert("注册成功，请登录");closeModal()}
+const API = 'https://你的render后端.onrender.com/api';
+let token = null;
+
+async function go() {
+  const r = await fetch(API+'/generate', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt: p.value, style: s.value })
+  });
+  const d = await r.json();
+  result.innerHTML = `<img src="${d.img}">`;
+}
+
+function login() {
+  form.innerHTML = `<h3>登录</h3><input placeholder="账号"><input placeholder="密码" type="password"><button class="btn" onclick="doLogin()">登录</button>`;
+  modal.style.display = 'grid';
+}
+
+async function pay() {
+  const r = await fetch(API+'/pay');
+  const d = await r.json();
+  window.open(d.url);
+}
 </script>
 </body>
 </html>
