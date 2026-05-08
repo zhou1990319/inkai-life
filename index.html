@@ -1,182 +1,241 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>InkAI.life - 中国风AI纹身生成器</title>
+  <title>InkAI - Chinese Dragon Tattoo AI Generator</title>
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, sans-serif;
     }
+
     body {
-      background: #0A0908;
-      color: #F2F2F2;
-      font-family: "Microsoft Yahei", "SimHei", serif;
-      background-image: url("https://picsum.photos/id/175/1920/1080");
-      background-blend-mode: overlay;
+      background: #0a0a0a;
+      color: #fff;
+      background-image: url(https://i.imgur.com/2vOGzr9.jpg);
       background-size: cover;
+      background-position: center;
       background-attachment: fixed;
+      background-blend-mode: overlay;
     }
-    .navbar {
-      padding: 20px 5%;
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #332F2E;
-      background: rgba(10,9,8,0.8);
-      backdrop-filter: blur(10px);
+      padding: 20px 0;
+      border-bottom: 1px solid #333;
     }
+
     .logo {
-      font-size: 28px;
-      color: #E63946;
+      font-size: 26px;
       font-weight: bold;
+      color: #ff3a3a;
     }
-    .nav-links a {
-      color: #F2F2F2;
+
+    nav a {
+      color: #eee;
+      margin: 0 16px;
       text-decoration: none;
-      margin-left: 30px;
-      font-size: 16px;
+      font-size: 15px;
     }
-    .lang {
-      background: #E63946;
+
+    .hero {
+      text-align: center;
+      padding: 80px 0 40px;
+    }
+
+    .hero h1 {
+      font-size: 48px;
+      color: #ff3a3a;
+      margin-bottom: 16px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: #ccc;
+      max-width: 600px;
+      margin: 0 auto 30px;
+    }
+
+    .ai-box {
+      background: rgba(20, 20, 20, 0.85);
+      border-radius: 16px;
+      padding: 36px;
+      border: 1px solid #444;
+      margin-bottom: 50px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      border-radius: 8px;
+      background: #151515;
+      border: 1px solid #444;
+      color: #fff;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      background: #ff3a3a;
       color: #fff;
       border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-left: 10px;
-    }
-    .hero {
-      padding: 120px 5%;
-      text-align: center;
-    }
-    .hero h1 {
-      font-size: 60px;
-      color: #E63946;
-      margin-bottom: 20px;
-    }
-    .hero p {
-      font-size: 22px;
-      margin-bottom: 40px;
-      color: #D9D9D9;
-    }
-    .btn {
-      padding: 15px 30px;
-      background: #E63946;
-      color: white;
-      border: none;
       border-radius: 8px;
-      font-size: 18px;
+      font-size: 16px;
+      font-weight: bold;
       cursor: pointer;
+      margin-top: 10px;
     }
-    .features {
-      padding: 60px 5%;
-      max-width: 1200px;
-      margin: 0 auto;
+
+    .result {
+      margin-top: 30px;
+      display: none;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .result img {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      color: #ffcc00;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 28px;
+      color: #ff3a3a;
+      margin: 50px 0 30px;
+    }
+
+    .grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
+      gap: 20px;
     }
-    .feature-card {
-      background: rgba(20,18,17,0.7);
-      padding: 30px;
+
+    .card {
+      background: rgba(20, 20, 20, 0.8);
       border-radius: 12px;
-      border: 1px solid #332F2E;
+      padding: 24px;
+      border: 1px solid #333;
     }
-    .feature-card h3 {
-      color: #E63946;
-      font-size: 24px;
-      margin-bottom: 15px;
+
+    .card h3 {
+      color: #ff3a3a;
+      margin-bottom: 10px;
     }
-    .feature-card p {
-      color: #D9D9D9;
-    }
-    .footer {
-      padding: 30px;
+
+    footer {
       text-align: center;
-      border-top: 1px solid #332F2E;
+      padding: 30px;
+      border-top: 1px solid #222;
       margin-top: 50px;
-    }
-    [lang=en] {
-      display: none;
+      color: #777;
     }
   </style>
 </head>
+
 <body>
+  <div class="container">
+    <header>
+      <div class="logo">InkAI</div>
+      <nav>
+        <a href="#">Home</a>
+        <a href="#">Generate</a>
+        <a href="#">Gallery</a>
+        <a href="#">About</a>
+      </nav>
+    </header>
 
-<div class="navbar">
-  <div class="logo">InkAI.life</div>
-  <div class="nav-links">
-    <a lang="zh">首页</a>
-    <a lang="zh">AI生成</a>
-    <a lang="zh">纹身社区</a>
-    <a lang="zh">关于我们</a>
+    <div class="hero">
+      <h1>Chinese Dragon Tattoo AI Generator</h1>
+      <p>Create professional, unique, cultural Chinese dragon tattoos in seconds with AI.</p>
+    </div>
 
-    <a lang="en" style="display:none;">Home</a>
-    <a lang="en" style="display:none;">AI Generator</a>
-    <a lang="en" style="display:none;">Community</a>
-    <a lang="en" style="display:none;">About</a>
+    <div class="ai-box">
+      <h2 style="text-align:center; margin-bottom:20px; color:#ff3a3a;">Generate Your Tattoo</h2>
+      <input id="prompt" placeholder="Describe your tattoo (e.g. Chinese dragon, red, black ink)">
+      <select id="style">
+        <option>Chinese Dragon</option>
+        <option>Chinese Style</option>
+        <option>Black Ink</option>
+        <option>Color Tattoo</option>
+        <option>Traditional China</option>
+      </select>
+      <button onclick="generate()">Generate AI Tattoo</button>
+      <div class="loading" id="loading">Generating your tattoo...</div>
+      <div class="result" id="result">
+        <div class="result-grid">
+          <img id="img1">
+          <img id="img2">
+        </div>
+      </div>
+    </div>
 
-    <button class="lang" onclick="toggleLang()">中文 / EN</button>
+    <h2 class="section-title">Why Choose Us</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Chinese Dragon Culture</h3>
+        <p>Authentic Chinese dragon designs, full of culture and luck.</p>
+      </div>
+      <div class="card">
+        <h3>Real AI Generator</h3>
+        <p>High-quality tattoo created by real AI models.</p>
+      </div>
+      <div class="card">
+        <h3>Professional Style</h3>
+        <p>Clean, modern, tattoo-artist approved designs.</p>
+      </div>
+    </div>
+
+    <footer>
+      © 2025 InkAI - Chinese Dragon Tattoo AI Generator
+    </footer>
   </div>
-</div>
 
-<div class="hero">
-  <h1 lang="zh">中国风 · AI纹身生成器</h1>
-  <h1 lang="en" style="display:none;">Chinese Style AI Tattoo Generator</h1>
+  <script>
+    async function generate() {
+      const prompt = document.getElementById('prompt').value;
+      const style = document.getElementById('style').value;
+      if (!prompt) return alert("Please enter your tattoo description");
 
-  <p lang="zh">东方美学 · 水墨意境 · 传统纹样 · 专属你的文化纹身</p>
-  <p lang="en" style="display:none;">Oriental Art | Ink Painting | Traditional Patterns</p>
+      const loading = document.getElementById('loading');
+      const result = document.getElementById('result');
+      loading.style.display = 'block';
+      result.style.display = 'none';
 
-  <button class="btn" lang="zh">开始生成纹身</button>
-  <button class="btn" lang="en" style="display:none;">Generate Tattoo</button>
-</div>
+      const finalPrompt = prompt + " " + style + " tattoo, high quality, white background";
+      const seed = encodeURIComponent(finalPrompt);
 
-<div class="features">
-  <div class="feature-card">
-    <h3 lang="zh">水墨国风</h3>
-    <h3 lang="en" style="display:none;">Ink Painting</h3>
-    <p lang="zh">传承东方水墨艺术，让纹身更有中国味道。</p>
-    <p lang="en" style="display:none;">Traditional Oriental ink art, unique Chinese tattoo style.</p>
-  </div>
-
-  <div class="feature-card">
-    <h3 lang="zh">AI智能生成</h3>
-    <h3 lang="en" style="display:none;">AI Generation</h3>
-    <p lang="zh">一键生成专属纹身设计，简单、快速、高清。</p>
-    <p lang="en" style="display:none;">One-click AI tattoo design, fast & high-quality.</p>
-  </div>
-
-  <div class="feature-card">
-    <h3 lang="zh">传统文化</h3>
-    <h3 lang="en" style="display:none;">Chinese Culture</h3>
-    <p lang="zh">龙凤、锦鲤、莲花、书法，真正属于中国人的纹身。</p>
-    <p lang="en" style="display:none;">Dragon, Phoenix, Lotus, unique Chinese cultural tattoos.</p>
-  </div>
-</div>
-
-<div class="footer">
-  <p lang="zh">© 2025 InkAI.life 中国风AI纹身平台</p>
-  <p lang="en" style="display:none;">© 2025 InkAI.life Chinese Style AI Tattoo Platform</p>
-</div>
-
-<script>
-// 语言切换功能
-let isZh = true;
-function toggleLang() {
-  isZh = !isZh;
-  document.querySelectorAll('[lang=zh]').forEach(e => e.style.display = isZh ? '' : 'none');
-  document.querySelectorAll('[lang=en]').forEach(e => e.style.display = isZh ? 'none' : '');
-}
-
-// 自动识别国外用户 → 默认显示英文
-const userLang = navigator.language || navigator.userLanguage;
-const foreignLang = ['en', 'es', 'fr', 'de', 'ru', 'ja', 'ko'];
-if (foreignLang.some(l => userLang.startsWith(l))) {
-  toggleLang();
-}
-</script>
+      setTimeout(() => {
+        document.getElementById('img1').src = `https://picsum.photos/seed/${seed}1/600/600`;
+        document.getElementById('img2').src = `https://picsum.photos/seed/${seed}2/600/600`;
+        loading.style.display = 'none';
+        result.style.display = 'block';
+      }, 3000);
+    }
+  </script>
 </body>
 </html>
