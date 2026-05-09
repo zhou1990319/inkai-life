@@ -18,6 +18,7 @@ import ArtistDetail from './pages/ArtistDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AIGenerator from './pages/AIGenerator';
+import ArtistOnboarding from './pages/ArtistOnboarding';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Disclaimer from './pages/Disclaimer';
@@ -80,6 +81,7 @@ function App() {
               <Route path="/post/:id" element={<PostDetail />} />
               <Route path="/artist/:id" element={<ArtistDetail />} />
               <Route path="/ai-studio" element={<AIGenerator />} />
+              <Route path="/artist-apply" element={user ? <ArtistOnboarding /> : <Navigate to="/login" />} />
               <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
               <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
               <Route path="/terms" element={<Terms />} />

@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Search, Bell, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../../supabase/client';
 
 const navItems = [
   { path: '/', label: 'Home', icon: 'fa-home' },
@@ -12,7 +13,23 @@ const navItems = [
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isArtist, setIsArtist] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    const checkArtistStatus = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('is_artist')
+          .eq('id', session.user.id)
+          .single();
+        setIsArtist(data?.is_artist || false);
+      }
+    };
+    checkArtistStatus();
+  }, [location]);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950 border-b border-amber-700/30">
@@ -45,6 +62,15 @@ export default function Header() {
           </nav>
 
           <div className="hidden md:flex items-center space-x-4">
+            {!isArtist && (
+              <Link
+                to="/artist-apply"
+                className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 font-semibold rounded-full hover:from-amber-400 hover:to-amber-500 transition-all flex items-center gap-2"
+              >
+                <i className="fa-solid fa-paint-brush text-sm" />
+                <span>Become Artist</span>
+              </Link>
+            )}
             <button className="p-2 text-stone-400 hover:text-amber-400 transition-colors">
               <Search className="w-5 h-5" />
             </button>

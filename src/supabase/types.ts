@@ -49,6 +49,51 @@ export type Database = {
           },
         ]
       }
+      artist_applications: {
+        Row: {
+          bio: string | null
+          created_at: string | null
+          id: string
+          instagram: string | null
+          location: string | null
+          portfolio_urls: string[] | null
+          price_range: string | null
+          status: string | null
+          styles: string[] | null
+          updated_at: string | null
+          user_id: string
+          years_experience: number | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string | null
+          id?: string
+          instagram?: string | null
+          location?: string | null
+          portfolio_urls?: string[] | null
+          price_range?: string | null
+          status?: string | null
+          styles?: string[] | null
+          updated_at?: string | null
+          user_id: string
+          years_experience?: number | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string | null
+          id?: string
+          instagram?: string | null
+          location?: string | null
+          portfolio_urls?: string[] | null
+          price_range?: string | null
+          status?: string | null
+          styles?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
       artist_portfolios: {
         Row: {
           artist_id: string
