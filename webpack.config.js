@@ -1,0 +1,90 @@
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
+
+module.exports = (env, argv) => {
+  const isDev = argv.mode !== 'production';
+
+  return {
+    mode: isDev ? 'development' : 'production',
+    entry: './src/index.tsx',
+    output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: 'bundle.js',
+      publicPath: 'auto'
+    },
+    module: {
+      rules: [
+        {
+          test: /\.mjs$/,
+          include: /node_modules/,
+          type: 'javascript/auto',
+          resolve: {
+            fullySpecified: false,
+          },
+        },
+        {
+          test: /\.(ts|tsx|js|jsx)$/,
+          exclude: /node_modules/,
+          use: {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                [
+                  '@babel/preset-react',
+                  {
+                    runtime: 'automatic',
+                    development: isDev
+                  }
+                ],
+                '@babel/preset-env',
+                '@babel/preset-typescript'
+              ]
+            }
+          }
+        },
+        {
+          test: /\.css$/,
+          use: ['style-loader', 'css-loader', 'postcss-loader']
+        },
+        {
+          test: /\.(png|jpe?g|gif|webp|ico|svg)$/i,
+          type: 'asset',
+          parser: { dataUrlCondition: { maxSize: 8 * 1024 } }
+        },
+        {
+          test: /\.(woff2?|eot|ttf|otf)$/i,
+          type: 'asset/resource'
+        },
+        {
+          // 鍏滃簳瑙勫垯锛歅DF銆佹枃妗ｃ€侀煶瑙嗛绛夋墍鏈夊叾浠栨枃浠朵竴寰嬭緭鍑轰负鐙珛璧勬簮鏂囦欢
+          exclude: /\.(js|jsx|ts|tsx|mjs|css|json|html)$/i,
+          type: 'asset/resource'
+        }
+      ]
+    },
+    resolve: {
+      extensions: ['.mjs', '.ts', '.tsx', '.js', '.jsx']
+    },
+    devServer: {
+      port: 3266,
+      allowedHosts: 'all',
+      historyApiFallback: {
+        index: '/index.html',
+        rewrites: [
+          { from: /^\/_p\/\d+\//, to: '/index.html' }
+        ]
+      }
+    },
+    plugins: [
+      new webpack.DefinePlugin({
+        'process.env.SUPABASE_URL': JSON.stringify(process.env.SUPABASE_URL || ''),
+        'process.env.SUPABASE_ANON_KEY': JSON.stringify(process.env.SUPABASE_ANON_KEY || ''),
+      }),
+      new HtmlWebpackPlugin({
+        template: './index.html',
+        inject: 'body'
+      })
+    ]
+  };
+};
