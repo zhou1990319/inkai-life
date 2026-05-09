@@ -57,7 +57,7 @@ module.exports = (env, argv) => {
           type: 'asset/resource'
         },
         {
-          // 鍏滃簳瑙勫垯锛歅DF銆佹枃妗ｃ€侀煶瑙嗛绛夋墍鏈夊叾浠栨枃浠朵竴寰嬭緭鍑轰负鐙珛璧勬簮鏂囦欢
+          // 兜底规则：PDF、文档、音视频等所有其他文件一律输出为独立资源文件
           exclude: /\.(js|jsx|ts|tsx|mjs|css|json|html)$/i,
           type: 'asset/resource'
         }

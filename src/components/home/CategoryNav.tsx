@@ -1,14 +1,14 @@
 import { motion } from 'framer-motion';
 
 const categories = [
-  { id: 'all', name: 'All', icon: '鉁? },
-  { id: 'ink-wash', name: 'Ink Wash', icon: '鉀帮笍' },
-  { id: 'dragon', name: 'Dragon', icon: '馃悏' },
-  { id: 'phoenix', name: 'Phoenix', icon: '馃敟' },
-  { id: 'dunhuang', name: 'Dunhuang', icon: '馃' },
-  { id: 'mythical', name: 'Mythical', icon: '馃' },
-  { id: 'calligraphy', name: 'Calligraphy', icon: '鉁掞笍' },
-  { id: 'koi', name: 'Koi', icon: '馃悷' },
+  { id: 'all', name: 'All', icon: '✦' },
+  { id: 'ink-wash', name: 'Ink Wash', icon: '⛰️' },
+  { id: 'dragon', name: 'Dragon', icon: '🐉' },
+  { id: 'phoenix', name: 'Phoenix', icon: '🔥' },
+  { id: 'dunhuang', name: 'Dunhuang', icon: '🧚' },
+  { id: 'mythical', name: 'Mythical', icon: '🦁' },
+  { id: 'calligraphy', name: 'Calligraphy', icon: '✒️' },
+  { id: 'koi', name: 'Koi', icon: '🐟' },
 ];
 
 interface CategoryNavProps {

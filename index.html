@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>InkAI - 鍥介绾硅韩鍒涗綔骞冲彴</title>
+  <title>InkAI - 国风纹身创作平台</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* 鍐呰仈鏍峰紡纭繚涓婚鑹茬珛鍗崇敓鏁堬紝閬垮厤闂儊 */
+    /* 内联样式确保主题色立即生效，避免闪烁 */
     html, body {
       margin: 0;
       padding: 0;
@@ -23,7 +23,7 @@
     }
   </style>
   <script>
-    // 鍦?React 鍔犺浇鍓嶇珛鍗宠缃富棰橈紝閬垮厤闂儊
+    // 在 React 加载前立即设置主题，避免闪烁
     (function() {
       const isInIframe = window.self !== window.top;
 
@@ -34,7 +34,7 @@
       }
 
       if (isInIframe) {
-        // 鐩戝惉鐖剁獥鍙ｄ富鍔ㄦ帹閫佺殑涓婚娑堟伅
+        // 监听父窗口主动推送的主题消息
         window.addEventListener('message', function(event) {
           if (event.data && typeof event.data.theme === 'string') {
             const theme = event.data.theme;
@@ -44,7 +44,7 @@
           }
         });
       } else {
-        // 闈?iframe 鐜锛屼娇鐢ㄩ粯璁?light 涓婚
+        // 非 iframe 环境，使用默认 light 主题
         applyThemeToDOM('light');
       }
     })();

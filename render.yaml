@@ -1,17 +1,15 @@
 services:
   # =============================================
-  # Web Service锛歩nkAI-life 绾硅韩绀惧尯骞冲彴
-  # 鏋勫缓鍛戒护锛氬畨瑁呬緷璧栧苟鎵撳寘鍓嶇
-  # 鍚姩鍛戒护锛氳繍琛?Express 鏈嶅姟鎵樼闈欐€佹枃浠?  # =============================================
+  # Web Service：inkAI-life 纹身社区平台
+  # 构建命令：安装依赖并打包前端
+  # 启动命令：运行 Express 服务托管静态文件
+  # =============================================
   - type: web
     name: inkai-life
     runtime: node
     repo: https://github.com/zhou1990319/inkai-life
     branch: main
-    buildCommand: |
-      npm install -g pnpm &&
-      pnpm install &&
-      pnpm build
+    buildCommand: npm install && npm run build
     startCommand: node server/index.js
     plan: free
     numInstances: 1

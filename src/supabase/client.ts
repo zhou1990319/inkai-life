@@ -1,12 +1,12 @@
 /**
  * Supabase client config
- * 鐜鍙橀噺閫氳繃 webpack.DefinePlugin 鍦ㄦ瀯寤烘椂娉ㄥ叆
+ * 环境变量通过 webpack.DefinePlugin 在构建时注入
  */
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
 export function getSupabaseUrl(): string {
-  // 浼樺厛浣跨敤娉ㄥ叆鐨勭幆澧冨彉閲忥紝fallback 鍒?MEOO 骞冲彴閰嶇疆
+  // 优先使用注入的环境变量，fallback 到 MEOO 平台配置
   return (typeof process !== 'undefined' && process.env?.SUPABASE_URL)
     ? process.env.SUPABASE_URL
     : ((window as any).MEOO_CONFIG?.meoo_app_access_url || location.origin) + '/sb-api';

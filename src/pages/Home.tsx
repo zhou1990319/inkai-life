@@ -5,12 +5,12 @@ import { Heart, MessageCircle, Sparkles, ArrowRight, Flame, Star } from 'lucide-
 import { supabase } from '../supabase/client';
 
 const CATEGORIES = [
-  { id: 'ink-wash', name: 'Ink Wash', icon: '鉀帮笍', desc: 'Traditional landscape' },
-  { id: 'dragon', name: 'Dragon', icon: '馃悏', desc: 'Power & prosperity' },
-  { id: 'phoenix', name: 'Phoenix', icon: '馃敟', desc: 'Rebirth & grace' },
-  { id: 'koi', name: 'Koi Fish', icon: '馃悷', desc: 'Luck & perseverance' },
-  { id: 'lotus', name: 'Lotus', icon: '馃', desc: 'Purity & enlightenment' },
-  { id: 'tiger', name: 'Tiger', icon: '馃悈', desc: 'Courage & strength' },
+  { id: 'ink-wash', name: 'Ink Wash', icon: '⛰️', desc: 'Traditional landscape' },
+  { id: 'dragon', name: 'Dragon', icon: '🐉', desc: 'Power & prosperity' },
+  { id: 'phoenix', name: 'Phoenix', icon: '🔥', desc: 'Rebirth & grace' },
+  { id: 'koi', name: 'Koi Fish', icon: '🐟', desc: 'Luck & perseverance' },
+  { id: 'lotus', name: 'Lotus', icon: '🪷', desc: 'Purity & enlightenment' },
+  { id: 'tiger', name: 'Tiger', icon: '🐅', desc: 'Courage & strength' },
 ];
 
 const FEATURED_ARTISTS = [
@@ -68,7 +68,7 @@ export default function Home() {
             transition={{ delay: 0.2 }}
             className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-amber-500 to-red-600 flex items-center justify-center"
           >
-            <span className="text-4xl font-bold text-white">澧?/span>
+            <span className="text-4xl font-bold text-white">墨</span>
           </motion.div>
           <h1 className="text-5xl md:text-7xl font-bold mb-4">
             <span className="bg-gradient-to-r from-amber-400 via-amber-500 to-red-500 bg-clip-text text-transparent">

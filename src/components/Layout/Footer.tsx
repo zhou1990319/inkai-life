@@ -55,7 +55,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-6 pt-6 border-t border-[#1a1a1a] text-center text-xs text-gray-500">
-          <p>漏 2024 InkAI.life. All rights reserved.</p>
+          <p>© 2024 InkAI.life. All rights reserved.</p>
           <p className="mt-1">
             AI-generated designs are for reference only. Consult professional tattoo artists before getting inked.
           </p>

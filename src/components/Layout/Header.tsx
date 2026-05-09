@@ -20,7 +20,7 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-600 to-red-700 flex items-center justify-center">
-              <span className="text-stone-100 font-bold text-lg">澧?/span>
+              <span className="text-stone-100 font-bold text-lg">墨</span>
             </div>
             <span className="text-xl font-bold text-stone-100 tracking-wider">
               InkAI<span className="text-amber-500">.life</span>

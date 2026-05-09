@@ -5,14 +5,14 @@ import { generateImage, extractImageUrl, compressImage } from '../services/aiIma
 import { uploadImage } from '../services/storage';
 
 const styles = [
-  { id: 'ink-wash', name: 'Ink Wash', icon: '姘村ⅷ' },
-  { id: 'dragon-phoenix', name: 'Dragon & Phoenix', icon: '榫欏嚖' },
-  { id: 'dunhuang', name: 'Dunhuang', icon: '鏁︾厡' },
-  { id: 'mythical', name: 'Mythical Beasts', icon: '绁炲吔' },
-  { id: 'calligraphy', name: 'Calligraphy', icon: '涔︽硶' },
-  { id: 'opera', name: 'Opera Mask', icon: '鑴歌氨' },
-  { id: 'totem', name: 'Totem', icon: '鍥捐吘' },
-  { id: 'koi', name: 'Koi & Flowers', icon: '閿﹂菠' },
+  { id: 'ink-wash', name: 'Ink Wash', icon: '水墨' },
+  { id: 'dragon-phoenix', name: 'Dragon & Phoenix', icon: '龙凤' },
+  { id: 'dunhuang', name: 'Dunhuang', icon: '敦煌' },
+  { id: 'mythical', name: 'Mythical Beasts', icon: '神兽' },
+  { id: 'calligraphy', name: 'Calligraphy', icon: '书法' },
+  { id: 'opera', name: 'Opera Mask', icon: '脸谱' },
+  { id: 'totem', name: 'Totem', icon: '图腾' },
+  { id: 'koi', name: 'Koi & Flowers', icon: '锦鲤' },
 ];
 
 const bodyParts = [

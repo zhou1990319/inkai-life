@@ -6,25 +6,25 @@ import { persistGeneratedImage } from '../../services/storage';
 import { analyzeTattooMeaning } from '../../services/aiChat';
 
 const CHINESE_STYLES = [
-  { id: 'ink-landscape', name: 'Ink Landscape', icon: '鉀帮笍' },
-  { id: 'dragon-phoenix', name: 'Dragon & Phoenix', icon: '馃悏' },
-  { id: 'dunhuang', name: 'Dunhuang Flying', icon: '馃' },
-  { id: 'mythical', name: 'Mythical Beasts', icon: '馃' },
-  { id: 'calligraphy', name: 'Calligraphy', icon: '鉁掞笍' },
-  { id: 'opera-mask', name: 'Opera Mask', icon: '馃幁' },
-  { id: 'totem', name: 'Traditional Totem', icon: '馃敭' },
-  { id: 'koi-flower', name: 'Koi & Flowers', icon: '馃尭' },
-  { id: 'taoist', name: 'Taoist Symbols', icon: '鈽笍' },
-  { id: 'ancient-figure', name: 'Ancient Figure', icon: '馃懁' },
-  { id: 'border', name: 'Chinese Border', icon: '猬? },
+  { id: 'ink-landscape', name: 'Ink Landscape', icon: '⛰️' },
+  { id: 'dragon-phoenix', name: 'Dragon & Phoenix', icon: '🐉' },
+  { id: 'dunhuang', name: 'Dunhuang Flying', icon: '🧚' },
+  { id: 'mythical', name: 'Mythical Beasts', icon: '🦁' },
+  { id: 'calligraphy', name: 'Calligraphy', icon: '✒️' },
+  { id: 'opera-mask', name: 'Opera Mask', icon: '🎭' },
+  { id: 'totem', name: 'Traditional Totem', icon: '🔮' },
+  { id: 'koi-flower', name: 'Koi & Flowers', icon: '🌸' },
+  { id: 'taoist', name: 'Taoist Symbols', icon: '☯️' },
+  { id: 'ancient-figure', name: 'Ancient Figure', icon: '👤' },
+  { id: 'border', name: 'Chinese Border', icon: '⬜' },
 ];
 
 const BODY_PARTS = [
-  { id: 'arm', name: 'Arm', icon: '馃挭' },
-  { id: 'back', name: 'Back', icon: '馃懁' },
-  { id: 'chest', name: 'Chest', icon: '鉂わ笍' },
-  { id: 'wrist', name: 'Wrist', icon: '鈱? },
-  { id: 'collarbone', name: 'Collarbone', icon: '馃Υ' },
+  { id: 'arm', name: 'Arm', icon: '💪' },
+  { id: 'back', name: 'Back', icon: '👤' },
+  { id: 'chest', name: 'Chest', icon: '❤️' },
+  { id: 'wrist', name: 'Wrist', icon: '⌚' },
+  { id: 'collarbone', name: 'Collarbone', icon: '🦴' },
 ];
 
 export default function ImageGenerator() {

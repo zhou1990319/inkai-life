@@ -6,9 +6,9 @@ import type { Database } from './supabase/types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
-import Header from './components/layout/Header';
-import BottomNav from './components/layout/BottomNav';
-import Footer from './components/layout/Footer';
+import Header from './components/Layout/Header';
+import BottomNav from './components/Layout/BottomNav';
+import Footer from './components/Layout/Footer';
 import Home from './pages/Home';
 import Explore from './pages/Explore';
 import Create from './pages/Create';

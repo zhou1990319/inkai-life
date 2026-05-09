@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InkAI - 国风纹身创作平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <style>
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .dark { background-color: #1a1a1a; color: white; }
+    .light { background-color: white; color: black; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    // 简易版 InkAI 前端（纯静态，不用构建）
+    const { useState, useEffect } = React;
+    
+    function App() {
+      const [theme, setTheme] = useState('light');
+      
+      return React.createElement('div', { className: theme },
+        React.createElement('header', { style: { padding: '20px', borderBottom: '1px solid #ccc' } },
+          React.createElement('h1', null, '🎨 InkAI - 国风纹身创作平台'),
+          React.createElement('button', { onClick: () => setTheme(theme === 'light' ? 'dark' : 'light') }, 
+            theme === 'light' ? '🌙 深色' : '☀️ 浅色')
+        ),
+        React.createElement('main', { style: { padding: '20px' } },
+          React.createElement('p', null, '欢迎来到 InkAI！目前是静态版本，数据库功能即将上线。'),
+          React.createElement('p', null, 'Supabase URL: ', process.env.SUPABASE_URL || '未配置')
+        )
+      );
+    }
+    
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+  </script>
+</body>
+</html>
