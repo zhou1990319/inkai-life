@@ -1,241 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>InkAI - Chinese Dragon Tattoo AI Generator</title>
+  <title>InkAI - 鍥介绾硅韩鍒涗綔骞冲彴</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * {
+    /* 鍐呰仈鏍峰紡纭繚涓婚鑹茬珛鍗崇敓鏁堬紝閬垮厤闂儊 */
+    html, body {
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Roboto, sans-serif;
-    }
-
-    body {
-      background: #0a0a0a;
-      color: #fff;
-      background-image: url(https://i.imgur.com/2vOGzr9.jpg);
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      background-blend-mode: overlay;
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 0;
-      border-bottom: 1px solid #333;
-    }
-
-    .logo {
-      font-size: 26px;
-      font-weight: bold;
-      color: #ff3a3a;
-    }
-
-    nav a {
-      color: #eee;
-      margin: 0 16px;
-      text-decoration: none;
-      font-size: 15px;
-    }
-
-    .hero {
-      text-align: center;
-      padding: 80px 0 40px;
-    }
-
-    .hero h1 {
-      font-size: 48px;
-      color: #ff3a3a;
-      margin-bottom: 16px;
-    }
-
-    .hero p {
-      font-size: 18px;
-      color: #ccc;
-      max-width: 600px;
-      margin: 0 auto 30px;
-    }
-
-    .ai-box {
-      background: rgba(20, 20, 20, 0.85);
-      border-radius: 16px;
-      padding: 36px;
-      border: 1px solid #444;
-      margin-bottom: 50px;
-    }
-
-    input, select {
       width: 100%;
-      padding: 14px;
-      margin: 10px 0;
-      border-radius: 8px;
-      background: #151515;
-      border: 1px solid #444;
-      color: #fff;
-      font-size: 15px;
+      height: 100%;
     }
-
-    button {
-      width: 100%;
-      padding: 16px;
-      background: #ff3a3a;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
+    html.light, html.light body {
+      background-color: #ffffff !important;
+      color: #000000;
     }
-
-    .result {
-      margin-top: 30px;
-      display: none;
-    }
-
-    .result-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-
-    .result img {
-      width: 100%;
-      border-radius: 10px;
-    }
-
-    .loading {
-      display: none;
-      text-align: center;
-      padding: 20px;
-      color: #ffcc00;
-    }
-
-    .section-title {
-      text-align: center;
-      font-size: 28px;
-      color: #ff3a3a;
-      margin: 50px 0 30px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-
-    .card {
-      background: rgba(20, 20, 20, 0.8);
-      border-radius: 12px;
-      padding: 24px;
-      border: 1px solid #333;
-    }
-
-    .card h3 {
-      color: #ff3a3a;
-      margin-bottom: 10px;
-    }
-
-    footer {
-      text-align: center;
-      padding: 30px;
-      border-top: 1px solid #222;
-      margin-top: 50px;
-      color: #777;
+    html.dark, html.dark body {
+      background-color: #1a1a1a !important;
+      color: #ffffff;
     }
   </style>
-</head>
-
-<body>
-  <div class="container">
-    <header>
-      <div class="logo">InkAI</div>
-      <nav>
-        <a href="#">Home</a>
-        <a href="#">Generate</a>
-        <a href="#">Gallery</a>
-        <a href="#">About</a>
-      </nav>
-    </header>
-
-    <div class="hero">
-      <h1>Chinese Dragon Tattoo AI Generator</h1>
-      <p>Create professional, unique, cultural Chinese dragon tattoos in seconds with AI.</p>
-    </div>
-
-    <div class="ai-box">
-      <h2 style="text-align:center; margin-bottom:20px; color:#ff3a3a;">Generate Your Tattoo</h2>
-      <input id="prompt" placeholder="Describe your tattoo (e.g. Chinese dragon, red, black ink)">
-      <select id="style">
-        <option>Chinese Dragon</option>
-        <option>Chinese Style</option>
-        <option>Black Ink</option>
-        <option>Color Tattoo</option>
-        <option>Traditional China</option>
-      </select>
-      <button onclick="generate()">Generate AI Tattoo</button>
-      <div class="loading" id="loading">Generating your tattoo...</div>
-      <div class="result" id="result">
-        <div class="result-grid">
-          <img id="img1">
-          <img id="img2">
-        </div>
-      </div>
-    </div>
-
-    <h2 class="section-title">Why Choose Us</h2>
-    <div class="grid">
-      <div class="card">
-        <h3>Chinese Dragon Culture</h3>
-        <p>Authentic Chinese dragon designs, full of culture and luck.</p>
-      </div>
-      <div class="card">
-        <h3>Real AI Generator</h3>
-        <p>High-quality tattoo created by real AI models.</p>
-      </div>
-      <div class="card">
-        <h3>Professional Style</h3>
-        <p>Clean, modern, tattoo-artist approved designs.</p>
-      </div>
-    </div>
-
-    <footer>
-      © 2025 InkAI - Chinese Dragon Tattoo AI Generator
-    </footer>
-  </div>
-
   <script>
-    async function generate() {
-      const prompt = document.getElementById('prompt').value;
-      const style = document.getElementById('style').value;
-      if (!prompt) return alert("Please enter your tattoo description");
+    // 鍦?React 鍔犺浇鍓嶇珛鍗宠缃富棰橈紝閬垮厤闂儊
+    (function() {
+      const isInIframe = window.self !== window.top;
 
-      const loading = document.getElementById('loading');
-      const result = document.getElementById('result');
-      loading.style.display = 'block';
-      result.style.display = 'none';
+      function applyThemeToDOM(theme) {
+        document.documentElement.classList.remove('light', 'dark');
+        document.documentElement.classList.add(theme);
+        document.documentElement.setAttribute('data-theme', theme);
+      }
 
-      const finalPrompt = prompt + " " + style + " tattoo, high quality, white background";
-      const seed = encodeURIComponent(finalPrompt);
-
-      setTimeout(() => {
-        document.getElementById('img1').src = `https://picsum.photos/seed/${seed}1/600/600`;
-        document.getElementById('img2').src = `https://picsum.photos/seed/${seed}2/600/600`;
-        loading.style.display = 'none';
-        result.style.display = 'block';
-      }, 3000);
-    }
+      if (isInIframe) {
+        // 鐩戝惉鐖剁獥鍙ｄ富鍔ㄦ帹閫佺殑涓婚娑堟伅
+        window.addEventListener('message', function(event) {
+          if (event.data && typeof event.data.theme === 'string') {
+            const theme = event.data.theme;
+            if (theme === 'light' || theme === 'dark') {
+              applyThemeToDOM(theme);
+            }
+          }
+        });
+      } else {
+        // 闈?iframe 鐜锛屼娇鐢ㄩ粯璁?light 涓婚
+        applyThemeToDOM('light');
+      }
+    })();
   </script>
+</head>
+<body>
+  <div id="root"></div>
 </body>
 </html>
