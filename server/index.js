@@ -16,6 +16,107 @@ app.use(express.static(path.join(__dirname, '../dist')));
 // Health check
 app.get('/health', (req, res) => res.send('OK'));
 
+// ========== Supabase Storage Buckets 管理 ==========
+
+/**
+ * 获取所有 buckets
+ */
+app.get('/api/buckets', async (req, res) => {
+  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+  if (!SUPABASE_SERVICE_KEY) {
+    return res.status(500).json({ error: 'Missing SUPABASE_SERVICE_KEY' });
+  }
+
+  try {
+    const response = await fetch('https://zgolsxdwilktnxbzxfcw.supabase.co/storage/v1/bucket', {
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'apikey': SUPABASE_SERVICE_KEY,
+      },
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * 创建 Storage Bucket
+ */
+app.post('/api/buckets', async (req, res) => {
+  const { id, name, public: isPublic = true } = req.body;
+  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+  
+  if (!SUPABASE_SERVICE_KEY) {
+    return res.status(500).json({ error: 'Missing SUPABASE_SERVICE_KEY' });
+  }
+  
+  if (!id || !name) {
+    return res.status(400).json({ error: 'id and name are required' });
+  }
+
+  try {
+    const response = await fetch('https://zgolsxdwilktnxbzxfcw.supabase.co/storage/v1/bucket', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'apikey': SUPABASE_SERVICE_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id, name, public: isPublic }),
+    });
+    const data = await response.json();
+    
+    if (!response.ok) {
+      return res.status(response.status).json(data);
+    }
+    
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * 初始化所需的 buckets（纹身图片、AI生成图、设计稿）
+ */
+app.post('/api/init-buckets', async (req, res) => {
+  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+  
+  if (!SUPABASE_SERVICE_KEY) {
+    return res.status(500).json({ error: 'Missing SUPABASE_SERVICE_KEY' });
+  }
+
+  const buckets = [
+    { id: 'tattoo-images', name: 'tattoo-images', public: true },
+    { id: 'ai-generated', name: 'ai-generated', public: true },
+    { id: 'tattoo-designs', name: 'tattoo-designs', public: true },
+  ];
+
+  const results = [];
+  
+  for (const bucket of buckets) {
+    try {
+      const response = await fetch('https://zgolsxdwilktnxbzxfcw.supabase.co/storage/v1/bucket', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+          'apikey': SUPABASE_SERVICE_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bucket),
+      });
+      const data = await response.json();
+      results.push({ bucket: bucket.id, status: response.ok ? 'created' : data });
+    } catch (err) {
+      results.push({ bucket: bucket.id, status: 'error', error: err.message });
+    }
+  }
+
+  res.json({ results });
+});
+
 // ========== API 路由 ==========
 
 /**
