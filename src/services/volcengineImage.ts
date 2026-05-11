@@ -4,8 +4,14 @@
 import { supabase } from '../supabase/client';
 
 // ========== 配置 ==========
-const ARK_API_KEY = 'ark-6b3fbf0f-2778-4bf6-a09f-c06b08d6b69d-796cd';
+// 由 webpack.DefinePlugin 从 .env.production 注入
+// 如注入失败则使用空字符串(构建时会报警告)
+const ARK_API_KEY: string = (process as any).env.ARK_API_KEY || '';
 const ARK_ENDPOINT = 'https://ark.cn-beijing.volces.com/api/v3/images/generations';
+
+if (!ARK_API_KEY) {
+  console.error('[Volcengine] 缺少 ARK_API_KEY！请在 .env.production 中配置。');
+}
 
 // 支持的模型
 export type VolcengineImageModel = 'doubao-seedream-5-0-260128' | 'doubao-seedream-4-5-251128' | 'doubao-seedream-4-0-250828';
