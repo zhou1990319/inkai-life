@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Search, Bell, User } from 'lucide-react';
+import { Menu, X, Search, Bell, User, Crown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../supabase/client';
 
@@ -14,21 +14,23 @@ const navItems = [
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isArtist, setIsArtist] = useState(false);
+  const [currentPlan, setCurrentPlan] = useState('free');
   const location = useLocation();
 
   useEffect(() => {
-    const checkArtistStatus = async () => {
+    const checkUserStatus = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         const { data } = await supabase
           .from('profiles')
-          .select('is_artist')
+          .select('is_artist, current_plan')
           .eq('id', session.user.id)
           .single();
         setIsArtist(data?.is_artist || false);
+        setCurrentPlan(data?.current_plan || 'free');
       }
     };
-    checkArtistStatus();
+    checkUserStatus();
   }, [location]);
 
   return (
@@ -62,6 +64,23 @@ export default function Header() {
           </nav>
 
           <div className="hidden md:flex items-center space-x-4">
+            {/* 会员入口 */}
+            <Link
+              to="/pricing"
+              className={`px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 transition-all ${
+                currentPlan === 'free'
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 hover:from-amber-400 hover:to-orange-400'
+                  : currentPlan === 'lifetime'
+                  ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-stone-950'
+                  : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+              }`}
+            >
+              <Crown className="w-4 h-4" />
+              <span>
+                {currentPlan === 'free' ? '升级' : currentPlan === 'monthly' ? '月卡' : currentPlan === 'yearly' ? '年卡' : 'VIP'}
+              </span>
+            </Link>
+
             {!isArtist && (
               <Link
                 to="/artist-apply"

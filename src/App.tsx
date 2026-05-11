@@ -22,6 +22,7 @@ import ArtistOnboarding from './pages/ArtistOnboarding';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Disclaimer from './pages/Disclaimer';
+import Pricing from './pages/Pricing';
 
 function App() {
   const [user, setUser] = useState<Profile | null>(null);
@@ -82,6 +83,7 @@ function App() {
               <Route path="/artist/:id" element={<ArtistDetail />} />
               <Route path="/ai-studio" element={<AIGenerator />} />
               <Route path="/artist-apply" element={user ? <ArtistOnboarding /> : <Navigate to="/login" />} />
+              <Route path="/pricing" element={<Pricing user={user} />} />
               <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
               <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
               <Route path="/terms" element={<Terms />} />
