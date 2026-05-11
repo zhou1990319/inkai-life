@@ -1,24 +1,17 @@
 /**
  * Supabase client config
- * 直接使用注入的环境变量（Render 构建时替换）
- *  fallback：直连 Supabase 项目
+ * Supabase 配置直接内联，避免 webpack DefinePlugin 注入失败
  */
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const supabaseUrl = (
-  typeof process !== 'undefined' && process.env?.SUPABASE_URL
-) ? process.env.SUPABASE_URL : 'https://zgolsxdwilktnxbzxfcw.supabase.co';
+const supabaseUrl = 'https://zgolsxdwilktnxbzxfcw.supabase.co';
 
-const supabaseAnonKey = (
-  typeof process !== 'undefined' && process.env?.SUPABASE_ANON_KEY
-) ? process.env.SUPABASE_ANON_KEY : '';
+const supabaseAnonKey =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpnb2xzeGR3aWxrdG54Ynp4ZmN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyOTI5MDAsImV4cCI6MjA5Mzg2ODkwMH0.atU-vi-uwJKNegdmptDkvOyC4wPiK7ckNRwEJCDao8I';
 
 if (!supabaseAnonKey) {
-  console.error(
-    '[Supabase] 缺少 SUPABASE_ANON_KEY！' +
-    '请在 Render Dashboard → Environment 中设置，或提供正确的 anon key。'
-  );
+  console.error('[Supabase] 缺少 SUPABASE_ANON_KEY！');
 }
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
