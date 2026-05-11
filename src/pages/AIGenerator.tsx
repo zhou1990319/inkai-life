@@ -23,6 +23,46 @@ const bodyParts = [
   { id: 'collarbone', name: 'Collarbone' },
 ];
 
+/**
+ * 使用 Canvas 压缩图片
+ * @param file 原始图片文件
+ * @param maxWidth 最大宽度（像素）
+ * @param quality 压缩质量 0-1
+ * @returns base64 编码的压缩后图片
+ */
+function compressImage(file: File, maxWidth: number, quality: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        // 计算压缩后的尺寸
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+
+        // 使用 Canvas 压缩
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // 输出为 base64
+        const compressedBase64 = canvas.toDataURL(file.type, quality).split(',')[1];
+        resolve(compressedBase64);
+      };
+      img.onerror = reject;
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function AIGenerator() {
   const [prompt, setPrompt] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('ink-wash');
@@ -71,14 +111,8 @@ export default function AIGenerator() {
     if (!file) return;
     setError(null);
     try {
-      // 转换为 base64
-      const arrayBuffer = await file.arrayBuffer();
-      const uint8Array = new Uint8Array(arrayBuffer);
-      let binary = '';
-      for (let i = 0; i < uint8Array.length; i++) {
-        binary += String.fromCharCode(uint8Array[i]);
-      }
-      const base64 = btoa(binary);
+      // 使用 Canvas 压缩图片到 800px 宽度，质量 0.8
+      const compressedBase64 = await compressImage(file, 800, 0.8);
 
       // 通过服务端 API 上传（绕过 RLS 限制）
       const response = await fetch('/api/upload-image', {
@@ -87,7 +121,7 @@ export default function AIGenerator() {
         body: JSON.stringify({
           bucket: 'tattoo-images',
           fileName: file.name,
-          fileData: base64,
+          fileData: compressedBase64,
           contentType: file.type,
         }),
       });

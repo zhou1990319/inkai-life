@@ -7,8 +7,8 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 解析 JSON body
-app.use(express.json({ limit: '10mb' }));
+// 解析 JSON body，增大到50mb以支持大文件上传
+app.use(express.json({ limit: '50mb' }));
 
 // 静态文件（生产环境）
 app.use(express.static(path.join(__dirname, '../dist')));
