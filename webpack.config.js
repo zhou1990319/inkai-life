@@ -88,10 +88,16 @@ module.exports = (env, argv) => {
         'process.env.SUPABASE_URL': JSON.stringify(process.env.SUPABASE_URL || ''),
         'process.env.SUPABASE_ANON_KEY': JSON.stringify(process.env.SUPABASE_ANON_KEY || ''),
       }),
+      // 防止压缩工具移除关键函数
+      new webpack.optimize.ModuleConcatenationPlugin(),
       new HtmlWebpackPlugin({
         template: './index.html',
         inject: 'body'
       })
-    ]
+    ],
+    // 防止terser移除关键代码
+    optimization: {
+      minimize: false,
+    }
   };
 };
