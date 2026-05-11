@@ -69,8 +69,18 @@ export default function AIGenerator() {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const { publicUrl } = await uploadImage(file, 'ai-generated');
-    setUploadedImage(publicUrl);
+    setError(null);
+    try {
+      // 上传到 tattoo-images bucket（存用户原始上传图）
+      const { publicUrl } = await uploadImage(file, 'tattoo-images');
+      setUploadedImage(publicUrl);
+    } catch (err) {
+      console.error('[AIGenerator] Upload failed:', err);
+      setError(err instanceof Error ? err.message : '图片上传失败，请重试');
+    } finally {
+      // 重置 input 允许重复上传同一文件
+      e.target.value = '';
+    }
   };
 
   return (
