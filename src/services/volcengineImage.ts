@@ -20,6 +20,7 @@ export interface ImageGenerationOptions {
   n?: number;
   guidance_scale?: number;
   watermark?: boolean;
+  image_url?: string;    // 图生图：参考图URL
 }
 
 export interface ImageGenerationResult {
@@ -35,6 +36,7 @@ export interface ImageGenerationResult {
 /**
  * 通过后端代理调用火山引擎即梦AI生成图像
  * 后端路由: POST /api/generate-image
+ * 支持文生图和图生图
  */
 export async function generateImageWithVolcengine(
   options: ImageGenerationOptions
@@ -46,13 +48,29 @@ export async function generateImageWithVolcengine(
     n = 1,
     guidance_scale = 3.5,
     watermark = false,
+    image_url,
   } = options;
 
   try {
+    const body: Record<string, unknown> = {
+      prompt,
+      model,
+      n,
+      size,
+      guidance_scale,
+      watermark,
+      response_format: 'url',
+    };
+
+    // 图生图模式：附加参考图
+    if (image_url) {
+      body.image_url = image_url;
+    }
+
     const response = await fetch('/api/generate-image', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, model, size, n, guidance_scale, watermark }),
+      body: JSON.stringify(body),
     });
 
     const data = await response.json();
@@ -117,10 +135,15 @@ export async function generateTattooDesign(
   });
 }
 
+/**
+ * 图生图模式 - 以参考图为基础生成纹身设计
+ * @param baseImageUrl 参考图的公开URL（Supabase Storage）
+ * @param description 纹身描述
+ */
 export async function generateTattooFromImage(
   baseImageUrl: string,
   description: string,
-  options?: Partial<Omit<ImageGenerationOptions, 'model'>>,
+  options?: Partial<Omit<ImageGenerationOptions, 'model' | 'image_url'>>
 ): Promise<ImageGenerationResult> {
   const prompt = [
     description,
@@ -131,7 +154,8 @@ export async function generateTattooFromImage(
 
   return generateImageWithVolcengine({
     prompt,
-    model: 'doubao-seedream-4-0-250828',
+    model: 'doubao-seedream-4-0-250828', // 4.0模型支持图生图
+    image_url: baseImageUrl,               // 关键：传入参考图URL
     size: '1024x1024',
     n: 1,
     ...options,

@@ -31,6 +31,7 @@ app.post('/api/generate-image', async (req, res) => {
     n = 1,
     guidance_scale = 3.5,
     watermark = false,
+    image_url,    // 图生图：参考图URL
   } = req.body;
 
   if (!prompt) {
@@ -44,21 +45,29 @@ app.post('/api/generate-image', async (req, res) => {
   }
 
   try {
+    // 构建请求体
+    const requestBody = {
+      model,
+      prompt,
+      n,
+      size,
+      guidance_scale,
+      watermark,
+      response_format: 'url',
+    };
+
+    // 图生图模式：附加参考图
+    if (image_url) {
+      requestBody.image_url = image_url;
+    }
+
     const response = await fetch('https://ark.cn-beijing.volces.com/api/v3/images/generations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${ARK_API_KEY}`,
       },
-      body: JSON.stringify({
-        model,
-        prompt,
-        n,
-        size,
-        guidance_scale,
-        watermark,
-        response_format: 'url',
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     const data = await response.json();
