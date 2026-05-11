@@ -71,14 +71,38 @@ export default function AIGenerator() {
     if (!file) return;
     setError(null);
     try {
-      // 上传到 tattoo-images bucket（存用户原始上传图）
-      const { publicUrl } = await uploadImage(file, 'tattoo-images');
-      setUploadedImage(publicUrl);
+      // 转换为 base64
+      const arrayBuffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+      let binary = '';
+      for (let i = 0; i < uint8Array.length; i++) {
+        binary += String.fromCharCode(uint8Array[i]);
+      }
+      const base64 = btoa(binary);
+
+      // 通过服务端 API 上传（绕过 RLS 限制）
+      const response = await fetch('/api/upload-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bucket: 'tattoo-images',
+          fileName: file.name,
+          fileData: base64,
+          contentType: file.type,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || '上传失败');
+      }
+
+      setUploadedImage(result.publicUrl);
     } catch (err) {
       console.error('[AIGenerator] Upload failed:', err);
       setError(err instanceof Error ? err.message : '图片上传失败，请重试');
     } finally {
-      // 重置 input 允许重复上传同一文件
       e.target.value = '';
     }
   };

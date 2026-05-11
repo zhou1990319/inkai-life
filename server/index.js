@@ -117,6 +117,65 @@ app.post('/api/init-buckets', async (req, res) => {
   res.json({ results });
 });
 
+// ========== 文件上传 API（服务端模式，绕过 RLS）==========
+
+/**
+ * POST /api/upload-image
+ * 通过服务端上传图片到 Supabase Storage
+ * 使用 service_role key 绕过 RLS 限制
+ */
+app.post('/api/upload-image', async (req, res) => {
+  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+  if (!SUPABASE_SERVICE_KEY) {
+    return res.status(500).json({ error: 'Missing SUPABASE_SERVICE_KEY' });
+  }
+
+  const { bucket = 'tattoo-images', fileName, fileData, contentType = 'image/png' } = req.body;
+
+  if (!fileName || !fileData) {
+    return res.status(400).json({ error: 'fileName and fileData are required' });
+  }
+
+  try {
+    // fileData 应该是 base64 编码的文件内容
+    const buffer = Buffer.from(fileData, 'base64');
+    
+    const storagePath = `uploads/${Date.now()}-${fileName}`;
+    
+    const response = await fetch(
+      `https://zgolsxdwilktnxbzxfcw.supabase.co/storage/v1/object/${bucket}/${storagePath}`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+          'apikey': SUPABASE_SERVICE_KEY,
+          'Content-Type': contentType,
+          'x-upsert': 'true',
+        },
+        body: buffer,
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('[Upload] Supabase error:', error);
+      return res.status(response.status).json(error);
+    }
+
+    // 获取公开 URL
+    const publicUrl = `https://zgolsxdwilktnxbzxfcw.supabase.co/storage/v1/object/public/${bucket}/${storagePath}`;
+
+    res.json({
+      success: true,
+      publicUrl,
+      storagePath,
+    });
+  } catch (err) {
+    console.error('[Upload] Failed:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ========== API 路由 ==========
 
 /**
