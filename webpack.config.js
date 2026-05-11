@@ -1,7 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
-require('dotenv').config({ path: './.env.production', override: true });
 
 module.exports = (env, argv) => {
   const isDev = argv.mode !== 'production';
@@ -58,7 +57,6 @@ module.exports = (env, argv) => {
           type: 'asset/resource'
         },
         {
-          // 兜底规则：PDF、文档、音视频等所有其他文件一律输出为独立资源文件
           exclude: /\.(js|jsx|ts|tsx|mjs|css|json|html)$/i,
           type: 'asset/resource'
         }
@@ -75,13 +73,20 @@ module.exports = (env, argv) => {
         rewrites: [
           { from: /^\/_p\/\d+\//, to: '/index.html' }
         ]
-      }
+      },
+      // 开发时把 /api 转发到 Express 后端 (node server/index.js --port 3000)
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3000',
+          changeOrigin: true,
+        },
+      },
     },
     plugins: [
       new webpack.DefinePlugin({
+        // 前端只需 Supabase 配置，ARK_API_KEY 只在后端使用
         'process.env.SUPABASE_URL': JSON.stringify(process.env.SUPABASE_URL || ''),
         'process.env.SUPABASE_ANON_KEY': JSON.stringify(process.env.SUPABASE_ANON_KEY || ''),
-        'process.env.ARK_API_KEY': JSON.stringify(process.env.ARK_API_KEY || ''),
       }),
       new HtmlWebpackPlugin({
         template: './index.html',

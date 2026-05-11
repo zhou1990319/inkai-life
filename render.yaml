@@ -1,15 +1,10 @@
 services:
-  # =============================================
-  # Web Service：inkAI-life 纹身社区平台
-  # 构建命令：安装依赖并打包前端
-  # 启动命令：运行 Express 服务托管静态文件
-  # =============================================
   - type: web
     name: inkai-life
     runtime: node
     repo: https://github.com/zhou1990319/inkai-life
     branch: main
-    buildCommand: NODE_ENV=development npm install && npm run build
+    buildCommand: npm install && npm run build
     startCommand: node server/index.js
     plan: free
     numInstances: 1
@@ -23,5 +18,5 @@ services:
         value: https://zgolsxdwilktnxbzxfcw.supabase.co
       - key: SUPABASE_ANON_KEY
         value: sb_publishable_VuoZts73EHjAOcYjtqBADw_QJ_IcuzNt
-      - key: ME_OPT_PROJECT_API_KEY
-        value: ""
+      - key: ARK_API_KEY
+        value: ark-6b3fbf0f-2778-4bf6-a09f-c06b08d6b69d-796cd
