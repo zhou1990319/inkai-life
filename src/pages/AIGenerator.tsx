@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Upload, Wand2, Image as ImageIcon } from 'lucide-react';
-import { generateImage, extractImageUrl, compressImage } from '../services/aiImageGen';
+import { Sparkles, Upload, Wand2, Image as ImageIcon, AlertCircle } from 'lucide-react';
+import { generateImageWithVolcengine, generateTattooFromImage } from '../services/volcengineImage';
 import { uploadImage } from '../services/storage';
 
 const styles = [
@@ -31,26 +31,37 @@ export default function AIGenerator() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleGenerate = async () => {
     if (!prompt && mode === 'text') return;
     setLoading(true);
+    setError(null);
     try {
       const fullPrompt = mode === 'text'
         ? `Chinese traditional tattoo design, ${selectedStyle} style, ${selectedBodyPart} placement, ${prompt}, black ink on skin, elegant composition`
-        : `Transform this image into Chinese traditional tattoo style, ${selectedStyle}, ${selectedBodyPart} placement`;
+        : `Transform this image into Chinese traditional tattoo style, ${selectedStyle}, ${selectedBodyPart} placement, ${prompt}`;
 
-      const response = await generateImage(fullPrompt, 'wan2.7-image', '2K', {
-        images: uploadedImage ? [uploadedImage] : undefined,
-        n: 1,
-      });
-
-      const imageUrl = extractImageUrl(response);
-      if (imageUrl) {
-        setGeneratedImage(imageUrl);
+      let result;
+      if (mode === 'text') {
+        result = await generateImageWithVolcengine({
+          prompt: fullPrompt,
+          size: '1024x1024',
+          n: 1,
+          watermark: false,
+        });
+      } else {
+        result = await generateTattooFromImage(uploadedImage!, fullPrompt);
       }
-    } catch (error) {
-      console.error('Generation failed:', error);
+
+      if (result.success && result.image_url) {
+        setGeneratedImage(result.image_url);
+      } else {
+        setError(result.error || '生成失败，请重试');
+      }
+    } catch (err) {
+      console.error('Generation failed:', err);
+      setError(err instanceof Error ? err.message : '生成失败，请重试');
     }
     setLoading(false);
   };
@@ -58,8 +69,7 @@ export default function AIGenerator() {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const compressed = await compressImage(file);
-    const { publicUrl } = await uploadImage(compressed, 'ai-generated');
+    const { publicUrl } = await uploadImage(file, 'ai-generated');
     setUploadedImage(publicUrl);
   };
 
@@ -174,9 +184,16 @@ export default function AIGenerator() {
               </div>
             </div>
 
+            {error && (
+              <div className="mb-4 p-3 bg-red-500/20 border border-red-500/40 rounded-lg flex items-center gap-2 text-red-400">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span className="text-sm">{error}</span>
+              </div>
+            )}
+
             <button
               onClick={handleGenerate}
-              disabled={loading || (!prompt && mode === 'text')}
+              disabled={loading || (!prompt && mode === 'text') || (mode === 'image' && !uploadedImage)}
               className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:from-amber-400 hover:to-amber-500 transition-all"
             >
               {loading ? (

@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Upload, Wand2, Image as ImageIcon, Loader2, Download, Share2 } from 'lucide-react';
-import { generateImage, extractImageUrl, compressImage } from '../../services/aiImageGen';
+import { Sparkles, Upload, Wand2, Image as ImageIcon, Loader2, Download, Share2, AlertCircle } from 'lucide-react';
+import { generateImageWithVolcengine } from '../../services/volcengineImage';
 import { persistGeneratedImage } from '../../services/storage';
 import { analyzeTattooMeaning } from '../../services/aiChat';
 
@@ -36,22 +36,42 @@ export default function ImageGenerator() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [culturalMeaning, setCulturalMeaning] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
     setIsGenerating(true);
+    setError(null);
     try {
-      const fullPrompt = `Chinese traditional tattoo design: ${prompt}${selectedStyle ? `, ${CHINESE_STYLES.find(s => s.id === selectedStyle)?.name} style` : ''}${selectedBodyPart ? `, designed for ${BODY_PARTS.find(b => b.id === selectedBodyPart)?.name}` : ''}, ink wash painting style, elegant, detailed, black and gold tones`;
-      
-      const result = await generateImage(fullPrompt, 'wan2.7-image', '2K', { n: 1 });
-      const imageUrl = extractImageUrl(result);
-      if (imageUrl) {
-        setGeneratedImage(imageUrl);
-        await analyzeMeaning(fullPrompt);
+      const styleName = selectedStyle ? CHINESE_STYLES.find(s => s.id === selectedStyle)?.name : '';
+      const bodyPartName = selectedBodyPart ? BODY_PARTS.find(b => b.id === selectedBodyPart)?.name : '';
+      const fullPrompt = [
+        prompt,
+        styleName ? `${styleName} style` : '',
+        bodyPartName ? `designed for ${bodyPartName} placement` : '',
+        'Chinese traditional tattoo design',
+        'ink wash painting style',
+        'elegant, detailed',
+        'black and gold tones',
+      ].filter(Boolean).join(', ');
+
+      const result = await generateImageWithVolcengine({
+        prompt: fullPrompt,
+        size: '1024x1024',
+        n: 1,
+        watermark: false,
+      });
+
+      if (result.success && result.image_url) {
+        setGeneratedImage(result.image_url);
+        analyzeMeaning(fullPrompt);
+      } else {
+        setError(result.error || '生成失败，请重试');
       }
-    } catch (error) {
-      console.error('Generation failed:', error);
+    } catch (err) {
+      console.error('Generation failed:', err);
+      setError(err instanceof Error ? err.message : '生成失败，请重试');
     } finally {
       setIsGenerating(false);
     }
@@ -72,8 +92,7 @@ export default function ImageGenerator() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const compressed = await compressImage(file);
-      setReferenceImage(compressed);
+      setReferenceImage(file);
     }
   };
 
@@ -175,6 +194,13 @@ export default function ImageGenerator() {
                 className="hidden"
               />
             </div>
+
+            {error && (
+              <div className="mb-4 p-3 bg-red-500/20 border border-red-500/40 rounded-lg flex items-center gap-2 text-red-400">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span className="text-sm">{error}</span>
+              </div>
+            )}
 
             <button
               onClick={handleGenerate}
