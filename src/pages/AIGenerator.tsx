@@ -24,13 +24,13 @@ const bodyParts = [
 ];
 
 /**
- * 使用 Canvas 压缩图片
+ * 使用 Canvas 压缩图片到合理大小
  * @param file 原始图片文件
  * @param maxWidth 最大宽度（像素）
  * @param quality 压缩质量 0-1
  * @returns base64 编码的压缩后图片
  */
-function compressImage(file: File, maxWidth: number, quality: number): Promise<string> {
+function compressImage(file: File, maxWidth: number = 600, quality: number = 0.6): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -40,25 +40,43 @@ function compressImage(file: File, maxWidth: number, quality: number): Promise<s
         let width = img.width;
         let height = img.height;
         if (width > maxWidth) {
-          height = (height * maxWidth) / width;
+          height = Math.round((height * maxWidth) / width);
           width = maxWidth;
         }
 
-        // 使用 Canvas 压缩
+        // 使用 Canvas 绘制
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d')!;
         ctx.drawImage(img, 0, 0, width, height);
 
-        // 输出为 base64
-        const compressedBase64 = canvas.toDataURL(file.type, quality).split(',')[1];
+        // 强制转换为 JPEG 格式以支持有效压缩
+        // PNG 不支持 quality 参数，JPEG 才能压缩
+        let outputType = 'image/jpeg';
+        let currentQuality = quality;
+        let compressedBase64 = canvas.toDataURL(outputType, currentQuality).split(',')[1];
+
+        // 如果压缩后仍然很大（>2MB base64），继续降低质量和尺寸
+        while (compressedBase64.length > 2 * 1024 * 1024 && currentQuality > 0.1) {
+          currentQuality -= 0.1;
+          if (width > 300) {
+            width = Math.round(width * 0.8);
+            height = Math.round(height * 0.8);
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+          }
+          compressedBase64 = canvas.toDataURL(outputType, currentQuality).split(',')[1];
+        }
+
+        console.log(`[compressImage] 压缩完成: ${img.width}x${img.height} -> ${width}x${height}, 质量: ${currentQuality}`);
         resolve(compressedBase64);
       };
-      img.onerror = reject;
+      img.onerror = () => reject(new Error('图片加载失败'));
       img.src = e.target?.result as string;
     };
-    reader.onerror = reject;
+    reader.onerror = () => reject(new Error('文件读取失败'));
     reader.readAsDataURL(file);
   });
 }
@@ -111,8 +129,8 @@ export default function AIGenerator() {
     if (!file) return;
     setError(null);
     try {
-      // 使用 Canvas 压缩图片到 800px 宽度，质量 0.8
-      const compressedBase64 = await compressImage(file, 800, 0.8);
+      // 压缩图片：600px宽度，质量0.6，自动递归压缩直到小于2MB
+      const compressedBase64 = await compressImage(file);
 
       // 通过服务端 API 上传（绕过 RLS 限制）
       const response = await fetch('/api/upload-image', {
