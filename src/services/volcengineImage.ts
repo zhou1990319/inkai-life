@@ -138,18 +138,21 @@ export async function generateTattooDesign(
 /**
  * 图生图模式 - 以参考图为基础生成纹身设计
  * @param baseImageUrl 参考图的公开URL（Supabase Storage）
- * @param description 纹身描述
+ * @param description 纹身描述/要求
  */
 export async function generateTattooFromImage(
   baseImageUrl: string,
   description: string,
   options?: Partial<Omit<ImageGenerationOptions, 'model' | 'image_url'>>
 ): Promise<ImageGenerationResult> {
+  // 构建更精准的提示词，强调保持原图结构
   const prompt = [
     description,
-    'transform into Chinese traditional tattoo style',
-    'black ink tattoo design',
-    'maintain original composition and structure',
+    'tattoo design inspired by reference image',
+    'preserve original outline and structure',
+    'Chinese traditional tattoo style',
+    'black ink illustration',
+    'fine line work',
   ].join(', ');
 
   return generateImageWithVolcengine({
@@ -158,6 +161,7 @@ export async function generateTattooFromImage(
     image_url: baseImageUrl,               // 关键：传入参考图URL
     size: '1024x1024',
     n: 1,
+    guidance_scale: 3.5,
     ...options,
   });
 }

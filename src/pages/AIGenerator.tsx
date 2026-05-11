@@ -96,12 +96,13 @@ export default function AIGenerator() {
     setLoading(true);
     setError(null);
     try {
-      const fullPrompt = mode === 'text'
-        ? `Chinese traditional tattoo design, ${selectedStyle} style, ${selectedBodyPart} placement, ${prompt}, black ink on skin, elegant composition`
-        : `Transform this image into Chinese traditional tattoo style, ${selectedStyle}, ${selectedBodyPart} placement, ${prompt}`;
-
+      let fullPrompt: string;
       let result;
+
       if (mode === 'text') {
+        // 文生图：直接使用用户描述 + 风格标签
+        fullPrompt = `${prompt}, Chinese traditional tattoo design, ${selectedStyle} style, ${selectedBodyPart} placement, black ink illustration, tattoo sketch on skin`;
+
         result = await generateImageWithVolcengine({
           prompt: fullPrompt,
           size: '1024x1024',
@@ -109,7 +110,17 @@ export default function AIGenerator() {
           watermark: false,
         });
       } else {
-        result = await generateTattooFromImage(uploadedImage!, fullPrompt);
+        // 图生图：以原图为基础，融入纹身风格
+        // 关键：强调"保持原图结构"，而不是"转换/改变"
+        fullPrompt = `${prompt}, tattoo design inspired by the provided reference image, keep the original shape/outline/structure, ${selectedStyle} style, black ink tattoo illustration, fine line work, high contrast`;
+
+        result = await generateImageWithVolcengine({
+          prompt: fullPrompt,
+          image_url: uploadedImage!,
+          size: '1024x1024',
+          n: 1,
+          watermark: false,
+        });
       }
 
       if (result.success && result.image_url) {
