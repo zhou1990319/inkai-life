@@ -4,6 +4,7 @@ import { Sparkles, Upload, Wand2, Image as ImageIcon, AlertCircle, Lock, Crown, 
 import { generateImageWithVolcengine, generateTattooFromImage } from '../services/volcengineImage';
 import { uploadImage } from '../services/storage';
 import { useMembership, getPlanDescription, PLAN_BENEFITS } from '../hooks/useMembership';
+import { useLanguage } from '../contexts/LanguageContext';
 import type { Database } from '../supabase/types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -285,6 +286,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   // 会员状态管理
   const membership = useMembership(user);
@@ -415,10 +417,10 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
           className="text-center mb-12"
         >
           <h1 className="text-4xl md:text-5xl font-bold text-amber-400 mb-4">
-            AI Tattoo Generator
+            {t('ai.title')}
           </h1>
           <p className="text-slate-400 text-lg">
-            Create stunning Chinese traditional tattoo designs with AI
+            {t('ai.subtitle')}
           </p>
         </motion.div>
 
@@ -435,7 +437,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
             {user && <MembershipStatusBar user={user} membership={membership} />}
 
             <div className="flex gap-4 mb-6">
-              <button
+                <button
                 onClick={() => setMode('text')}
                 className={`flex-1 py-3 rounded-xl flex items-center justify-center gap-2 transition-all ${
                   mode === 'text'
@@ -444,7 +446,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
                 }`}
               >
                 <Wand2 className="w-5 h-5" />
-                Text to Tattoo
+                {t('ai.generate')}
               </button>
               <button
                 onClick={() => setMode('image')}
@@ -455,7 +457,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
                 }`}
               >
                 <ImageIcon className="w-5 h-5" />
-                Image to Tattoo
+                {t('ai.share')}
               </button>
             </div>
 
@@ -476,7 +478,11 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
             )}
 
             <div className="mb-6">
-              <label className="block text-amber-400 mb-2 font-medium">Description</label>
+              <label className="block text-amber-400 mb-2 font-medium">{t('ai.prompt_placeholder').split('...')[0]}</label>
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder={t('ai.prompt_placeholder')}
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}

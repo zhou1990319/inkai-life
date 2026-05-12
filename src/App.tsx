@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './supabase/client';
 import type { Database } from './supabase/types';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
@@ -71,9 +72,10 @@ function App() {
   }
 
   return (
-    <HashRouter>
-      <div className="min-h-screen bg-[#0B0B0E] text-white">
-        <Header user={user} />
+    <LanguageProvider>
+      <HashRouter>
+        <div className="min-h-screen bg-[#0B0B0E] text-white">
+          <Header user={user} />
         <main className="pb-20 min-h-screen">
           <AnimatePresence mode="wait">
             <Routes>
@@ -133,7 +135,8 @@ function App() {
         <Footer />
         <BottomNav user={user} />
       </div>
-    </HashRouter>
+      </HashRouter>
+    </LanguageProvider>
   );
 }
 
