@@ -227,7 +227,7 @@ export default function Pricing({ user }: PricingProps) {
         <h2 className="text-2xl font-bold text-white mb-6">
           {isZh ? PLAN_CATEGORIES.individual.titleZh : PLAN_CATEGORIES.individual.title}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           {PLAN_CATEGORIES.individual.plans.map((planId, i) => renderPlanCard(planId, i))}
         </div>
       </div>
@@ -237,7 +237,7 @@ export default function Pricing({ user }: PricingProps) {
         <h2 className="text-2xl font-bold text-white mb-6">
           {isZh ? PLAN_CATEGORIES.studio.titleZh : PLAN_CATEGORIES.studio.title}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {PLAN_CATEGORIES.studio.plans.map((planId, i) => renderPlanCard(planId, i + 4))}
         </div>
       </div>

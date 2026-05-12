@@ -114,15 +114,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (data.user && !error) {
       const profile = await loadProfile(data.user.id);
       if (!profile) {
-        // 手动创建profile
+        // 手动创建profile（包含完整字段）
         const { error: profileError } = await supabase.from('profiles').insert({
           id: data.user.id,
           username,
           display_name: username,
-          email,
+          email: data.user.email,
+          subscription_status: 'free',
+          current_plan: 'free',
+          trial_available: true,
+          followers_count: 0,
+          following_count: 0,
+          is_artist: false,
+          artist_verified: false,
         });
         if (profileError) {
           console.error('Profile creation error:', profileError);
+        }
+
+        // 创建默认订阅记录
+        const { error: subError } = await supabase.from('subscriptions').insert({
+          user_id: data.user.id,
+          plan_type: 'free',
+          status: 'active',
+          started_at: new Date().toISOString(),
+          auto_renew: false,
+        });
+        if (subError) {
+          console.error('Subscription creation error:', subError);
         }
       }
     }

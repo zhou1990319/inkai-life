@@ -11,9 +11,9 @@ export default function Sidebar() {
   const menuItems = [
     { icon: Home,     label: isZh ? '\u9996\u9875' : 'Home',      path: '/' },
     { icon: Users,    label: isZh ? '\u793E\u533A' : 'Community', path: '/explore' },
-    { icon: BookOpen, label: isZh ? '\u7075\u611F' : 'Inspire',   path: '/create' },
+    { icon: BookOpen, label: isZh ? '\u53D1\u5E03' : 'Post',   path: '/create' },
     { icon: Sparkles, label: isZh ? 'AI \u5DE5\u4F5C\u5BA4' : 'AI Studio', path: '/ai-studio' },
-    { icon: Bookmark, label: isZh ? '\u6536\u85CF' : 'Saved',     path: '/saved' },
+    { icon: Bookmark, label: isZh ? '\u6536\u85CF' : 'Saved',     path: '/explore' },
   ];
 
   const bottomItems = [

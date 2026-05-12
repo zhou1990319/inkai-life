@@ -22,7 +22,7 @@ export default function Header({ user }: { user: Profile | null }) {
     { path: '/', labelKey: 'nav.home', icon: 'fa-home' },
     { path: '/explore', labelKey: 'nav.community', icon: 'fa-users' },
     { path: '/inspire', labelKey: 'nav.inspire', icon: 'fa-lightbulb' },
-    { path: '/artists', labelKey: 'nav.artists', icon: 'fa-paint-brush' },
+    { path: '/explore', labelKey: 'nav.artists', icon: 'fa-paint-brush' },
   ];
 
   useEffect(() => {

@@ -10,7 +10,6 @@ export default function Footer() {
     { label: isZh ? '\u670D\u52A1\u6761\u6B3E' : 'Terms of Service', path: '/terms' },
     { label: isZh ? '\u9690\u79C1\u653F\u7B56' : 'Privacy Policy', path: '/privacy' },
     { label: isZh ? '\u514D\u8D23\u58F0\u660E' : 'Disclaimer', path: '/disclaimer' },
-    { label: isZh ? 'Cookie \u653F\u7B56' : 'Cookie Policy', path: '/cookies' },
   ];
 
   const socialLinks = [
@@ -62,7 +61,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-6 pt-4 border-t border-[#2A2A36] text-center text-xs text-[#6B6B78] space-y-1">
-          <p>{isZh ? '\u00A9 2024 InkAI.life \u00B7 \u4FDD\u7559\u6240\u6709\u6743\u5229' : '\u00A9 2024 InkAI.life \u00B7 All rights reserved'}</p>
+          <p>{isZh ? '\u00A9 2026 InkAI.life \u00B7 \u4FDD\u7559\u6240\u6709\u6743\u5229' : '\u00A9 2026 InkAI.life \u00B7 All rights reserved'}</p>
           <p>{isZh ? 'AI \u751F\u6210\u7684\u8BBE\u8BA1\u4EC5\u4F9B\u53C2\u8003\u3002\u7EB9\u8EAB\u524D\u8BF7\u54A8\u8BE2\u4E13\u4E1A\u7EB9\u8EAB\u5E08\u3002' : 'AI-generated designs are for reference only. Consult a professional tattoo artist before getting inked.'}</p>
         </div>
       </div>

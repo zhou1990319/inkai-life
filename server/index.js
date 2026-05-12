@@ -5,11 +5,13 @@ const crypto = require('crypto');
 // Node 18+ 原生支持 fetch，无需额外安装
 // Render 默认 Node 18+，本地开发也需 Node 18+
 
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://zgolsxdwilktnxbzxfcw.supabase.co';
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 解析 JSON body，增大到50mb以支持大文件上传
-app.use(express.json({ limit: '50mb' }));
+// 解析 JSON body，限制为 10mb 防止过大请求
+app.use(express.json({ limit: '10mb' }));
 
 // 静态文件（生产环境）
 app.use(express.static(path.join(__dirname, '../dist')));
@@ -32,6 +34,75 @@ try {
   }
 } catch (e) {
   console.log('[Sentry] 未安装 @sentry/node，错误监控未启用');
+}
+
+// ========== API 鉴权中间件 ==========
+/**
+ * 检查请求头 x-api-key 或 query 参数 api_key 是否匹配环境变量 API_KEY
+ * 如果 API_KEY 环境变量未设置，则跳过鉴权（向后兼容开发环境）
+ */
+function authenticateApiKey(req, res, next) {
+  const API_KEY = process.env.API_KEY;
+
+  // 如果未设置 API_KEY，跳过鉴权（开发环境兼容）
+  if (!API_KEY) {
+    return next();
+  }
+
+  const clientKey = req.headers['x-api-key'] || req.query.api_key;
+
+  if (!clientKey || clientKey !== API_KEY) {
+    return res.status(401).json({ error: 'Unauthorized: invalid or missing API key' });
+  }
+
+  next();
+}
+
+// ========== 速率限制中间件 ==========
+/**
+ * 基于内存的简单速率限制
+ * 每个 IP 每分钟最多 60 次请求
+ * /api/generate-image 每个 IP 每分钟最多 10 次
+ */
+const rateLimitStore = new Map();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 分钟
+const RATE_LIMIT_MAX = 60;           // 每分钟最多 60 次
+const RATE_LIMIT_GENERATE_MAX = 10;  // generate-image 每分钟最多 10 次
+
+// 每分钟清理一次过期记录
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, record] of rateLimitStore) {
+    if (now - record.startTime >= RATE_LIMIT_WINDOW) {
+      rateLimitStore.delete(key);
+    }
+  }
+}, RATE_LIMIT_WINDOW);
+
+function rateLimit(maxRequests) {
+  return (req, res, next) => {
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    const key = `${ip}:${req.path}`;
+    const now = Date.now();
+
+    let record = rateLimitStore.get(key);
+
+    if (!record || now - record.startTime >= RATE_LIMIT_WINDOW) {
+      record = { count: 0, startTime: now };
+      rateLimitStore.set(key, record);
+    }
+
+    record.count++;
+
+    if (record.count > maxRequests) {
+      return res.status(429).json({
+        error: 'Too many requests',
+        retryAfter: Math.ceil((RATE_LIMIT_WINDOW - (now - record.startTime)) / 1000),
+      });
+    }
+
+    next();
+  };
 }
 
 // ========== AI 图片生成缓存 ==========
@@ -151,26 +222,15 @@ setInterval(() => {
 }, KEEP_ALIVE_INTERVAL);
 console.log(`[KeepAlive] 已启用，每 ${KEEP_ALIVE_INTERVAL / 60000} 分钟 ping 一次`);
 
-// ========== 统计接口 ==========
-app.get('/api/stats', (req, res) => {
+// ========== 统计接口（需要鉴权）==========
+app.get('/api/stats', authenticateApiKey, (req, res) => {
   res.json({
-    cache: {
-      size: imageCache.size,
-      maxSize: CACHE_MAX_SIZE,
-      ttl: CACHE_TTL / 1000 + 's',
-    },
-    queue: {
-      pending: requestQueue.length,
-      active: activeRequests,
-      maxConcurrent: MAX_CONCURRENT,
-    },
-    sentry: {
-      enabled: !!Sentry,
-    },
+    cacheSize: imageCache.size,
+    queueLength: requestQueue.length,
   });
 });
 
-// Health check
+// Health check（无需鉴权）
 app.get('/health', (req, res) => res.send('OK'));
 
 // ========== Supabase Storage Buckets 管理 ==========
@@ -178,14 +238,14 @@ app.get('/health', (req, res) => res.send('OK'));
 /**
  * 获取所有 buckets
  */
-app.get('/api/buckets', async (req, res) => {
+app.get('/api/buckets', authenticateApiKey, rateLimit(RATE_LIMIT_MAX), async (req, res) => {
   const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
   if (!SUPABASE_SERVICE_KEY) {
     return res.status(500).json({ error: 'Missing SUPABASE_SERVICE_KEY' });
   }
 
   try {
-    const response = await fetch('https://zgolsxdwilktnxbzxfcw.supabase.co/storage/v1/bucket', {
+    const response = await fetch(`${SUPABASE_URL}/storage/v1/bucket`, {
       headers: {
         'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
         'apikey': SUPABASE_SERVICE_KEY,
@@ -201,20 +261,20 @@ app.get('/api/buckets', async (req, res) => {
 /**
  * 创建 Storage Bucket
  */
-app.post('/api/buckets', async (req, res) => {
+app.post('/api/buckets', authenticateApiKey, rateLimit(RATE_LIMIT_MAX), async (req, res) => {
   const { id, name, public: isPublic = true } = req.body;
   const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
-  
+
   if (!SUPABASE_SERVICE_KEY) {
     return res.status(500).json({ error: 'Missing SUPABASE_SERVICE_KEY' });
   }
-  
+
   if (!id || !name) {
     return res.status(400).json({ error: 'id and name are required' });
   }
 
   try {
-    const response = await fetch('https://zgolsxdwilktnxbzxfcw.supabase.co/storage/v1/bucket', {
+    const response = await fetch(`${SUPABASE_URL}/storage/v1/bucket`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
@@ -224,11 +284,11 @@ app.post('/api/buckets', async (req, res) => {
       body: JSON.stringify({ id, name, public: isPublic }),
     });
     const data = await response.json();
-    
+
     if (!response.ok) {
       return res.status(response.status).json(data);
     }
-    
+
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -238,9 +298,9 @@ app.post('/api/buckets', async (req, res) => {
 /**
  * 初始化所需的 buckets（纹身图片、AI生成图、设计稿）
  */
-app.post('/api/init-buckets', async (req, res) => {
+app.post('/api/init-buckets', authenticateApiKey, rateLimit(RATE_LIMIT_MAX), async (req, res) => {
   const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
-  
+
   if (!SUPABASE_SERVICE_KEY) {
     return res.status(500).json({ error: 'Missing SUPABASE_SERVICE_KEY' });
   }
@@ -252,10 +312,10 @@ app.post('/api/init-buckets', async (req, res) => {
   ];
 
   const results = [];
-  
+
   for (const bucket of buckets) {
     try {
-      const response = await fetch('https://zgolsxdwilktnxbzxfcw.supabase.co/storage/v1/bucket', {
+      const response = await fetch(`${SUPABASE_URL}/storage/v1/bucket`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
@@ -281,7 +341,7 @@ app.post('/api/init-buckets', async (req, res) => {
  * 通过服务端上传图片到 Supabase Storage
  * 使用 service_role key 绕过 RLS 限制
  */
-app.post('/api/upload-image', async (req, res) => {
+app.post('/api/upload-image', authenticateApiKey, rateLimit(RATE_LIMIT_MAX), async (req, res) => {
   const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
   if (!SUPABASE_SERVICE_KEY) {
     return res.status(500).json({ error: 'Missing SUPABASE_SERVICE_KEY' });
@@ -296,11 +356,11 @@ app.post('/api/upload-image', async (req, res) => {
   try {
     // fileData 应该是 base64 编码的文件内容
     const buffer = Buffer.from(fileData, 'base64');
-    
+
     const storagePath = `uploads/${Date.now()}-${fileName}`;
-    
+
     const response = await fetch(
-      `https://zgolsxdwilktnxbzxfcw.supabase.co/storage/v1/object/${bucket}/${storagePath}`,
+      `${SUPABASE_URL}/storage/v1/object/${bucket}/${storagePath}`,
       {
         method: 'POST',
         headers: {
@@ -320,7 +380,7 @@ app.post('/api/upload-image', async (req, res) => {
     }
 
     // 获取公开 URL
-    const publicUrl = `https://zgolsxdwilktnxbzxfcw.supabase.co/storage/v1/object/public/${bucket}/${storagePath}`;
+    const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${storagePath}`;
 
     res.json({
       success: true,
@@ -347,7 +407,7 @@ app.post('/api/upload-image', async (req, res) => {
  * - 队列：最多 2 个并发请求，防止崩溃
  * - Sentry：错误自动上报
  */
-app.post('/api/generate-image', async (req, res) => {
+app.post('/api/generate-image', authenticateApiKey, rateLimit(RATE_LIMIT_GENERATE_MAX), async (req, res) => {
   const {
     prompt,
     model = 'doubao-seedream-4-0-250828',
@@ -439,7 +499,7 @@ app.post('/api/generate-image', async (req, res) => {
   }
 });
 
-// SPA fallback
+// SPA fallback（无需鉴权）
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
@@ -450,4 +510,6 @@ app.listen(PORT, () => {
   console.log(`[Retry] API 重试已启用 (最多 ${MAX_RETRIES} 次, 超时 ${API_TIMEOUT / 1000}s)`);
   console.log(`[Queue] 请求队列已启用 (最大并发 ${MAX_CONCURRENT})`);
   console.log(`[Sentry] 错误监控: ${Sentry ? '已启用' : '未配置'}`);
+  console.log(`[Auth] API 鉴权: ${process.env.API_KEY ? '已启用' : '未配置（开发模式，所有请求放行）'}`);
+  console.log(`[RateLimit] 速率限制已启用 (全局 ${RATE_LIMIT_MAX}/min, generate-image ${RATE_LIMIT_GENERATE_MAX}/min)`);
 });

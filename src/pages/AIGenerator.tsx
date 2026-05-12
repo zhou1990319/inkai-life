@@ -475,7 +475,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
 
             <div className="mb-6">
               <label className="block text-amber-400 mb-3 font-medium">{t('ai.body_part')}</label>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {bodyParts.map((part) => (
                   <button
                     key={part.id}
