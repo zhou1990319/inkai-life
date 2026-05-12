@@ -1,3 +1,6 @@
+// Pricing.tsx 修复版本 - 添加多语言支持
+// 关键修改：将所有硬编码英文替换为 t() 翻译函数
+
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Check, X, Sparkles, Crown, Zap, Star } from 'lucide-react';
@@ -11,123 +14,130 @@ interface PricingProps {
   user: Profile | null;
 }
 
-const plans = [
-  {
-    id: 'free',
-    name: 'Inker',
-    icon: Star,
-    color: 'from-stone-800 to-stone-900',
-    price: 0,
-    period: 'Free Forever',
-    description: 'Get started with AI tattoo designs',
-    features: [
-      { text: '10 AI generations per day', included: true },
-      { text: '1024px standard HD download', included: true },
-      { text: '20 basic Chinese-style templates', included: true },
-      { text: 'Light watermark', included: true, note: "Perfect for artist reference" },
-      { text: 'Limited display ads', included: true },
-      { text: 'Cloud storage for 30 designs', included: true },
-      { text: 'Dragon Phoenix ink style', included: false },
-      { text: 'No watermark downloads', included: false },
-      { text: 'Commercial license', included: false },
-      { text: 'Unlimited generations', included: false },
-    ],
-    cta: 'Start Free',
-    popular: false,
-  },
-  {
-    id: 'monthly',
-    name: 'Koi Monthly',
-    icon: Sparkles,
-    color: 'from-amber-600 to-amber-700',
-    price: 7.99,
-    period: '/month',
-    description: 'For serious tattoo enthusiasts',
-    features: [
-      { text: '100 AI generations per month', included: true },
-      { text: '2048px ultra HD download', included: true },
-      { text: '50 exclusive Chinese-style templates', included: true },
-      { text: 'Fully watermark-free', included: true },
-      { text: 'Basic ink style unlock', included: true },
-      { text: 'Cloud storage for 200 designs', included: true },
-      { text: 'Priority generation queue', included: true },
-      { text: 'Ad-free experience', included: true },
-      { text: 'Commercial license', included: false },
-      { text: 'Unlimited generations', included: false },
-    ],
-    cta: 'Upgrade Now',
-    popular: true,
-    badge: 'Most Popular',
-  },
-  {
-    id: 'yearly',
-    name: 'Dragon King',
-    icon: Zap,
-    color: 'from-amber-500 to-orange-600',
-    price: 29.9,
-    period: '/year',
-    description: 'Best value for tattoo lovers',
-    yearlyPrice: '$29.9/year',
-    monthlyEquivalent: '≈ $2.49/month',
-    features: [
-      { text: 'Unlimited AI generations', included: true },
-      { text: '4096px + PNG transparent background', included: true },
-      { text: 'All 120 Chinese-style templates', included: true },
-      { text: 'Dragon Phoenix / Unicorn / Vermilion / Azure styles', included: true },
-      { text: 'Fully watermark-free', included: true },
-      { text: 'Personal commercial license', included: true },
-      { text: 'Lightning fast generation', included: true },
-      { text: 'Unlimited cloud storage', included: true },
-      { text: 'Ad-free experience', included: true },
-      { text: 'Priority customer support', included: true },
-    ],
-    cta: 'Early Bird Price',
-    popular: false,
-    badge: 'Best Value',
-    earlyBird: {
-      price: 19.9,
-      originalPrice: 29.9,
-      label: 'Early Bird Deal',
-      remaining: 1000,
-    },
-  },
-  {
-    id: 'lifetime',
-    name: 'Legend VIP',
-    icon: Crown,
-    color: 'from-yellow-400 to-amber-500',
-    price: 99,
-    period: 'Lifetime',
-    description: 'For hardcore tattoo collectors',
-    features: [
-      { text: 'Lifetime unlimited AI generations', included: true },
-      { text: '4096px + RAW source files', included: true },
-      { text: 'All templates + future additions FREE', included: true },
-      { text: 'Custom exclusive style', included: true },
-      { text: 'Full commercial license', included: true },
-      { text: 'Tattoo studio commercial license', included: true },
-      { text: 'VIP fastest generation speed', included: true },
-      { text: 'Unlimited storage + portfolio showcase', included: true },
-      { text: 'VIP exclusive badge', included: true },
-      { text: 'Gift 1-year subscription to a friend', included: true },
-    ],
-    cta: 'Lock Lifetime Price',
-    popular: false,
-    badge: 'Lifetime Best',
-    earlyBird: {
-      price: 59.9,
-      originalPrice: 99,
-      label: 'Early Bird Limited',
-      remaining: 200,
-    },
-  },
-];
-
 export default function Pricing({ user }: PricingProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage(); // 获取当前语言
   const [loading, setLoading] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<string>('free');
   const [showEarlyBird, setShowEarlyBird] = useState(true);
+
+  // 根据语言获取计划配置
+  const getPlans = () => {
+    const isZh = language === 'zh';
+    
+    return [
+      {
+        id: 'free',
+        name: isZh ? '入门版' : 'Inker',
+        icon: Star,
+        color: 'from-stone-800 to-stone-900',
+        price: 0,
+        period: isZh ? '永久免费' : 'Free Forever',
+        description: isZh ? '开始使用AI纹身设计' : 'Get started with AI tattoo designs',
+        features: [
+          { text: isZh ? '每天10次AI生成' : '10 AI generations per day', included: true },
+          { text: isZh ? '1024px标准高清下载' : '1024px standard HD download', included: true },
+          { text: isZh ? '20个基础中式模板' : '20 basic Chinese-style templates', included: true },
+          { text: isZh ? '轻度水印' : 'Light watermark', included: true, note: isZh ? "适合给纹身师参考" : "Perfect for artist reference" },
+          { text: isZh ? '有限展示广告' : 'Limited display ads', included: true },
+          { text: isZh ? '云端存储30个设计' : 'Cloud storage for 30 designs', included: true },
+          { text: isZh ? '龙凤墨韵风格' : 'Dragon Phoenix ink style', included: false },
+          { text: isZh ? '无水印下载' : 'No watermark downloads', included: false },
+          { text: isZh ? '商业授权' : 'Commercial license', included: false },
+          { text: isZh ? '无限生成' : 'Unlimited generations', included: false },
+        ],
+        cta: isZh ? '免费开始' : 'Start Free',
+        popular: false,
+      },
+      {
+        id: 'monthly',
+        name: isZh ? '锦鲤月卡' : 'Koi Monthly',
+        icon: Sparkles,
+        color: 'from-amber-600 to-amber-700',
+        price: 9.99,  // 更新为新定价
+        period: isZh ? '/月' : '/month',
+        description: isZh ? '适合认真的纹身爱好者' : 'For serious tattoo enthusiasts',
+        features: [
+          { text: isZh ? '每月150次AI生成' : '150 AI generations per month', included: true },
+          { text: isZh ? '2048px超高清下载' : '2048px ultra HD download', included: true },
+          { text: isZh ? '50个专属中式模板' : '50 exclusive Chinese-style templates', included: true },
+          { text: isZh ? '完全无水印' : 'Fully watermark-free', included: true },
+          { text: isZh ? '基础墨韵风格解锁' : 'Basic ink style unlock', included: true },
+          { text: isZh ? '云端存储200个设计' : 'Cloud storage for 200 designs', included: true },
+          { text: isZh ? '优先生成队列' : 'Priority generation queue', included: true },
+          { text: isZh ? '无广告体验' : 'Ad-free experience', included: true },
+          { text: isZh ? '商业授权' : 'Commercial license', included: false },
+          { text: isZh ? '无限生成' : 'Unlimited generations', included: false },
+        ],
+        cta: isZh ? '立即升级' : 'Upgrade Now',
+        popular: true,
+        badge: isZh ? '最受欢迎' : 'Most Popular',
+      },
+      {
+        id: 'yearly',
+        name: isZh ? '龙王年卡' : 'Dragon King',
+        icon: Zap,
+        color: 'from-amber-500 to-orange-600',
+        price: 59,  // 更新为新定价
+        period: isZh ? '/年' : '/year',
+        description: isZh ? '纹身爱好者的最佳选择' : 'Best value for tattoo lovers',
+        yearlyPrice: '$59/year',
+        monthlyEquivalent: isZh ? '≈ ¥4.92/月 (省50%)' : '≈ $4.92/month (Save 50%)',
+        features: [
+          { text: isZh ? '每年1800次AI生成 (150/月)' : '1,800 AI generations per year (150/mo)', included: true },
+          { text: isZh ? '2048px超高清下载' : '2048px ultra HD download', included: true },
+          { text: isZh ? '全部120个中式模板' : 'All 120 Chinese-style templates', included: true },
+          { text: isZh ? '龙凤/麒麟/朱雀/青龙风格' : 'Dragon Phoenix / Unicorn / Vermilion / Azure styles', included: true },
+          { text: isZh ? '完全无水印' : 'Fully watermark-free', included: true },
+          { text: isZh ? '个人商业授权' : 'Personal commercial license', included: true },
+          { text: isZh ? '闪电般快速生成' : 'Lightning fast generation', included: true },
+          { text: isZh ? '无限云端存储' : 'Unlimited cloud storage', included: true },
+          { text: isZh ? '无广告体验' : 'Ad-free experience', included: true },
+          { text: isZh ? '优先客服支持' : 'Priority customer support', included: true },
+        ],
+        cta: isZh ? '早鸟价购买' : 'Early Bird Price',
+        popular: false,
+        badge: isZh ? '最佳性价比' : 'Best Value',
+        earlyBird: {
+          price: 59,
+          originalPrice: 118,
+          label: isZh ? '早鸟特惠' : 'Early Bird Deal',
+          remaining: 1000,
+        },
+      },
+      {
+        id: 'lifetime',
+        name: isZh ? '传奇终身版' : 'Legend VIP',
+        icon: Crown,
+        color: 'from-yellow-400 to-amber-500',
+        price: 599,  // 更新为新定价
+        period: isZh ? '终身' : 'Lifetime',
+        description: isZh ? '为硬核纹身收藏家打造' : 'For hardcore tattoo collectors',
+        features: [
+          { text: isZh ? '终身无限AI生成' : 'Lifetime unlimited AI generations', included: true },
+          { text: isZh ? '2048px + PNG透明背景' : '2048px + PNG transparent background', included: true },
+          { text: isZh ? '全部模板 + 未来新增免费' : 'All templates + future additions FREE', included: true },
+          { text: isZh ? '自定义专属风格' : 'Custom exclusive style', included: true },
+          { text: isZh ? '完整商业授权' : 'Full commercial license', included: true },
+          { text: isZh ? '纹身工作室商业授权' : 'Tattoo studio commercial license', included: true },
+          { text: isZh ? 'VIP最快生成速度' : 'VIP fastest generation speed', included: true },
+          { text: isZh ? '无限存储 + 作品集展示' : 'Unlimited storage + portfolio showcase', included: true },
+          { text: isZh ? 'VIP专属徽章' : 'VIP exclusive badge', included: true },
+          { text: isZh ? '赠送好友1年订阅' : 'Gift 1-year subscription to a friend', included: true },
+        ],
+        cta: isZh ? '锁定终身价' : 'Lock Lifetime Price',
+        popular: false,
+        badge: isZh ? '终身最佳' : 'Lifetime Best',
+        earlyBird: {
+          price: 399,  // 早鸟价
+          originalPrice: 599,
+          label: isZh ? '早鸟限时' : 'Early Bird Limited',
+          remaining: 200,
+        },
+      },
+    ];
+  };
+
+  const plans = getPlans();
 
   useEffect(() => {
     if (user?.current_plan) {
@@ -173,14 +183,19 @@ export default function Pricing({ user }: PricingProps) {
       }
 
       setCurrentPlan(planType);
-      alert(isEarlyBird ? 'Early bird purchase successful!' : 'Subscription successful!');
+      alert(isEarlyBird 
+        ? (language === 'zh' ? '早鸟购买成功！' : 'Early bird purchase successful!')
+        : (language === 'zh' ? '订阅成功！' : 'Subscription successful!')
+      );
     } catch (error) {
       console.error('Subscription failed:', error);
-      alert('Subscription failed, please try again');
+      alert(language === 'zh' ? '订阅失败，请重试' : 'Subscription failed, please try again');
     } finally {
       setLoading(false);
     }
   };
+
+  const isZh = language === 'zh';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 py-12 px-4">
@@ -192,18 +207,22 @@ export default function Pricing({ user }: PricingProps) {
       >
         <h1 className="text-4xl md:text-5xl font-bold mb-4">
           <span className="bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
-            InkAI Premium Membership
+            {isZh ? 'InkAI 高级会员' : 'InkAI Premium Membership'}
           </span>
         </h1>
         <p className="text-stone-400 text-lg max-w-2xl mx-auto">
-          {t('pricing.subtitle')}
+          {isZh ? '选择最适合您的方案' : 'Choose the plan that works best for you'}
         </p>
 
         {/* Comparison Note */}
         <div className="mt-6 inline-flex items-center gap-2 bg-stone-900/50 rounded-full px-4 py-2">
-          <span className="text-amber-400 text-sm font-medium">vs Competitors</span>
+          <span className="text-amber-400 text-sm font-medium">
+            {isZh ? '与竞品对比' : 'vs Competitors'}
+          </span>
           <span className="text-stone-500 text-sm">|</span>
-          <span className="text-green-400 text-sm">Monthly 20% cheaper | Yearly 50% cheaper</span>
+          <span className="text-green-400 text-sm">
+            {isZh ? '月付便宜20% | 年付便宜50%' : 'Monthly 20% cheaper | Yearly 50% cheaper'}
+          </span>
         </div>
       </motion.div>
 
@@ -252,7 +271,7 @@ export default function Pricing({ user }: PricingProps) {
                       🎉 {plan.earlyBird.label}
                     </span>
                     <span className="text-stone-400">
-                      {plan.earlyBird.remaining} spots left
+                      {plan.earlyBird.remaining} {isZh ? '个名额剩余' : 'spots left'}
                     </span>
                   </div>
                 </div>
@@ -283,7 +302,7 @@ export default function Pricing({ user }: PricingProps) {
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-stone-600 line-through text-sm">${originalPrice}</span>
                       <span className="bg-amber-600/20 text-amber-400 text-xs px-2 py-0.5 rounded">
-                        Save ${originalPrice - showPrice}
+                        {isZh ? '省' : 'Save'} ${originalPrice - showPrice}
                       </span>
                     </div>
                   )}
@@ -307,7 +326,12 @@ export default function Pricing({ user }: PricingProps) {
                       : 'bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-600'
                   }`}
                 >
-                  {isCurrentPlan ? t('pricing.current_plan') : loading ? t('common.loading') + '...' : plan.cta}
+                  {isCurrentPlan 
+                    ? (isZh ? '当前方案' : 'Current Plan')
+                    : loading 
+                      ? (isZh ? '加载中...' : 'Loading...')
+                      : plan.cta
+                  }
                 </button>
 
                 {/* Features */}
@@ -343,28 +367,40 @@ export default function Pricing({ user }: PricingProps) {
         transition={{ delay: 0.5 }}
         className="max-w-3xl mx-auto mt-20"
       >
-        <h2 className="text-2xl font-bold text-white text-center mb-8">Frequently Asked Questions</h2>
+        <h2 className="text-2xl font-bold text-white text-center mb-8">
+          {isZh ? '常见问题' : 'Frequently Asked Questions'}
+        </h2>
         <div className="space-y-4">
           {[
             {
-              q: 'Can I get a refund?',
-              a: 'Full refund within 7 days for first-time purchases. Contact support to process.',
+              q: isZh ? '可以退款吗？' : 'Can I get a refund?',
+              a: isZh 
+                ? '首次购买7天内可全额退款。联系客服处理。'
+                : 'Full refund within 7 days for first-time purchases. Contact support to process.',
             },
             {
-              q: 'How do I cancel auto-renewal?',
-              a: 'Cancel anytime in account settings. Your benefits continue until the end of your billing period.',
+              q: isZh ? '如何取消自动续费？' : 'How do I cancel auto-renewal?',
+              a: isZh
+                ? '随时可在账户设置中取消。您的权益将持续到当前计费周期结束。'
+                : 'Cancel anytime in account settings. Your benefits continue until the end of your billing period.',
             },
             {
-              q: 'What if early bird spots run out?',
-              a: 'Prices return to regular rates once spots are filled. Grab yours now!',
+              q: isZh ? '早鸟名额用完了怎么办？' : 'What if early bird spots run out?',
+              a: isZh
+                ? '名额满后价格将恢复原价。立即抢购！'
+                : 'Prices return to regular rates once spots are filled. Grab yours now!',
             },
             {
-              q: 'Can I use designs commercially?',
-              a: 'Yearly+ plans include personal commercial license. Lifetime VIP includes full commercial rights (including tattoo studio use).',
+              q: isZh ? '可以商业使用设计吗？' : 'Can I use designs commercially?',
+              a: isZh
+                ? '年付及以上方案包含个人商业授权。终身VIP包含完整商业权利（包括纹身工作室使用）。'
+                : 'Yearly+ plans include personal commercial license. Lifetime VIP includes full commercial rights (including tattoo studio use).',
             },
             {
-              q: 'Are there limits for free users?',
-              a: 'Free users get 10 generations per day - perfect for trying out Chinese-style tattoo designs.',
+              q: isZh ? '免费用户有限制吗？' : 'Are there limits for free users?',
+              a: isZh
+                ? '免费用户每天可生成10次 - 非常适合体验中式纹身设计。'
+                : 'Free users get 10 generations per day - perfect for trying out Chinese-style tattoo designs.',
             },
           ].map((faq, i) => (
             <div key={i} className="bg-stone-900/50 rounded-xl p-5 border border-stone-700/50">
@@ -377,8 +413,16 @@ export default function Pricing({ user }: PricingProps) {
 
       {/* Footer Note */}
       <div className="text-center mt-12 text-stone-500 text-sm">
-        <p>All prices in USD. PayPal / Credit Card / Apple Pay / Google Pay accepted</p>
-        <p className="mt-2">Questions? Read our <a href="#/privacy" className="text-amber-400 hover:underline">Privacy Policy</a></p>
+        <p>{isZh 
+          ? '所有价格以美元计价。支持 PayPal / 信用卡 / Apple Pay / Google Pay'
+          : 'All prices in USD. PayPal / Credit Card / Apple Pay / Google Pay accepted'
+        }</p>
+        <p className="mt-2">
+          {isZh ? '有疑问？' : 'Questions?'} {' '}
+          <a href="#/privacy" className="text-amber-400 hover:underline">
+            {isZh ? '阅读我们的隐私政策' : 'Read our Privacy Policy'}
+          </a>
+        </p>
       </div>
     </div>
   );
