@@ -18,7 +18,7 @@ interface CategoryNavProps {
 
 export default function CategoryNav({ activeCategory, onCategoryChange }: CategoryNavProps) {
   return (
-    <div className="sticky top-16 z-30 bg-[#0a0a0a]/95 backdrop-blur-md border-b border-[#1a1a1a]">
+    <div className="sticky top-16 z-30 bg-stone-950/95 backdrop-blur-md border-b border-stone-800">
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex gap-2 overflow-x-auto scrollbar-thin pb-2">
           {categories.map((cat) => (
@@ -29,8 +29,8 @@ export default function CategoryNav({ activeCategory, onCategoryChange }: Catego
               whileTap={{ scale: 0.95 }}
               className={`flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-all ${
                 activeCategory === cat.id
-                  ? 'bg-[#c9a050] text-[#0a0a0a] font-medium'
-                  : 'bg-[#1a1a1a] text-orange-300 hover:text-white hover:bg-[#2a2a2a]'
+                  ? 'bg-amber-600 text-stone-950 font-medium'
+                  : 'bg-stone-900 text-stone-400 hover:text-amber-400 hover:bg-stone-800'
               }`}
             >
               <span>{cat.icon}</span>

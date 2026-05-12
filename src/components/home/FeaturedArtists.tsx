@@ -15,9 +15,9 @@ export default function FeaturedArtists() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-2xl font-bold text-white">Featured Artists</h2>
-            <p className="text-orange-300 text-sm mt-1">Top tattoo masters from China</p>
+            <p className="text-stone-400 text-sm mt-1">Top tattoo masters from China</p>
           </div>
-          <button className="text-[#c9a050] hover:text-[#d4af37] text-sm font-medium">View All</button>
+          <button className="text-amber-400 hover:text-amber-300 text-sm font-medium">View All</button>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -27,25 +27,25 @@ export default function FeaturedArtists() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="group bg-[#141414] rounded-xl p-4 border border-[#2a2a2a] hover:border-[#c9a050]/50 transition-all cursor-pointer"
+              className="group bg-stone-900/50 rounded-xl p-4 border border-stone-700/50 hover:border-amber-600/50 transition-all cursor-pointer"
             >
               <div className="flex items-center gap-3 mb-3">
                 <img
                   src={artist.avatar}
                   alt={artist.name}
-                  className="w-12 h-12 rounded-full border-2 border-[#c9a050]"
+                  className="w-12 h-12 rounded-full border-2 border-amber-600"
                 />
                 <div>
                   <h3 className="text-white font-medium text-sm">{artist.name}</h3>
-                  <span className="text-[#c9a050] text-xs">{artist.style}</span>
+                  <span className="text-amber-400 text-xs">{artist.style}</span>
                 </div>
               </div>
-              <div className="flex items-center justify-between text-xs text-orange-300">
+              <div className="flex items-center justify-between text-xs text-stone-400">
                 <span className="flex items-center gap-1">
                   <MapPin size={12} /> {artist.location}
                 </span>
                 <span className="flex items-center gap-1">
-                  <Star size={12} className="text-[#c9a050]" /> {artist.rating}
+                  <Star size={12} className="text-amber-500" /> {artist.rating}
                 </span>
               </div>
             </motion.div>

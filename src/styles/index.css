@@ -43,8 +43,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--ink-black);
-  color: var(--rice-paper);
+  background-color: #0a0a0a;
+  color: #e7e5e4;
 }
 
 .scrollbar-thin::-webkit-scrollbar {
