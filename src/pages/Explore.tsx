@@ -21,17 +21,18 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
-const SORT_OPTIONS = [
-  { id: 'recommend', label: 'For You', icon: Sparkles },
-  { id: 'latest', label: 'Latest', icon: Clock },
-  { id: 'popular', label: 'Popular', icon: TrendingUp },
-  { id: 'following', label: 'Following', icon: Users },
+const getSortOptions = (isZh: boolean) => [
+  { id: 'recommend', label: isZh ? '为你推荐' : 'For You', icon: Sparkles },
+  { id: 'latest', label: isZh ? '最新' : 'Latest', icon: Clock },
+  { id: 'popular', label: isZh ? '热门' : 'Popular', icon: TrendingUp },
+  { id: 'following', label: isZh ? '关注中' : 'Following', icon: Users },
 ] as const;
 
 const PAGE_SIZE = 20;
 
 export default function Explore() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isZh = language === 'zh';
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentUser, setCurrentUser] = useState<Profile | null>(null);
@@ -180,7 +181,7 @@ export default function Explore() {
               </div>
               <div>
                 <h1 className="text-[17px] font-bold text-white leading-tight">{t('explore.title')}</h1>
-                <p className="text-[#6B6B78] text-[11px]">Discover &middot; Share &middot; Connect</p>
+                <p className="text-[#6B6B78] text-[11px]">{isZh ? '发现 · 分享 · 连接' : 'Discover · Share · Connect'}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -224,7 +225,7 @@ export default function Explore() {
 
           {/* 排序切换 */}
           <div className="flex gap-2 overflow-x-auto scrollbar-thin pb-0.5">
-            {SORT_OPTIONS.map(option => (
+            {getSortOptions(isZh).map(option => (
               <button
                 key={option.id}
                 onClick={() => handleSortChange(option.id)}
@@ -273,12 +274,12 @@ export default function Explore() {
           <EmptyState
             icon={<Users className="w-8 h-8 text-[#6B6B78]" />}
             title={searchQuery ? t('explore.no_results') : t('notifications.no_notifications')}
-            description={searchQuery ? 'Try different keywords or browse by tags' : t('profile.no_posts')}
+            description={searchQuery ? (isZh ? '试试不同的关键词或按标签浏览' : 'Try different keywords or browse by tags') : t('profile.no_posts')}
             action={!searchQuery && currentUser ? {
               label: t('create.post'),
               onClick: () => navigate('/create'),
             } : searchQuery ? {
-              label: 'Clear Search',
+              label: isZh ? '清除搜索' : 'Clear Search',
               onClick: () => { setSearchQuery(''); setActiveTag(null); },
             } : undefined}
           />

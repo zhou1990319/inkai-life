@@ -14,18 +14,20 @@ interface AIGeneratorProps {
 }
 
 // 海外纹身风格选项 - 2行4列布局
-const TATTOO_STYLES = [
-  // 第一排
-  { id: 'oriental', name: 'Oriental', nameZh: '中式', keywords: 'oriental style, traditional chinese art, ink wash painting, chinese dragon, phoenix' },
-  { id: 'japanese', name: 'Japanese', nameZh: '日式', keywords: 'japanese tattoo, irezumi, traditional japanese art, bold outlines, cherry blossom, koi fish' },
-  { id: 'american-traditional', name: 'American Traditional', nameZh: '美式传统', keywords: 'american traditional tattoo, bold lines, vibrant colors, nautical themes, eagle, rose' },
-  { id: 'neo-traditional', name: 'Neo-Traditional', nameZh: '新传统', keywords: 'neo-traditional tattoo, bold colors, detailed illustrations, modern interpretation' },
-  // 第二排
-  { id: 'blackwork', name: 'Dark & Blackwork', nameZh: '暗黑黑灰', keywords: 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, tribal influence' },
-  { id: 'watercolor', name: 'Watercolor', nameZh: '水彩', keywords: 'watercolor tattoo style, ink wash effect, flowing colors, artistic brush strokes' },
-  { id: 'minimalist', name: 'Minimalist', nameZh: '极简线条', keywords: 'minimalist tattoo, fine line work, delicate designs, single needle technique' },
-  { id: 'realism', name: 'Realism', nameZh: '写实', keywords: 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo' },
-];
+function getTattooStyles(isZh: boolean) {
+  return [
+    // 第一排
+    { id: 'oriental', name: isZh ? '中式' : 'Oriental', nameZh: '中式', keywords: 'oriental style, traditional chinese art, ink wash painting, chinese dragon, phoenix' },
+    { id: 'japanese', name: isZh ? '日式' : 'Japanese', nameZh: '日式', keywords: 'japanese tattoo, irezumi, traditional japanese art, bold outlines, cherry blossom, koi fish' },
+    { id: 'american-traditional', name: isZh ? '美式传统' : 'American Traditional', nameZh: '美式传统', keywords: 'american traditional tattoo, bold lines, vibrant colors, nautical themes, eagle, rose' },
+    { id: 'neo-traditional', name: isZh ? '新传统' : 'Neo-Traditional', nameZh: '新传统', keywords: 'neo-traditional tattoo, bold colors, detailed illustrations, modern interpretation' },
+    // 第二排
+    { id: 'blackwork', name: isZh ? '暗黑黑灰' : 'Dark & Blackwork', nameZh: '暗黑黑灰', keywords: 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, tribal influence' },
+    { id: 'watercolor', name: isZh ? '水彩' : 'Watercolor', nameZh: '水彩', keywords: 'watercolor tattoo style, ink wash effect, flowing colors, artistic brush strokes' },
+    { id: 'minimalist', name: isZh ? '极简线条' : 'Minimalist', nameZh: '极简线条', keywords: 'minimalist tattoo, fine line work, delicate designs, single needle technique' },
+    { id: 'realism', name: isZh ? '写实' : 'Realism', nameZh: '写实', keywords: 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo' },
+  ];
+}
 
 // 风格关键词映射表
 const STYLE_KEYWORDS_MAP: Record<string, string> = {
@@ -91,7 +93,7 @@ function LoginRequiredOverlay({ onLogin, onUpgrade, t }: { onLogin: () => void; 
 /**
  * 会员状态栏组件
  */
-function MembershipStatusBar({ user, membership, t }: { user: Profile; membership: ReturnType<typeof useMembership>; t: (key: string) => string }) {
+function MembershipStatusBar({ user, membership, t, isZh }: { user: Profile; membership: ReturnType<typeof useMembership>; t: (key: string) => string; isZh: boolean }) {
   const { currentPlan, benefits, message } = membership;
   const isFree = currentPlan === 'free';
 
@@ -122,7 +124,7 @@ function MembershipStatusBar({ user, membership, t }: { user: Profile; membershi
               )}
             </div>
             <p className={`text-sm ${isFree ? 'text-amber-400' : 'text-slate-400'}`}>
-              {message || (benefits.isUnlimited ? 'Unlimited generations!' : `Max resolution: ${benefits.maxResolution}`)}
+              {message || (benefits.isUnlimited ? (isZh ? '无限次生成！' : 'Unlimited generations!') : (isZh ? `最大分辨率: ${benefits.maxResolution}` : `Max resolution: ${benefits.maxResolution}`))}
             </p>
           </div>
         </div>
@@ -249,7 +251,8 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isZh = language === 'zh';
 
   // 会员状态管理
   const membership = useMembership(user);
@@ -272,7 +275,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
     }
     // 检查生成次数限制
     if (!canGenerate) {
-      setError('今日生成次数已用完，请明天再来或升级会员！');
+      setError(isZh ? '今日生成次数已用完，请明天再来或升级会员！' : 'Daily generation limit reached. Please try again tomorrow or upgrade!');
       return;
     }
     if (!prompt && mode === 'text') return;
@@ -319,11 +322,11 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
         // 记录生成到日志
         recordGeneration(result.image_url, resolution);
       } else {
-        setError(result.error || '生成失败，请重试');
+        setError(result.error || (isZh ? '生成失败，请重试' : 'Generation failed, please try again'));
       }
     } catch (err) {
       console.error('Generation failed:', err);
-      setError(err instanceof Error ? err.message : '生成失败，请重试');
+      setError(err instanceof Error ? err.message : (isZh ? '生成失败，请重试' : 'Generation failed, please try again'));
     }
     setLoading(false);
   };
@@ -365,7 +368,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
       console.log('[上传] 成功:', result.publicUrl);
     } catch (err) {
       console.error('[上传] 失败:', err);
-      setError(err instanceof Error ? err.message : '图片上传失败，请重试');
+      setError(err instanceof Error ? err.message : (isZh ? '图片上传失败，请重试' : 'Image upload failed, please try again'));
     } finally {
       e.target.value = '';
     }
@@ -397,7 +400,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
             {!user && <LoginRequiredOverlay onLogin={handleLogin} onUpgrade={handleUpgrade} t={t} />}
 
             {/* 已登录：显示会员状态栏 */}
-            {user && <MembershipStatusBar user={user} membership={membership} t={t} />}
+            {user && <MembershipStatusBar user={user} membership={membership} t={t} isZh={isZh} />}
 
             <div className="flex gap-4 mb-6">
                 <button
@@ -432,7 +435,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
                   ) : (
                     <>
                       <Upload className="w-8 h-8 text-slate-400 mb-2" />
-                      <span className="text-slate-400">Upload reference image</span>
+                      <span className="text-slate-400">{isZh ? '上传参考图片' : 'Upload reference image'}</span>
                     </>
                   )}
                   <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
@@ -453,7 +456,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
             <div className="mb-6">
               <label className="block text-amber-400 mb-3 font-medium">{t('ai.style')}</label>
               <div className="grid grid-cols-4 gap-2">
-                {TATTOO_STYLES.map((style) => (
+                {getTattooStyles(isZh).map((style) => (
                   <button
                     key={style.id}
                     onClick={() => setSelectedStyle(style.id)}
@@ -547,10 +550,46 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
             </div>
             {generatedImage && (
               <div className="mt-4 flex gap-3">
-                <button className="flex-1 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors">
+                <button
+                  onClick={async () => {
+                    try {
+                      const response = await fetch(generatedImage);
+                      const blob = await response.blob();
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `tattoo-${Date.now()}.png`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
+                    } catch (err) {
+                      console.error('Download failed:', err);
+                    }
+                  }}
+                  className="flex-1 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors"
+                >
                   {t('ai.download')}
                 </button>
-                <button className="flex-1 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors">
+                <button
+                  onClick={async () => {
+                    try {
+                      if (navigator.share) {
+                        await navigator.share({
+                          title: isZh ? '我的纹身设计' : 'My Tattoo Design',
+                          text: isZh ? '看看我生成的纹身设计' : 'Check out my tattoo design',
+                          url: generatedImage,
+                        });
+                      } else {
+                        await navigator.clipboard.writeText(generatedImage);
+                        alert(isZh ? '图片链接已复制到剪贴板' : 'Image link copied to clipboard');
+                      }
+                    } catch (err) {
+                      console.error('Share failed:', err);
+                    }
+                  }}
+                  className="flex-1 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors"
+                >
                   {t('ai.share')}
                 </button>
               </div>

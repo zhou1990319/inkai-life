@@ -1,15 +1,5 @@
 import { motion } from 'framer-motion';
-
-const categories = [
-  { id: 'all', name: 'All', icon: '✦' },
-  { id: 'ink-wash', name: 'Ink Wash', icon: '⛰️' },
-  { id: 'dragon', name: 'Dragon', icon: '🐉' },
-  { id: 'phoenix', name: 'Phoenix', icon: '🔥' },
-  { id: 'dunhuang', name: 'Dunhuang', icon: '🧚' },
-  { id: 'mythical', name: 'Mythical', icon: '🦁' },
-  { id: 'calligraphy', name: 'Calligraphy', icon: '✒️' },
-  { id: 'koi', name: 'Koi', icon: '🐟' },
-];
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface CategoryNavProps {
   activeCategory: string;
@@ -17,6 +7,20 @@ interface CategoryNavProps {
 }
 
 export default function CategoryNav({ activeCategory, onCategoryChange }: CategoryNavProps) {
+  const { language } = useLanguage();
+  const isZh = language === 'zh';
+
+  const categories = [
+    { id: 'all', name: isZh ? '\u5168\u90E8' : 'All', icon: '\u2726' },
+    { id: 'ink-wash', name: isZh ? '\u6C34\u58A8' : 'Ink Wash', icon: '\u26F0\uFE0F' },
+    { id: 'dragon', name: isZh ? '\u9F99' : 'Dragon', icon: '\uD83D\uDC09' },
+    { id: 'phoenix', name: isZh ? '\u51E4\u51F0' : 'Phoenix', icon: '\uD83D\uDD25' },
+    { id: 'dunhuang', name: isZh ? '\u6566\u714C' : 'Dunhuang', icon: '\uD83E\uDDDA' },
+    { id: 'mythical', name: isZh ? '\u795E\u517D' : 'Mythical', icon: '\uD83E\uDD81' },
+    { id: 'calligraphy', name: isZh ? '\u4E66\u6CD5' : 'Calligraphy', icon: '\u270F\uFE0F' },
+    { id: 'koi', name: isZh ? '\u9526\u9CA4' : 'Koi', icon: '\uD83D\uDC1F' },
+  ];
+
   return (
     <div className="sticky top-16 z-30 bg-stone-950/95 backdrop-blur-md border-b border-stone-800">
       <div className="max-w-7xl mx-auto px-4 py-4">
@@ -31,7 +35,7 @@ export default function CategoryNav({ activeCategory, onCategoryChange }: Catego
                 activeCategory === cat.id
                   ? 'bg-amber-600 text-stone-950 font-medium'
                   : 'bg-stone-900 text-stone-400 hover:text-amber-400 hover:bg-stone-800'
-              }`}
+              }}
             >
               <span>{cat.icon}</span>
               <span className="text-sm">{cat.name}</span>

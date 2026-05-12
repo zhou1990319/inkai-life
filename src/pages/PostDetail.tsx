@@ -26,7 +26,8 @@ import { useLanguage } from '../contexts/LanguageContext';
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
 export default function PostDetail() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isZh = language === 'zh';
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<Profile | null>(null);
@@ -130,7 +131,7 @@ export default function PostDetail() {
       await navigator.share({ title: post?.title, url });
     } else {
       await navigator.clipboard.writeText(url);
-      alert('Link copied to clipboard!');
+      alert(isZh ? '链接已复制到剪贴板！' : 'Link copied to clipboard!');
     }
   };
 
@@ -142,7 +143,7 @@ export default function PostDetail() {
       reason,
     });
     setShowReportMenu(false);
-    alert('Thank you for your report. We will review it shortly.');
+    alert(isZh ? '感谢您的举报，我们会尽快审查。' : 'Thank you for your report. We will review it shortly.');
   };
 
   if (loading) {
@@ -158,15 +159,15 @@ export default function PostDetail() {
       <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center">
         <EmptyState
           icon={<MessageCircle className="w-8 h-8 text-[#6B6B78]" />}
-          title="Post not found"
-          description="This post may have been deleted or doesn't exist"
-          action={{ label: 'Back to Community', onClick: () => navigate('/explore') }}
+          title={isZh ? '帖子未找到' : 'Post not found'}
+          description={isZh ? '该帖子可能已被删除或不存在' : "This post may have been deleted or doesn't exist"}
+          action={{ label: isZh ? '返回社区' : 'Back to Community', onClick: () => navigate('/explore') }}
         />
       </div>
     );
   }
 
-  const displayName = post.author?.display_name || post.author?.username || 'Unknown';
+  const displayName = post.author?.display_name || post.author?.username || (isZh ? '未知' : 'Unknown');
   const username = post.author?.username || '';
 
   return (
@@ -300,7 +301,7 @@ export default function PostDetail() {
                 ))}
                 {post.is_ai_generated && (
                   <span className="px-2.5 py-1 bg-[#9E2B25]/20 text-[#9E2B25] text-xs rounded-full border border-[#9E2B25]/30">
-                    AI Generated
+                    {isZh ? 'AI 生成' : 'AI Generated'}
                   </span>
                 )}
                 {post.location && (
@@ -406,7 +407,7 @@ export default function PostDetail() {
               <div className="space-y-4 max-h-80 overflow-y-auto scrollbar-thin">
                 {comments.length === 0 ? (
                   <p className="text-[#6B6B78] text-sm text-center py-8">
-                    {t('profile.no_posts')}. Be the first to {t('post.comments').toLowerCase()}!
+                    {t('profile.no_posts')}. {isZh ? `成为第一个${t('post.comments').toLowerCase()}！` : `Be the first to ${t('post.comments').toLowerCase()}!`}
                   </p>
                 ) : (
                   comments.map(comment => (
@@ -423,7 +424,7 @@ export default function PostDetail() {
                         <div className="ml-10">
                           <CommentInput
                             userId={currentUser?.id || ''}
-                            placeholder={`Reply to @${comment.author.username}...`}
+                            placeholder={isZh ? `回复 @${comment.author.username}...` : `Reply to @${comment.author.username}...`}
                             onSubmit={handleSubmitComment}
                             autoFocus
                           />

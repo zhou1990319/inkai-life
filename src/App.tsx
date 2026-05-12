@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './supabase/client';
@@ -27,6 +27,8 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Disclaimer from './pages/Disclaimer';
 import Pricing from './pages/Pricing';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentCancel from './pages/PaymentCancel';
 import Notifications from './pages/Notifications';
 import Settings from './pages/Settings';
 
@@ -88,7 +90,7 @@ function AppContent() {
             />
 
             {/* AI 工作室（需登录） */}
-            <Route path="/ai-studio" element={<AIGenerator user={user} />} />
+            <Route path="/ai-studio" element={user ? <AIGenerator user={user} /> : <Navigate to="/login?redirect=/ai-studio" />} />
 
             {/* 艺术家主页 */}
             <Route path="/artist/:id" element={<ArtistDetail />} />
@@ -102,6 +104,10 @@ function AppContent() {
             {/* 定价 */}
             <Route path="/pricing" element={<Pricing user={user} />} />
 
+            {/* 支付回调 */}
+            <Route path="/payment/success" element={<PaymentSuccess />} />
+            <Route path="/payment/cancel" element={<PaymentCancel />} />
+
             {/* 认证 */}
             <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
             <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
@@ -113,6 +119,17 @@ function AppContent() {
 
               {/* 设置 */}
               <Route path="/settings" element={<Settings />} />
+
+            {/* 404 */}
+            <Route path="*" element={
+              <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center">
+                <div className="text-center">
+                  <h1 className="text-6xl font-bold text-[#CFAF6E] mb-4">404</h1>
+                  <p className="text-stone-400 mb-6">Page not found</p>
+                  <Link to="/" className="text-[#CFAF6E] hover:underline">Go Home</Link>
+                </div>
+              </div>
+            } />
           </Routes>
         </AnimatePresence>
       </main>

@@ -13,6 +13,7 @@ import {
   Eye, ThumbsUp, BookmarkCheck
 } from 'lucide-react';
 import { LikeService, SaveService, FollowService } from '../../services/community';
+import { useLanguage } from '../../contexts/LanguageContext';
 import type { Profile, PostWithAuthor } from '../../services/community';
 
 // ============================================
@@ -255,6 +256,8 @@ export function FollowButton({
 }: FollowButtonProps) {
   const [following, setFollowing] = useState(initialFollowing);
   const [loading, setLoading] = useState(false);
+  const { language } = useLanguage();
+  const isZh = language === 'zh';
 
   useEffect(() => {
     if (currentUserId) {
@@ -299,12 +302,12 @@ export function FollowButton({
       {following ? (
         <>
           <UserCheck className="w-3 h-3" />
-          Following
+          {isZh ? '已关注' : 'Following'}
         </>
       ) : (
         <>
           <UserPlus className="w-3 h-3" />
-          Follow
+          {isZh ? '关注' : 'Follow'}
         </>
       )}
     </button>
@@ -322,6 +325,8 @@ interface PostCardProps {
 
 export function PostCard({ post, currentUserId, onImageClick }: PostCardProps) {
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const isZh = language === 'zh';
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const imageUrls = post.image_urls?.length ? post.image_urls : [post.image_url].filter(Boolean);
 
@@ -393,7 +398,7 @@ export function PostCard({ post, currentUserId, onImageClick }: PostCardProps) {
         {/* AI生成标识 */}
         {post.is_ai_generated && (
           <div className="absolute top-2 left-2 px-2 py-0.5 bg-[#9E2B25]/80 text-white text-[10px] rounded-full backdrop-blur-sm">
-            AI Generated
+            {isZh ? 'AI 生成' : 'AI Generated'}
           </div>
         )}
       </div>
@@ -489,6 +494,8 @@ interface CommentItemProps {
 
 export function CommentItem({ comment, currentUserId, onReply }: CommentItemProps) {
   const [showReplies, setShowReplies] = useState(false);
+  const { language } = useLanguage();
+  const isZh = language === 'zh';
   const [replyContent, setReplyContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -496,7 +503,7 @@ export function CommentItem({ comment, currentUserId, onReply }: CommentItemProp
 
   const timeAgo = (date: string) => {
     const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
-    if (seconds < 60) return 'just now';
+    if (seconds < 60) return isZh ? '刚刚' : 'just now';
     const minutes = Math.floor(seconds / 60);
     if (minutes < 60) return `${minutes}m`;
     const hours = Math.floor(minutes / 60);
@@ -534,7 +541,7 @@ export function CommentItem({ comment, currentUserId, onReply }: CommentItemProp
                 }}
                 className="text-xs text-[#6B6B78] hover:text-[#CFAF6E] transition-colors"
               >
-                Reply
+                {isZh ? '回复' : 'Reply'}
               </button>
             )}
           </div>
@@ -548,7 +555,7 @@ export function CommentItem({ comment, currentUserId, onReply }: CommentItemProp
             onClick={() => setShowReplies(!showReplies)}
             className="text-xs text-[#CFAF6E] hover:text-[#E0C580] transition-colors"
           >
-            {showReplies ? 'Hide' : `View ${comment.replies.length} ${comment.replies.length === 1 ? 'reply' : 'replies'}`}
+            {showReplies ? (isZh ? '收起' : 'Hide') : (isZh ? '查看 ' + comment.replies.length + ' 条回复' : `View ${comment.replies.length} ${comment.replies.length === 1 ? 'reply' : 'replies'}`)}
           </button>
           <AnimatePresence>
             {showReplies && (
@@ -591,7 +598,10 @@ interface CommentInputProps {
   autoFocus?: boolean;
 }
 
-export function CommentInput({ userId, placeholder = 'Add a comment...', onSubmit, autoFocus }: CommentInputProps) {
+export function CommentInput({ userId, placeholder, onSubmit, autoFocus }: CommentInputProps) {
+  const { language } = useLanguage();
+  const isZh = language === 'zh';
+  const _placeholder = placeholder || (isZh ? '添加评论...' : 'Add a comment...');
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -613,7 +623,7 @@ export function CommentInput({ userId, placeholder = 'Add a comment...', onSubmi
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder={placeholder}
+          placeholder={_placeholder}
           autoFocus={autoFocus}
           rows={1}
           className="w-full bg-[#1E1E27] border border-[#2A2A36] rounded-xl px-4 py-3 text-sm text-white placeholder-[#6B6B78] resize-none focus:border-[#CFAF6E]/50 focus:outline-none transition-colors"
@@ -651,13 +661,15 @@ interface ImageUploaderProps {
 
 export function ImageUploader({ images, onChange, maxImages = 9, userId }: ImageUploaderProps) {
   const [uploading, setUploading] = useState(false);
+  const { language } = useLanguage();
+  const isZh = language === 'zh';
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || !userId) return;
     if (images.length + files.length > maxImages) {
-      alert(`Maximum ${maxImages} images allowed`);
+      alert(isZh ? '最多允许 ' + maxImages + ' 张图片' : `Maximum ${maxImages} images allowed`);
       return;
     }
 
@@ -668,7 +680,7 @@ export function ImageUploader({ images, onChange, maxImages = 9, userId }: Image
       for (const file of Array.from(files)) {
         if (!file.type.startsWith('image/')) continue;
         if (file.size > 10 * 1024 * 1024) {
-          alert(`File ${file.name} is too large (max 10MB)`);
+          alert(isZh ? '文件 ' + file.name + ' 太大（最大 10MB）' : `File ${file.name} is too large (max 10MB)`);
           continue;
         }
         const url = await uploadImage(file, 'tattoo-images', `posts/${userId}`);
@@ -700,7 +712,7 @@ export function ImageUploader({ images, onChange, maxImages = 9, userId }: Image
               </button>
               {index === 0 && (
                 <span className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/60 text-white text-[10px] rounded backdrop-blur-sm">
-                  Cover
+                  {isZh ? '封面' : 'Cover'}
                 </span>
               )}
             </div>
@@ -732,16 +744,16 @@ export function ImageUploader({ images, onChange, maxImages = 9, userId }: Image
           {uploading ? (
             <div className="flex flex-col items-center gap-2">
               <Loader2 className="w-8 h-8 text-[#CFAF6E] animate-spin" />
-              <p className="text-sm text-[#6B6B78]">Uploading...</p>
+              <p className="text-sm text-[#6B6B78]">{isZh ? '上传中...' : 'Uploading...'}</p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
               <ImageIcon className="w-8 h-8 text-[#6B6B78]" />
               <p className="text-sm text-[#B0B0B8]">
-                Click or drag to upload images
+                {isZh ? '点击或拖拽上传图片' : 'Click or drag to upload images'}
               </p>
               <p className="text-xs text-[#6B6B78]">
-                {images.length}/{maxImages} images · Max 10MB each
+                {images.length}/{maxImages} {isZh ? '张图片 · 每张最大 10MB' : 'images · Max 10MB each'}
               </p>
             </div>
           )}
@@ -814,10 +826,13 @@ interface VisibilitySelectorProps {
 }
 
 export function VisibilitySelector({ value, onChange }: VisibilitySelectorProps) {
+  const { language } = useLanguage();
+  const isZh = language === 'zh';
+
   const options = [
-    { value: 'public', label: 'Public', icon: Globe, desc: 'Anyone can see this post' },
-    { value: 'followers', label: 'Followers Only', icon: Users, desc: 'Only your followers can see' },
-    { value: 'private', label: 'Private', icon: X, desc: 'Only you can see' },
+    { value: 'public', label: isZh ? '公开' : 'Public', icon: Globe, desc: isZh ? '任何人都可以看到这篇帖子' : 'Anyone can see this post' },
+    { value: 'followers', label: isZh ? '仅关注者' : 'Followers Only', icon: Users, desc: isZh ? '仅你的关注者可以看到' : 'Only your followers can see' },
+    { value: 'private', label: isZh ? '私密' : 'Private', icon: X, desc: isZh ? '仅你自己可以看到' : 'Only you can see' },
   ] as const;
 
   return (
@@ -857,7 +872,10 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-export function SearchBar({ value, onChange, onSearch, placeholder = 'Search...' }: SearchBarProps) {
+export function SearchBar({ value, onChange, onSearch, placeholder }: SearchBarProps) {
+  const { language } = useLanguage();
+  const isZh = language === 'zh';
+  const _placeholder = placeholder || (isZh ? '搜索...' : 'Search...');
   return (
     <div className="relative">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B6B78]" />
@@ -866,7 +884,7 @@ export function SearchBar({ value, onChange, onSearch, placeholder = 'Search...'
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && onSearch(value)}
-        placeholder={placeholder}
+        placeholder={_placeholder}
         className="w-full bg-[#18181F] border border-[#2A2A36] rounded-full pl-10 pr-4 py-2.5 text-sm text-white placeholder-[#6B6B78] focus:border-[#CFAF6E]/50 focus:outline-none transition-colors"
       />
     </div>

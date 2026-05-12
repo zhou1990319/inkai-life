@@ -30,15 +30,22 @@ const BODY_PARTS = [
   'Leg', 'Neck', 'Finger', 'Ribs', 'Forearm', 'Calf'
 ];
 
-const POST_TYPES = [
-  { id: 'handwork', label: 'Handwork', desc: 'Traditional hand-drawn design', icon: '✋' },
-  { id: 'finished', label: 'Finished Work', desc: 'Completed tattoo on skin', icon: '🎨' },
-  { id: 'ai_generated', label: 'AI Generated', desc: 'Created with AI tools', icon: '✨' },
-  { id: 'daily', label: 'Daily Share', desc: 'Behind the scenes /日常', icon: '📸' },
+const BODY_PARTS_ZH: Record<string, string> = {
+  'Arm': '手臂', 'Back': '背部', 'Chest': '胸部', 'Wrist': '手腕',
+  'Ankle': '脚踝', 'Shoulder': '肩膀', 'Leg': '腿部', 'Neck': '颈部',
+  'Finger': '手指', 'Ribs': '肋骨', 'Forearm': '前臂', 'Calf': '小腿'
+};
+
+const getPostTypes = (isZh: boolean) => [
+  { id: 'handwork', label: isZh ? '手绘稿' : 'Handwork', desc: isZh ? '传统手绘设计' : 'Traditional hand-drawn design', icon: '✋' },
+  { id: 'finished', label: isZh ? '成品作品' : 'Finished Work', desc: isZh ? '皮肤上的完成纹身' : 'Completed tattoo on skin', icon: '🎨' },
+  { id: 'ai_generated', label: isZh ? 'AI 生成' : 'AI Generated', desc: isZh ? '使用 AI 工具创作' : 'Created with AI tools', icon: '✨' },
+  { id: 'daily', label: isZh ? '日常分享' : 'Daily Share', desc: isZh ? '幕后花絮 / 日常' : 'Behind the scenes / daily', icon: '📸' },
 ];
 
 export default function Create() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isZh = language === 'zh';
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<Profile | null>(null);
   const [title, setTitle] = useState('');
@@ -53,6 +60,8 @@ export default function Create() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const POST_TYPES = getPostTypes(isZh);
 
   // 检查登录
   useEffect(() => {
@@ -94,15 +103,15 @@ export default function Create() {
 
   const handleSubmit = async () => {
     if (!title.trim()) {
-      setError('Please enter a title for your post');
+      setError(isZh ? '请输入帖子标题' : 'Please enter a title for your post');
       return;
     }
     if (images.length === 0) {
-      setError('Please upload at least one image');
+      setError(isZh ? '请至少上传一张图片' : 'Please upload at least one image');
       return;
     }
     if (!currentUser) {
-      setError('Please login first');
+      setError(isZh ? '请先登录' : 'Please login first');
       navigate('/login');
       return;
     }
@@ -134,11 +143,11 @@ export default function Create() {
         });
       }
 
-      alert('Post published successfully! 🎉');
+      alert(isZh ? '帖子发布成功！🎉' : 'Post published successfully! 🎉');
       navigate(`/post/${post.id}`);
     } catch (err: any) {
       console.error('Failed to create post:', err);
-      setError(err.message || 'Failed to publish post. Please try again.');
+      setError(err.message || (isZh ? '发布失败，请重试。' : 'Failed to publish post. Please try again.'));
     } finally {
       setSubmitting(false);
     }
@@ -153,7 +162,7 @@ export default function Create() {
             onClick={() => navigate(-1)}
             className="text-[#B0B0B8] hover:text-white transition-colors"
           >
-            Cancel
+            {isZh ? '取消' : 'Cancel'}
           </button>
           <h1 className="text-white font-semibold">{t('create.title')}</h1>
           <button
@@ -207,7 +216,7 @@ export default function Create() {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Give your work a compelling title..."
+            placeholder={isZh ? '给你的作品起一个吸引人的标题...' : 'Give your work a compelling title...'}
             maxLength={100}
             className="w-full bg-[#1E1E27] border border-[#2A2A36] rounded-xl px-4 py-3 text-white placeholder-[#6B6B78] focus:border-[#CFAF6E]/50 focus:outline-none transition-colors text-sm"
           />
@@ -218,11 +227,11 @@ export default function Create() {
 
         {/* 描述 */}
         <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-3">
-          <h2 className="text-white font-semibold">Description</h2>
+          <h2 className="text-white font-semibold">{isZh ? '描述' : 'Description'}</h2>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Tell the story behind your work — inspiration, meaning, process..."
+            placeholder={isZh ? '讲述作品背后的故事 — 灵感、含义、创作过程...' : 'Tell the story behind your work — inspiration, meaning, process...'}
             rows={4}
             maxLength={500}
             className="w-full bg-[#1E1E27] border border-[#2A2A36] rounded-xl px-4 py-3 text-white placeholder-[#6B6B78] focus:border-[#CFAF6E]/50 focus:outline-none transition-colors resize-none text-sm"
@@ -288,14 +297,14 @@ export default function Create() {
               value={customTag}
               onChange={(e) => setCustomTag(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomTag())}
-              placeholder="Add custom tag..."
+              placeholder={isZh ? '添加自定义标签...' : 'Add custom tag...'}
               className="flex-1 bg-[#1E1E27] border border-[#2A2A36] rounded-xl px-3 py-2 text-sm text-white placeholder-[#6B6B78] focus:border-[#CFAF6E]/50 focus:outline-none transition-colors"
             />
             <button
               onClick={addCustomTag}
               className="px-4 py-2 bg-[#1E1E27] border border-[#2A2A36] rounded-xl text-[#B0B0B8] hover:text-[#CFAF6E] hover:border-[#CFAF6E]/40 transition-colors text-sm"
             >
-              Add
+              {isZh ? '添加' : 'Add'}
             </button>
           </div>
         </div>
@@ -306,7 +315,7 @@ export default function Create() {
             onClick={() => setShowAdvanced(!showAdvanced)}
             className="w-full p-5 flex items-center justify-between text-left"
           >
-            <h2 className="text-white font-semibold">Options</h2>
+            <h2 className="text-white font-semibold">{isZh ? '更多选项' : 'Options'}</h2>
             {showAdvanced ? (
               <ChevronUp className="w-4 h-4 text-[#6B6B78]" />
             ) : (
@@ -322,7 +331,7 @@ export default function Create() {
             >
               {/* 身体部位 */}
               <div className="space-y-3">
-                <h3 className="text-[#B0B0B8] text-sm">Body Placement</h3>
+                <h3 className="text-[#B0B0B8] text-sm">{isZh ? '纹身位置' : 'Body Placement'}</h3>
                 <div className="flex flex-wrap gap-2">
                   {BODY_PARTS.map(part => (
                     <button
@@ -336,7 +345,7 @@ export default function Create() {
                         }
                       `}
                     >
-                      {part}
+                      {isZh ? BODY_PARTS_ZH[part] : part}
                     </button>
                   ))}
                 </div>
@@ -344,20 +353,20 @@ export default function Create() {
 
               {/* 可见性 */}
               <div className="space-y-3">
-                <h3 className="text-[#B0B0B8] text-sm">Who Can See This</h3>
+                <h3 className="text-[#B0B0B8] text-sm">{isZh ? '谁可以看' : 'Who Can See This'}</h3>
                 <VisibilitySelector value={visibility} onChange={setVisibility} />
               </div>
 
               {/* 位置 */}
               <div className="space-y-3">
-                <h3 className="text-[#B0B0B8] text-sm">Location (Optional)</h3>
+                <h3 className="text-[#B0B0B8] text-sm">{isZh ? '位置（可选）' : 'Location (Optional)'}</h3>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B6B78]" />
                   <input
                     type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    placeholder="e.g. Los Angeles, CA"
+                    placeholder={isZh ? '例如：北京，中国' : 'e.g. Los Angeles, CA'}
                     className="w-full bg-[#1E1E27] border border-[#2A2A36] rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-[#6B6B78] focus:border-[#CFAF6E]/50 focus:outline-none transition-colors"
                   />
                 </div>
@@ -370,7 +379,7 @@ export default function Create() {
         <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-3">
           <div className="flex items-center gap-2">
             <Eye className="w-4 h-4 text-[#6B6B78]" />
-            <h2 className="text-white font-semibold">Preview</h2>
+            <h2 className="text-white font-semibold">{isZh ? '预览' : 'Preview'}</h2>
           </div>
           <div className="flex gap-2 flex-wrap">
             {selectedStyles.map(tag => (
@@ -383,7 +392,7 @@ export default function Create() {
             ))}
             {images.length > 0 && (
               <span className="px-2.5 py-1 bg-[#0B0B0E] text-[#9E2B25] text-xs rounded-full border border-[#9E2B25]/25">
-                {images.length} {images.length === 1 ? 'image' : 'images'}
+                {images.length} {images.length === 1 ? (isZh ? '张图片' : 'image') : (isZh ? '张图片' : 'images')}
               </span>
             )}
             <span className={`px-2.5 py-1 bg-[#0B0B0E] text-xs rounded-full border border-[#2A2A36] flex items-center gap-1 ${
@@ -392,7 +401,7 @@ export default function Create() {
               {visibility === 'public' && <Globe className="w-3 h-3" />}
               {visibility === 'followers' && <Users className="w-3 h-3" />}
               {visibility === 'private' && <Lock className="w-3 h-3" />}
-              {visibility === 'public' ? 'Public' : visibility === 'followers' ? 'Followers' : 'Private'}
+              {visibility === 'public' ? (isZh ? '公开' : 'Public') : visibility === 'followers' ? (isZh ? '关注者' : 'Followers') : (isZh ? '私密' : 'Private')}
             </span>
           </div>
         </div>

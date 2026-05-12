@@ -20,7 +20,8 @@ const styles = [
 ];
 
 export default function ArtistOnboarding() {
-  const { t } = useLanguage();
+  const { language } = useLanguage();
+  const isZh = language === 'zh';
   const navigate = useNavigate();
   const [step, setStep] = useState<'form' | 'success'>('form');
   const [loading, setLoading] = useState(false);
@@ -99,7 +100,7 @@ export default function ArtistOnboarding() {
   // Save new product
   const handleSaveProduct = async () => {
     if (!newProduct.name.trim()) {
-      setError('Product name is required');
+      setError(isZh ? '请输入产品名称' : 'Product name is required');
       return;
     }
     if (!user?.id) return;
@@ -124,7 +125,7 @@ export default function ArtistOnboarding() {
       setNewProduct({ name: '', description: '', price: '', product_link: '', image_url: '' });
       fetchProducts(user.id);
     } catch (err: any) {
-      setError(err.message || 'Failed to save product');
+      setError(err.message || (isZh ? '保存产品失败' : 'Failed to save product'));
     } finally {
       setSavingProduct(false);
     }
@@ -132,7 +133,7 @@ export default function ArtistOnboarding() {
 
   // Delete product
   const handleDeleteProduct = async (productId: string) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+    if (!confirm(isZh ? '确定要删除这个产品吗？' : 'Are you sure you want to delete this product?')) return;
 
     await supabase.from('artist_products').delete().eq('id', productId);
     if (user?.id) fetchProducts(user.id);
@@ -141,13 +142,13 @@ export default function ArtistOnboarding() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (portfolioImages.length + files.length > 6) {
-      setError('Maximum 6 images allowed');
+      setError(isZh ? '最多上传6张图片' : 'Maximum 6 images allowed');
       return;
     }
-    
+
     const validFiles = files.filter(file => {
       if (file.size > 10 * 1024 * 1024) {
-        setError(`${file.name} is too large (max 10MB)`);
+        setError(`${file.name} ${isZh ? '文件过大（最大10MB）' : 'is too large (max 10MB)'}`);
         return false;
       }
       return true;
@@ -175,19 +176,19 @@ export default function ArtistOnboarding() {
 
   const handleSubmit = async () => {
     if (!user?.id) {
-      setError('Please login first');
+      setError(isZh ? '请先登录' : 'Please login first');
       return;
     }
     if (portfolioImages.length < 3) {
-      setError('Please upload at least 3 portfolio images');
+      setError(isZh ? '请至少上传3张作品集图片' : 'Please upload at least 3 portfolio images');
       return;
     }
     if (selectedStyles.length === 0) {
-      setError('Please select at least one style');
+      setError(isZh ? '请至少选择一种风格' : 'Please select at least one style');
       return;
     }
     if (!bio.trim()) {
-      setError('Please write a bio');
+      setError(isZh ? '请填写个人简介' : 'Please write a bio');
       return;
     }
 
@@ -202,10 +203,10 @@ export default function ArtistOnboarding() {
         uploadedUrls.push(publicUrl);
       }
 
-      // Submit application
+      // Submit application (upsert for re-application support)
       const { error: submitError } = await supabase
         .from('artist_applications')
-        .insert({
+        .upsert({
           user_id: user.id,
           portfolio_urls: uploadedUrls,
           styles: selectedStyles,
@@ -215,20 +216,28 @@ export default function ArtistOnboarding() {
           location: location.trim() || null,
           instagram: instagram.trim() || null,
           status: 'pending',
-        });
+        }, { onConflict: 'user_id' });
 
       if (submitError) throw submitError;
 
       setStep('success');
     } catch (err: any) {
       console.error('Application failed:', err);
-      setError(err.message || 'Failed to submit application');
+      setError(err.message || (isZh ? '提交申请失败' : 'Failed to submit application'));
     } finally {
       setLoading(false);
     }
   };
 
+  // Handle re-apply: clear existing application and go to form
+  const handleReapply = () => {
+    setExistingApplication(null);
+    setStep('form');
+  };
+
   if (existingApplication) {
+    const isRejected = existingApplication.status === 'rejected';
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 pt-20 pb-24">
         <div className="max-w-lg mx-auto px-4">
@@ -237,30 +246,80 @@ export default function ArtistOnboarding() {
             animate={{ opacity: 1, y: 0 }}
             className="bg-stone-900/80 border border-stone-800 rounded-2xl p-8 text-center"
           >
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-500/20 flex items-center justify-center">
-              <Clock className="w-8 h-8 text-amber-500" />
+            <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
+              isRejected ? 'bg-red-500/20' : 'bg-amber-500/20'
+            }`}>
+              {isRejected ? (
+                <AlertCircle className="w-8 h-8 text-red-500" />
+              ) : (
+                <Clock className="w-8 h-8 text-amber-500" />
+              )}
             </div>
-            <h2 className="text-2xl font-bold text-white mb-2">Application Under Review</h2>
+            <h2 className="text-2xl font-bold text-white mb-2">
+              {isRejected
+                ? (isZh ? '申请未通过' : 'Application Not Approved')
+                : (isZh ? '申请审核中' : 'Application Under Review')
+              }
+            </h2>
             <p className="text-stone-400 mb-6">
-              Your artist application is being reviewed by our team. This usually takes 1-3 business days.
+              {isRejected
+                ? (isZh
+                  ? '很遗憾，您的纹身师认证申请未通过审核。您可以查看拒绝原因并重新提交申请。'
+                  : 'Unfortunately, your artist application was not approved. You can review the reason and reapply.')
+                : (isZh
+                  ? '我们的团队正在审核您的纹身师申请，通常需要1-3个工作日。'
+                  : 'Your artist application is being reviewed by our team. This usually takes 1-3 business days.')
+              }
             </p>
+
+            {/* Rejection reason */}
+            {isRejected && existingApplication.rejection_reason && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6 text-left">
+                <p className="text-red-400 text-sm font-medium mb-1">
+                  {isZh ? '拒绝原因：' : 'Rejection Reason:'}
+                </p>
+                <p className="text-stone-400 text-sm">
+                  {existingApplication.rejection_reason}
+                </p>
+              </div>
+            )}
+
             <div className="bg-stone-800/50 rounded-xl p-4 mb-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-stone-400">Status</span>
-                <span className="text-amber-400 font-medium capitalize">{existingApplication.status}</span>
+                <span className="text-stone-400">{isZh ? '状态' : 'Status'}</span>
+                <span className={`font-medium capitalize ${isRejected ? 'text-red-400' : 'text-amber-400'}`}>
+                  {existingApplication.status === 'pending'
+                    ? (isZh ? '审核中' : 'Pending')
+                    : existingApplication.status === 'rejected'
+                      ? (isZh ? '未通过' : 'Rejected')
+                      : existingApplication.status
+                  }
+                </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-stone-400">Submitted</span>
+                <span className="text-stone-400">{isZh ? '提交时间' : 'Submitted'}</span>
                 <span className="text-stone-300">{new Date(existingApplication.created_at).toLocaleDateString()}</span>
               </div>
             </div>
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 text-amber-500 hover:text-amber-400"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Home
-            </Link>
+
+            <div className="flex flex-col gap-3">
+              {isRejected && (
+                <button
+                  onClick={handleReapply}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-600 text-stone-950 font-semibold rounded-full transition-colors"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  {isZh ? '重新申请' : 'Reapply'}
+                </button>
+              )}
+              <Link
+                to="/"
+                className="inline-flex items-center justify-center gap-2 text-amber-500 hover:text-amber-400"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                {isZh ? '返回首页' : 'Back to Home'}
+              </Link>
+            </div>
           </motion.div>
         </div>
       </div>
@@ -284,17 +343,27 @@ export default function ArtistOnboarding() {
             >
               <CheckCircle className="w-10 h-10 text-white" />
             </motion.div>
-            <h2 className="text-2xl font-bold text-white mb-2">Application Submitted!</h2>
+            <h2 className="text-2xl font-bold text-white mb-2">
+              {isZh ? '申请已提交！' : 'Application Submitted!'}
+            </h2>
             <p className="text-stone-400 mb-6">
-              Thank you for applying to join InkAI.life as a verified artist. Our team will review your application within 1-3 business days.
+              {isZh
+                ? '感谢您申请成为 InkAI.life 认证纹身师。我们的团队将在1-3个工作日内审核您的申请。'
+                : 'Thank you for applying to join InkAI.life as a verified artist. Our team will review your application within 1-3 business days.'
+              }
             </p>
             <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-6">
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-amber-500 mt-0.5" />
                 <div className="text-left">
-                  <p className="text-amber-400 text-sm font-medium">What happens next?</p>
+                  <p className="text-amber-400 text-sm font-medium">
+                    {isZh ? '接下来会发生什么？' : 'What happens next?'}
+                  </p>
                   <p className="text-stone-400 text-sm mt-1">
-                    You'll receive a notification once approved. Make sure your portfolio images showcase your best work!
+                    {isZh
+                      ? '审核通过后您将收到通知。请确保您的作品集展示了您最好的作品！'
+                      : "You'll receive a notification once approved. Make sure your portfolio images showcase your best work!"
+                    }
                   </p>
                 </div>
               </div>
@@ -304,7 +373,7 @@ export default function ArtistOnboarding() {
               className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-600 text-stone-950 font-semibold rounded-full transition-colors"
             >
               <Sparkles className="w-4 h-4" />
-              Back to Home
+              {isZh ? '返回首页' : 'Back to Home'}
             </Link>
           </motion.div>
         </div>
@@ -328,15 +397,19 @@ export default function ArtistOnboarding() {
               className="inline-flex items-center gap-2 text-stone-400 hover:text-amber-500 mb-4 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back
+              {isZh ? '返回' : 'Back'}
             </Link>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-red-600 flex items-center justify-center">
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Artist Dashboard</h1>
-                <p className="text-stone-400">Manage your profile and products</p>
+                <h1 className="text-2xl font-bold text-white">
+                  {isZh ? '纹身师工作台' : 'Artist Dashboard'}
+                </h1>
+                <p className="text-stone-400">
+                  {isZh ? '管理您的个人资料和产品' : 'Manage your profile and products'}
+                </p>
               </div>
             </div>
           </motion.div>
@@ -349,7 +422,7 @@ export default function ArtistOnboarding() {
                 activeTab === 'apply' ? 'bg-amber-500 text-stone-950 font-medium' : 'text-stone-400'
               }`}
             >
-              Profile
+              {isZh ? '个人资料' : 'Profile'}
             </button>
             <button
               onClick={() => setActiveTab('products')}
@@ -358,7 +431,7 @@ export default function ArtistOnboarding() {
               }`}
             >
               <ShoppingBag className="w-4 h-4" />
-              Products ({products.length})
+              {isZh ? '产品' : 'Products'} ({products.length})
             </button>
           </div>
 
@@ -380,18 +453,25 @@ export default function ArtistOnboarding() {
               <div className="flex items-center gap-4 mb-6">
                 <CheckCircle className="w-8 h-8 text-amber-500" />
                 <div>
-                  <h2 className="text-xl font-bold text-white">Verified Artist</h2>
-                  <p className="text-stone-400 text-sm">Your profile is visible to all users</p>
+                  <h2 className="text-xl font-bold text-white">
+                    {isZh ? '认证纹身师' : 'Verified Artist'}
+                  </h2>
+                  <p className="text-stone-400 text-sm">
+                    {isZh ? '您的资料对所有用户可见' : 'Your profile is visible to all users'}
+                  </p>
                 </div>
               </div>
               <p className="text-stone-300">
-                Your artist profile is active. Users can view your works, purchase your products, and send you messages.
+                {isZh
+                  ? '您的纹身师资料已激活。用户可以查看您的作品、购买您的产品并向您发送消息。'
+                  : 'Your artist profile is active. Users can view your works, purchase your products, and send you messages.'
+                }
               </p>
               <Link
                 to={`/artist/${user.id}`}
                 className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-amber-500 text-stone-950 font-medium rounded-full hover:bg-amber-400 transition-colors"
               >
-                View Public Profile
+                {isZh ? '查看公开资料' : 'View Public Profile'}
               </Link>
             </motion.div>
           )}
@@ -407,43 +487,51 @@ export default function ArtistOnboarding() {
               <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-6">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                   <Plus className="w-5 h-5 text-amber-500" />
-                  Add New Product
+                  {isZh ? '添加新产品' : 'Add New Product'}
                 </h3>
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-stone-400 text-sm mb-1">Product Name *</label>
+                      <label className="block text-stone-400 text-sm mb-1">
+                        {isZh ? '产品名称 *' : 'Product Name *'}
+                      </label>
                       <input
                         type="text"
                         value={newProduct.name}
                         onChange={(e) => setNewProduct(prev => ({ ...prev, name: e.target.value }))}
-                        placeholder="e.g., Custom Flash Design"
+                        placeholder={isZh ? '例如：定制纹身设计' : 'e.g., Custom Flash Design'}
                         className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-3 text-white placeholder-stone-500 focus:border-amber-500 focus:outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-stone-400 text-sm mb-1">Price</label>
+                      <label className="block text-stone-400 text-sm mb-1">
+                        {isZh ? '价格' : 'Price'}
+                      </label>
                       <input
                         type="text"
                         value={newProduct.price}
                         onChange={(e) => setNewProduct(prev => ({ ...prev, price: e.target.value }))}
-                        placeholder="e.g., $200 - $500"
+                        placeholder={isZh ? '例如：¥200 - ¥500' : 'e.g., $200 - $500'}
                         className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-3 text-white placeholder-stone-500 focus:border-amber-500 focus:outline-none"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-stone-400 text-sm mb-1">Description</label>
+                    <label className="block text-stone-400 text-sm mb-1">
+                      {isZh ? '描述' : 'Description'}
+                    </label>
                     <textarea
                       value={newProduct.description}
                       onChange={(e) => setNewProduct(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="Describe your product..."
+                      placeholder={isZh ? '描述您的产品...' : 'Describe your product...'}
                       rows={2}
                       className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-3 text-white placeholder-stone-500 focus:border-amber-500 focus:outline-none resize-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-stone-400 text-sm mb-1">Product Link</label>
+                    <label className="block text-stone-400 text-sm mb-1">
+                      {isZh ? '产品链接' : 'Product Link'}
+                    </label>
                     <input
                       type="url"
                       value={newProduct.product_link}
@@ -453,11 +541,13 @@ export default function ArtistOnboarding() {
                     />
                   </div>
                   <div>
-                    <label className="block text-stone-400 text-sm mb-1">Product Image</label>
+                    <label className="block text-stone-400 text-sm mb-1">
+                      {isZh ? '产品图片' : 'Product Image'}
+                    </label>
                     <div className="flex items-center gap-4">
                       {newProduct.image_url ? (
                         <div className="relative w-24 h-24 rounded-xl overflow-hidden">
-                          <img src={newProduct.image_url} alt="Product" className="w-full h-full object-cover" />
+                          <img src={newProduct.image_url} alt={isZh ? '产品' : 'Product'} className="w-full h-full object-cover" />
                           <button
                             onClick={() => setNewProduct(prev => ({ ...prev, image_url: '' }))}
                             className="absolute top-1 right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center"
@@ -484,16 +574,20 @@ export default function ArtistOnboarding() {
                     className="flex items-center gap-2 px-6 py-3 bg-amber-500 text-stone-950 font-medium rounded-full hover:bg-amber-400 disabled:opacity-50 transition-colors"
                   >
                     <Save className="w-4 h-4" />
-                    {savingProduct ? 'Saving...' : 'Save Product'}
+                    {savingProduct ? (isZh ? '保存中...' : 'Saving...') : (isZh ? '保存产品' : 'Save Product')}
                   </button>
                 </div>
               </div>
 
               {/* Product List */}
               <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Your Products</h3>
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  {isZh ? '我的产品' : 'Your Products'}
+                </h3>
                 {products.length === 0 ? (
-                  <p className="text-stone-500 text-center py-8">No products yet. Add your first product above!</p>
+                  <p className="text-stone-500 text-center py-8">
+                    {isZh ? '暂无产品，请在上方添加您的第一个产品！' : 'No products yet. Add your first product above!'}
+                  </p>
                 ) : (
                   <div className="space-y-4">
                     {products.map(product => (
@@ -544,15 +638,19 @@ export default function ArtistOnboarding() {
             className="inline-flex items-center gap-2 text-stone-400 hover:text-amber-500 mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back
+            {isZh ? '返回' : 'Back'}
           </Link>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-red-600 flex items-center justify-center">
               <Shield className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">Become a Verified Artist</h1>
-              <p className="text-stone-400">Join our community of professional tattoo artists</p>
+              <h1 className="text-2xl font-bold text-white">
+                {isZh ? '成为认证纹身师' : 'Become a Verified Artist'}
+              </h1>
+              <p className="text-stone-400">
+                {isZh ? '加入我们的专业纹身师社区' : 'Join our community of professional tattoo artists'}
+              </p>
             </div>
           </div>
         </motion.div>
@@ -580,7 +678,7 @@ export default function ArtistOnboarding() {
           <div>
             <label className="block text-stone-300 mb-3 flex items-center gap-2">
               <Upload className="w-4 h-4 text-amber-500" />
-              Portfolio Images * (3-6 images)
+              {isZh ? '作品集图片 *（3-6张）' : 'Portfolio Images * (3-6 images)'}
             </label>
             <div className="grid grid-cols-3 gap-3">
               {portfolioPreviews.map((preview, index) => (
@@ -590,19 +688,19 @@ export default function ArtistOnboarding() {
                   animate={{ opacity: 1, scale: 1 }}
                   className="relative aspect-square rounded-xl overflow-hidden"
                 >
-                  <img src={preview} alt={`Portfolio ${index + 1}`} className="w-full h-full object-cover" />
+                  <img src={preview} alt={`${isZh ? '作品' : 'Portfolio'} ${index + 1}`} className="w-full h-full object-cover" />
                   <button
                     onClick={() => removeImage(index)}
                     className="absolute top-1 right-1 w-6 h-6 bg-black/60 rounded-full flex items-center justify-center text-white hover:bg-red-500 transition-colors"
                   >
-                    ×
+                    x
                   </button>
                 </motion.div>
               ))}
               {portfolioPreviews.length < 6 && (
                 <label className="aspect-square border-2 border-dashed border-stone-700 rounded-xl cursor-pointer hover:border-amber-500/50 hover:bg-amber-500/5 transition-all flex flex-col items-center justify-center">
                   <Upload className="w-6 h-6 text-stone-500 mb-1" />
-                  <span className="text-xs text-stone-500">Add</span>
+                  <span className="text-xs text-stone-500">{isZh ? '添加' : 'Add'}</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -613,12 +711,16 @@ export default function ArtistOnboarding() {
                 </label>
               )}
             </div>
-            <p className="text-stone-500 text-xs mt-2">Showcase your best work - real tattoos preferred</p>
+            <p className="text-stone-500 text-xs mt-2">
+              {isZh ? '展示您最好的作品 - 优先真实纹身照片' : 'Showcase your best work - real tattoos preferred'}
+            </p>
           </div>
 
           {/* Styles */}
           <div>
-            <label className="block text-stone-300 mb-3">Your Tattoo Styles *</label>
+            <label className="block text-stone-300 mb-3">
+              {isZh ? '您的纹身风格 *' : 'Your Tattoo Styles *'}
+            </label>
             <div className="flex flex-wrap gap-2">
               {styles.map(style => (
                 <button
@@ -639,26 +741,30 @@ export default function ArtistOnboarding() {
           {/* Experience & Location */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-stone-300 mb-2">Years of Experience</label>
+              <label className="block text-stone-300 mb-2">
+                {isZh ? '从业年限' : 'Years of Experience'}
+              </label>
               <select
                 value={yearsExperience}
                 onChange={(e) => setYearsExperience(e.target.value)}
                 className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:outline-none"
               >
-                <option value="">Select...</option>
-                <option value="1">1-2 years</option>
-                <option value="3">3-5 years</option>
-                <option value="5">5-10 years</option>
-                <option value="10">10+ years</option>
+                <option value="">{isZh ? '请选择...' : 'Select...'}</option>
+                <option value="1">{isZh ? '1-2年' : '1-2 years'}</option>
+                <option value="3">{isZh ? '3-5年' : '3-5 years'}</option>
+                <option value="5">{isZh ? '5-10年' : '5-10 years'}</option>
+                <option value="10">{isZh ? '10年以上' : '10+ years'}</option>
               </select>
             </div>
             <div>
-              <label className="block text-stone-300 mb-2">Location</label>
+              <label className="block text-stone-300 mb-2">
+                {isZh ? '所在地' : 'Location'}
+              </label>
               <input
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                placeholder="City, Country"
+                placeholder={isZh ? '城市，国家' : 'City, Country'}
                 className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:outline-none"
               />
             </div>
@@ -666,28 +772,35 @@ export default function ArtistOnboarding() {
 
           {/* Price Range */}
           <div>
-            <label className="block text-stone-300 mb-2">Price Range (per session)</label>
+            <label className="block text-stone-300 mb-2">
+              {isZh ? '价格范围（每次）' : 'Price Range (per session)'}
+            </label>
             <select
               value={priceRange}
               onChange={(e) => setPriceRange(e.target.value)}
               className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:outline-none"
             >
-              <option value="">Select...</option>
-              <option value="under-500">Under $500</option>
-              <option value="500-1000">$500 - $1,000</option>
-              <option value="1000-2000">$1,000 - $2,000</option>
-              <option value="2000-5000">$2,000 - $5,000</option>
-              <option value="over-5000">Over $5,000</option>
+              <option value="">{isZh ? '请选择...' : 'Select...'}</option>
+              <option value="under-500">{isZh ? '¥500以下' : 'Under $500'}</option>
+              <option value="500-1000">{isZh ? '¥500 - ¥1,000' : '$500 - $1,000'}</option>
+              <option value="1000-2000">{isZh ? '¥1,000 - ¥2,000' : '$1,000 - $2,000'}</option>
+              <option value="2000-5000">{isZh ? '¥2,000 - ¥5,000' : '$2,000 - $5,000'}</option>
+              <option value="over-5000">{isZh ? '¥5,000以上' : 'Over $5,000'}</option>
             </select>
           </div>
 
           {/* Bio */}
           <div>
-            <label className="block text-stone-300 mb-2">Artist Bio *</label>
+            <label className="block text-stone-300 mb-2">
+              {isZh ? '个人简介 *' : 'Artist Bio *'}
+            </label>
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              placeholder="Tell us about yourself, your artistic journey, and what makes your work unique..."
+              placeholder={isZh
+                ? '请介绍一下您自己、您的艺术历程，以及您作品的独特之处...'
+                : 'Tell us about yourself, your artistic journey, and what makes your work unique...'
+              }
               rows={4}
               maxLength={500}
               className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:outline-none resize-none"
@@ -697,7 +810,9 @@ export default function ArtistOnboarding() {
 
           {/* Instagram */}
           <div>
-            <label className="block text-stone-300 mb-2">Instagram (optional)</label>
+            <label className="block text-stone-300 mb-2">
+              {isZh ? 'Instagram（选填）' : 'Instagram (optional)'}
+            </label>
             <div className="flex">
               <span className="inline-flex items-center px-4 bg-stone-800 border border-r-0 border-stone-700 rounded-l-xl text-stone-400">
                 @
@@ -725,12 +840,12 @@ export default function ArtistOnboarding() {
                   transition={{ duration: 1, repeat: Infinity }}
                   className="w-5 h-5 border-2 border-stone-950 border-t-transparent rounded-full"
                 />
-                Submitting...
+                {isZh ? '提交中...' : 'Submitting...'}
               </>
             ) : (
               <>
                 <Shield className="w-5 h-5" />
-                Submit Application
+                {isZh ? '提交申请' : 'Submit Application'}
               </>
             )}
           </button>
@@ -745,14 +860,14 @@ export default function ArtistOnboarding() {
         >
           <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-amber-500" />
-            Artist Benefits
+            {isZh ? '纹身师权益' : 'Artist Benefits'}
           </h3>
           <div className="grid grid-cols-2 gap-4">
             {[
-              { icon: '🎯', text: 'Verified badge on profile' },
-              { icon: '📊', text: 'Artist-only analytics' },
-              { icon: '💬', text: 'Direct booking requests' },
-              { icon: '🏆', text: 'Featured in explore' },
+              { icon: '\uD83C\uDFAF', text: isZh ? '个人资料认证徽章' : 'Verified badge on profile' },
+              { icon: '\uD83D\uDCCA', text: isZh ? '专属数据分析' : 'Artist-only analytics' },
+              { icon: '\uD83D\uDCAC', text: isZh ? '直接预约请求' : 'Direct booking requests' },
+              { icon: '\uD83C\uDFC6', text: isZh ? '在探索页展示' : 'Featured in explore' },
             ].map((benefit, i) => (
               <div key={i} className="flex items-center gap-3 text-stone-300">
                 <span className="text-xl">{benefit.icon}</span>

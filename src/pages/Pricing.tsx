@@ -1,5 +1,6 @@
 // Pricing.tsx 修复版本 - 添加多语言支持
 // 关键修改：将所有硬编码英文替换为 t() 翻译函数
+// 安全修复：移除直接写数据库的支付漏洞，改为演示模式弹窗
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -19,11 +20,12 @@ export default function Pricing({ user }: PricingProps) {
   const [loading, setLoading] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<string>('free');
   const [showEarlyBird, setShowEarlyBird] = useState(true);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   // 根据语言获取计划配置
   const getPlans = () => {
     const isZh = language === 'zh';
-    
+
     return [
       {
         id: 'free',
@@ -151,48 +153,33 @@ export default function Pricing({ user }: PricingProps) {
       return;
     }
 
-    setLoading(true);
+    // 免费计划保持原逻辑，直接激活
+    if (planId === 'free') {
+      setLoading(true);
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            current_plan: 'free',
+            subscription_status: 'active',
+          })
+          .eq('id', user.id);
 
-    try {
-      const planType = planId === 'free' ? 'free' : planId;
-      const expiresAt = planId === 'monthly'
-        ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-        : planId === 'yearly'
-        ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
-        : null;
+        if (error) throw error;
 
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          current_plan: planType,
-          subscription_status: 'active',
-        })
-        .eq('id', user.id);
-
-      if (error) throw error;
-
-      if (planId !== 'free') {
-        await supabase.from('subscriptions').insert({
-          user_id: user.id,
-          plan_type: planType,
-          status: 'active',
-          expires_at: expiresAt,
-          is_early_bird: isEarlyBird,
-          auto_renew: true,
-        });
+        setCurrentPlan('free');
+      } catch (error) {
+        console.error('Free plan activation failed:', error);
+        alert(language === 'zh' ? '激活失败，请重试' : 'Activation failed, please try again');
+      } finally {
+        setLoading(false);
       }
-
-      setCurrentPlan(planType);
-      alert(isEarlyBird 
-        ? (language === 'zh' ? '早鸟购买成功！' : 'Early bird purchase successful!')
-        : (language === 'zh' ? '订阅成功！' : 'Subscription successful!')
-      );
-    } catch (error) {
-      console.error('Subscription failed:', error);
-      alert(language === 'zh' ? '订阅失败，请重试' : 'Subscription failed, please try again');
-    } finally {
-      setLoading(false);
+      return;
     }
+
+    // 付费计划：显示"支付功能即将上线"弹窗（演示模式）
+    // TODO: 集成 Stripe Checkout 后替换为实际支付流程
+    setShowPaymentModal(true);
   };
 
   const isZh = language === 'zh';
@@ -326,9 +313,9 @@ export default function Pricing({ user }: PricingProps) {
                       : 'bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-600'
                   }`}
                 >
-                  {isCurrentPlan 
+                  {isCurrentPlan
                     ? (isZh ? '当前方案' : 'Current Plan')
-                    : loading 
+                    : loading
                       ? (isZh ? '加载中...' : 'Loading...')
                       : plan.cta
                   }
@@ -360,6 +347,38 @@ export default function Pricing({ user }: PricingProps) {
         })}
       </div>
 
+      {/* Payment Coming Soon Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-stone-900 border border-stone-700/50 rounded-2xl p-8 max-w-md mx-4 shadow-2xl"
+          >
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-amber-600/20 flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="w-8 h-8 text-amber-400" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-3">
+                {isZh ? '支付功能即将上线' : 'Payment Coming Soon'}
+              </h2>
+              <p className="text-stone-400 mb-8 leading-relaxed">
+                {isZh
+                  ? '我们正在集成 Stripe 支付系统，敬请期待！您可以通过联系客服完成购买。'
+                  : 'We are integrating Stripe payment. Coming soon! Contact support to purchase.'
+                }
+              </p>
+              <button
+                onClick={() => setShowPaymentModal(false)}
+                className="w-full py-3 rounded-xl font-bold bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-stone-950 transition-all"
+              >
+                {isZh ? '我知道了' : 'Got it'}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {/* FAQ Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -374,7 +393,7 @@ export default function Pricing({ user }: PricingProps) {
           {[
             {
               q: isZh ? '可以退款吗？' : 'Can I get a refund?',
-              a: isZh 
+              a: isZh
                 ? '首次购买7天内可全额退款。联系客服处理。'
                 : 'Full refund within 7 days for first-time purchases. Contact support to process.',
             },
@@ -413,7 +432,7 @@ export default function Pricing({ user }: PricingProps) {
 
       {/* Footer Note */}
       <div className="text-center mt-12 text-stone-500 text-sm">
-        <p>{isZh 
+        <p>{isZh
           ? '所有价格以美元计价。支持 PayPal / 信用卡 / Apple Pay / Google Pay'
           : 'All prices in USD. PayPal / Credit Card / Apple Pay / Google Pay accepted'
         }</p>

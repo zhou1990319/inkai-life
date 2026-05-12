@@ -6,7 +6,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Login() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isZh = language === 'zh';
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -27,11 +28,11 @@ export default function Login() {
 
     if (signInError) {
       if (signInError.message?.includes('Invalid login credentials')) {
-        setError('Incorrect email or password. Please try again.');
+        setError(isZh ? '邮箱或密码错误，请重试。' : 'Incorrect email or password. Please try again.');
       } else if (signInError.message?.includes('Email not confirmed')) {
-        setError('Please verify your email first. Check your inbox for the confirmation link.');
+        setError(isZh ? '请先验证您的邮箱。请查看收件箱中的确认链接。' : 'Please verify your email first. Check your inbox for the confirmation link.');
       } else {
-        setError(signInError.message || 'Sign in failed. Please try again.');
+        setError(signInError.message || (isZh ? '登录失败，请重试。' : 'Sign in failed. Please try again.'));
       }
       setLoading(false);
     } else {
@@ -137,7 +138,7 @@ export default function Login() {
         {/* 登录后跳转提示 */}
         {redirectTo !== '/' && (
           <p className="text-center mt-4 text-[#6B6B78] text-xs">
-            After signing in, you'll be redirected to {redirectTo}
+            {isZh ? `登录后将跳转到 ${redirectTo}` : `After signing in, you'll be redirected to ${redirectTo}`}
           </p>
         )}
       </motion.div>

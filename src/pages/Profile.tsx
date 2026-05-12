@@ -27,7 +27,8 @@ type DbProfile = Database['public']['Tables']['profiles']['Row'];
 type TabType = 'posts' | 'saved' | 'followers' | 'following';
 
 export default function ProfilePage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isZh = language === 'zh';
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<DbProfile | null>(null);
@@ -169,12 +170,12 @@ export default function ProfilePage() {
                 <h1 className="text-2xl font-bold text-white">{displayName}</h1>
                 {isVerified && (
                   <span className="px-2 py-0.5 bg-[#CFAF6E]/20 text-[#CFAF6E] text-xs font-medium rounded-full border border-[#CFAF6E]/30">
-                    Verified Artist
+                    {isZh ? '已认证艺术家' : 'Verified Artist'}
                   </span>
                 )}
                 {isArtist && !isVerified && (
                   <span className="px-2 py-0.5 bg-[#9E2B25]/20 text-[#9E2B25] text-xs font-medium rounded-full border border-[#9E2B25]/30">
-                    Tattoo Artist
+                    {isZh ? '纹身艺术家' : 'Tattoo Artist'}
                   </span>
                 )}
               </div>
@@ -199,8 +200,8 @@ export default function ProfilePage() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-1 hover:text-[#CFAF6E] transition-colors"
                   >
-                    <Globe className="w-3.5 h-3.5" />
-                    Website
+                    <Globe className="w-3.5 h-3" />
+                    {isZh ? '网站' : 'Website'}
                   </a>
                 )}
               </div>
@@ -279,7 +280,7 @@ export default function ProfilePage() {
             <EmptyState
               icon={<Grid3X3 className="w-8 h-8 text-[#6B6B78]" />}
               title={t('profile.no_posts')}
-              description={isOwnProfile ? t('create.post') + '!' : 'This user has not posted anything yet'}
+              description={isOwnProfile ? t('create.post') + '!' : (isZh ? '该用户还没有发布任何内容' : 'This user has not posted anything yet')}
               action={isOwnProfile ? {
                 label: t('create.title'),
                 onClick: () => navigate('/create'),
@@ -306,7 +307,7 @@ export default function ProfilePage() {
               <EmptyState
               icon={<Bookmark className="w-8 h-8 text-[#6B6B78]" />}
               title={t('profile.saved')}
-              description="Save posts you love to view them later"
+              description={isZh ? '收藏你喜欢的帖子，方便以后查看' : 'Save posts you love to view them later'}
               />
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -323,8 +324,8 @@ export default function ProfilePage() {
           ) : (
             <EmptyState
               icon={<Bookmark className="w-8 h-8 text-[#6B6B78]" />}
-              title="Private collection"
-              description="This user's saved posts are private"
+              title={isZh ? '私密收藏' : 'Private collection'}
+              description={isZh ? '该用户的收藏为私密' : "This user's saved posts are private"}
             />
           )
         )}
@@ -335,7 +336,7 @@ export default function ProfilePage() {
             {(activeTab === 'followers' ? followers : following).length === 0 ? (
               <EmptyState
                 icon={<Users className="w-8 h-8 text-[#6B6B78]" />}
-                title={activeTab === 'followers' ? 'No followers yet' : 'Not following anyone yet'}
+                title={activeTab === 'followers' ? (isZh ? '还没有粉丝' : 'No followers yet') : (isZh ? '还没有关注任何人' : 'Not following anyone yet')}
               />
             ) : (
               (activeTab === 'followers' ? followers : following).map(user => (

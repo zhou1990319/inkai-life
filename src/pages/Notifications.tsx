@@ -33,7 +33,8 @@ const NOTIFICATION_CONFIG: Record<NotificationType, {
 };
 
 export default function Notifications() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isZh = language === 'zh';
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<Profile | null>(null);
   const [notifications, setNotifications] = useState<Array<Notification & { actor: Profile }>>([]);
@@ -105,13 +106,13 @@ export default function Notifications() {
 
   const timeAgo = (date: string) => {
     const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
-    if (seconds < 60) return 'just now';
+    if (seconds < 60) return isZh ? '刚刚' : 'just now';
     const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m ago`;
+    if (minutes < 60) return isZh ? `${minutes}分钟前` : `${minutes}m ago`;
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
+    if (hours < 24) return isZh ? `${hours}小时前` : `${hours}h ago`;
     const days = Math.floor(hours / 24);
-    if (days < 7) return `${days}d ago`;
+    if (days < 7) return isZh ? `${days}天前` : `${days}d ago`;
     return new Date(date).toLocaleDateString();
   };
 
@@ -175,7 +176,7 @@ export default function Notifications() {
           <EmptyState
             icon={<Bell className="w-8 h-8 text-[#6B6B78]" />}
             title={t('notifications.no_notifications')}
-            description="When someone likes, comments, or follows you, you'll see it here"
+            description={isZh ? '当有人点赞、评论或关注你时，你会在这里看到' : "When someone likes, comments, or follows you, you'll see it here"}
           />
         ) : (
           <div className="space-y-1">
@@ -223,7 +224,7 @@ export default function Notifications() {
                         onClick={(e) => e.stopPropagation()}
                         className="font-semibold text-white hover:text-[#CFAF6E] transition-colors"
                       >
-                        {notification.actor?.display_name || notification.actor?.username || 'Someone'}
+                        {notification.actor?.display_name || notification.actor?.username || (isZh ? '某人' : 'Someone')}
                       </Link>
                       {' '}
                       <span className="text-[#B0B0B8]">{notification.message}</span>
@@ -261,7 +262,7 @@ export default function Notifications() {
 
             {!hasMore && notifications.length > 0 && (
               <p className="text-center text-[#6B6B78] text-sm py-6">
-                You're all caught up!
+                {isZh ? '已全部查看！' : "You're all caught up!"}
               </p>
             )}
           </div>

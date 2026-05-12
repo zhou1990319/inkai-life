@@ -56,7 +56,8 @@ interface Conversation {
 }
 
 export default function ArtistDetail() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isZh = language === 'zh';
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -222,7 +223,7 @@ export default function ArtistDetail() {
     }
 
     if (session.user.id === id) {
-      alert('You cannot message yourself');
+      alert(isZh ? '不能给自己发消息' : 'You cannot message yourself');
       return;
     }
 
@@ -298,7 +299,7 @@ export default function ArtistDetail() {
   if (!profile) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 flex items-center justify-center">
-        <div className="text-stone-400">Artist not found</div>
+        <div className="text-stone-400">{isZh ? "未找到艺术家" : "Artist not found"}</div>
       </div>
     );
   }
@@ -368,7 +369,7 @@ export default function ArtistDetail() {
                 {profile.website && (
                   <a href={profile.website} target="_blank" rel="noopener noreferrer"
                      className="flex items-center gap-1 text-amber-500 hover:text-amber-400">
-                    <Globe className="w-4 h-4" /> Website
+                    <Globe className="w-4 h-4" /> {isZh ? '网站' : 'Website'}
                   </a>
                 )}
               </div>
@@ -402,9 +403,9 @@ export default function ArtistDetail() {
         {/* Tabs */}
         <div className="flex gap-1 bg-stone-900/50 rounded-xl p-1 mb-6">
           {[
-            { id: 'works', label: 'Works', icon: Image, count: portfolio.length },
-            { id: 'products', label: 'Products', icon: ShoppingBag, count: products.length },
-            { id: 'about', label: 'About', icon: User, count: null },
+            { id: 'works', label: isZh ? '作品' : 'Works', icon: Image, count: portfolio.length },
+            { id: 'products', label: isZh ? '商品' : 'Products', icon: ShoppingBag, count: products.length },
+            { id: 'about', label: isZh ? '关于' : 'About', icon: User, count: null },
           ].map(tab => (
             <button
               key={tab.id}
@@ -440,7 +441,7 @@ export default function ArtistDetail() {
               {portfolio.length === 0 ? (
                 <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-12 text-center">
                   <Image className="w-12 h-12 text-stone-600 mx-auto mb-4" />
-                  <p className="text-stone-400">{t('profile.no_posts')} yet</p>
+                  <p className="text-stone-400">{t('profile.no_posts')}{isZh ? '' : ' yet'}</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -485,9 +486,9 @@ export default function ArtistDetail() {
               {products.length === 0 ? (
                 <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-12 text-center">
                   <ShoppingBag className="w-12 h-12 text-stone-600 mx-auto mb-4" />
-                  <p className="text-stone-400">{t('profile.no_posts')} listed</p>
+                  <p className="text-stone-400">{isZh ? '暂无商品' : 'No products listed'}</p>
                   {isOwnProfile && (
-                    <p className="text-stone-500 text-sm mt-2">Add products from your artist dashboard</p>
+                    <p className="text-stone-500 text-sm mt-2">{isZh ? '从艺术家后台添加商品' : 'Add products from your artist dashboard'}</p>
                   )}
                 </div>
               ) : (
@@ -527,7 +528,7 @@ export default function ArtistDetail() {
                               className="flex items-center gap-1 text-sm text-amber-500 hover:text-amber-400"
                             >
                               <ExternalLink className="w-4 h-4" />
-                              View Product
+                              {isZh ? '查看商品' : 'View Product'}
                             </a>
                           )}
                         </div>
@@ -551,12 +552,12 @@ export default function ArtistDetail() {
               {profile.bio ? (
                 <p className="text-stone-300 leading-relaxed">{profile.bio}</p>
               ) : (
-                <p className="text-stone-500">No bio provided</p>
+                <p className="text-stone-500">{isZh ? '暂无简介' : 'No bio provided'}</p>
               )}
 
               {/* Application Info */}
               <div className="mt-6 pt-6 border-t border-stone-800">
-                <h4 className="text-sm font-medium text-stone-400 mb-3">Verified Information</h4>
+                <h4 className="text-sm font-medium text-stone-400 mb-3">{isZh ? '已验证信息' : 'Verified Information'}</h4>
                 <div className="space-y-2">
                   {profile.location && (
                     <div className="flex items-center gap-2 text-stone-300">
@@ -611,7 +612,7 @@ export default function ArtistDetail() {
                   />
                   <div>
                     <h3 className="text-white font-medium">{profile.display_name}</h3>
-                    <p className="text-stone-500 text-xs">Usually responds within 24h</p>
+                    <p className="text-stone-500 text-xs">{isZh ? '通常在24小时内回复' : 'Usually responds within 24h'}</p>
                   </div>
                 </div>
                 <button onClick={() => setShowChat(false)} className="p-2 hover:bg-stone-800 rounded-full">
@@ -624,8 +625,8 @@ export default function ArtistDetail() {
                 {messages.length === 0 && (
                   <div className="text-center py-8">
                     <MessageSquare className="w-12 h-12 text-stone-600 mx-auto mb-3" />
-                    <p className="text-stone-400">Start the conversation!</p>
-                    <p className="text-stone-500 text-sm mt-1">Ask about availability, pricing, or book a session</p>
+                    <p className="text-stone-400">{isZh ? '开始对话吧！' : 'Start the conversation!'}</p>
+                    <p className="text-stone-500 text-sm mt-1">{isZh ? '询问空闲时间、价格或预约' : 'Ask about availability, pricing, or book a session'}</p>
                   </div>
                 )}
                 {messages.map(msg => (
@@ -660,7 +661,7 @@ export default function ArtistDetail() {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                    placeholder="Type a message..."
+                    placeholder={isZh ? "输入消息..." : "Type a message..."}
                     className="flex-1 bg-stone-800 border border-stone-700 rounded-full px-4 py-3 text-white placeholder-stone-500 focus:border-amber-500 focus:outline-none"
                   />
                   <button

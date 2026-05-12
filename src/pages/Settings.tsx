@@ -17,7 +17,8 @@ import { useLoginPrompt } from '../components/LoginPrompt';
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
 export default function Settings() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isZh = language === 'zh';
   const { user, refreshUser, signOut } = useAuth();
   const navigate = useNavigate();
   const { isOpen: loginPromptOpen, closePrompt: closeLoginPrompt } = useLoginPrompt();
@@ -61,7 +62,7 @@ export default function Settings() {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      setError('Image must be less than 5MB');
+      setError(isZh ? '图片大小不能超过5MB' : 'Image must be less than 5MB');
       return;
     }
 
@@ -105,9 +106,9 @@ export default function Settings() {
 
       // 刷新用户数据
       await refreshUser();
-      setSuccess('Profile updated successfully!');
+      setSuccess(isZh ? '个人资料更新成功！' : 'Profile updated successfully!');
     } catch (err: any) {
-      setError(err.message || 'Failed to update profile');
+      setError(err.message || (isZh ? '更新资料失败' : 'Failed to update profile'));
     } finally {
       setSaving(false);
     }
@@ -115,7 +116,7 @@ export default function Settings() {
 
   // 退出登录
   const handleLogout = async () => {
-    if (!confirm('Are you sure you want to sign out?')) return;
+    if (!confirm(isZh ? '确定要退出登录吗？' : 'Are you sure you want to sign out?')) return;
     await signOut();
     navigate('/');
   };
@@ -168,7 +169,7 @@ export default function Settings() {
         <div className="bg-[#18181F] border border-[#2A2A36] rounded-2xl p-6 mb-4">
           <h2 className="text-white font-semibold mb-4 flex items-center gap-2">
             <User className="w-4 h-4 text-[#CFAF6E]" />
-            Profile Picture
+            {isZh ? '头像' : 'Profile Picture'}
           </h2>
           <div className="flex items-center gap-4">
             <div className="relative">
@@ -196,8 +197,8 @@ export default function Settings() {
               />
             </div>
             <div>
-              <p className="text-white font-medium">Profile Photo</p>
-              <p className="text-[#6B6B78] text-sm">JPG, PNG or GIF. Max 5MB.</p>
+              <p className="text-white font-medium">{isZh ? "头像照片" : "Profile Photo"}</p>
+              <p className="text-[#6B6B78] text-sm">{isZh ? "支持 JPG、PNG 或 GIF 格式，最大 5MB" : "JPG, PNG or GIF. Max 5MB."}</p>
             </div>
           </div>
         </div>
@@ -206,7 +207,7 @@ export default function Settings() {
         <div className="bg-[#18181F] border border-[#2A2A36] rounded-2xl p-6 mb-4">
           <h2 className="text-white font-semibold mb-4 flex items-center gap-2">
             <FileText className="w-4 h-4 text-[#CFAF6E]" />
-            Profile Information
+            {isZh ? '个人信息' : 'Profile Information'}
           </h2>
 
           <div className="space-y-4">
@@ -221,7 +222,7 @@ export default function Settings() {
                   className="flex-1 px-4 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-[#6B6B78] cursor-not-allowed"
                 />
               </div>
-              <p className="text-[#6B6B78] text-xs mt-1">Username cannot be changed</p>
+              <p className="text-[#6B6B78] text-xs mt-1">{isZh ? "用户名不可更改" : "Username cannot be changed"}</p>
             </div>
 
             {/* Display Name */}
@@ -232,19 +233,19 @@ export default function Settings() {
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 className="w-full px-4 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-white focus:border-[#CFAF6E] focus:outline-none transition-colors"
-                placeholder="Your display name"
+                placeholder={isZh ? "输入你的显示名称" : "Your display name"}
                 maxLength={50}
               />
             </div>
 
             {/* Bio */}
             <div>
-              <label className="block text-[#6B6B78] text-sm mb-2">Bio</label>
+              <label className="block text-[#6B6B78] text-sm mb-2">{isZh ? "个人简介" : "Bio"}</label>
               <textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 className="w-full px-4 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-white focus:border-[#CFAF6E] focus:outline-none transition-colors resize-none"
-                placeholder="Tell us about yourself..."
+                placeholder={isZh ? "介绍一下你自己..." : "Tell us about yourself..."}
                 rows={3}
                 maxLength={300}
               />
@@ -255,14 +256,14 @@ export default function Settings() {
             <div>
               <label className="block text-[#6B6B78] text-sm mb-2 flex items-center gap-1">
                 <MapPin className="w-3 h-3" />
-                Location
+                {isZh ? '位置' : 'Location'}
               </label>
               <input
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 className="w-full px-4 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-white focus:border-[#CFAF6E] focus:outline-none transition-colors"
-                placeholder="City, Country"
+                placeholder={isZh ? "城市，国家" : "City, Country"}
                 maxLength={100}
               />
             </div>
@@ -271,7 +272,7 @@ export default function Settings() {
             <div>
               <label className="block text-[#6B6B78] text-sm mb-2 flex items-center gap-1">
                 <Globe className="w-3 h-3" />
-                Website
+                {isZh ? '网站' : 'Website'}
               </label>
               <input
                 type="url"
@@ -288,7 +289,7 @@ export default function Settings() {
         <div className="bg-[#18181F] border border-[#2A2A36] rounded-2xl p-6 mb-4">
           <h2 className="text-white font-semibold mb-4 flex items-center gap-2">
             <Mail className="w-4 h-4 text-[#CFAF6E]" />
-            Email
+            {isZh ? '邮箱' : 'Email'}
           </h2>
           <input
             type="email"
@@ -296,7 +297,7 @@ export default function Settings() {
             disabled
             className="w-full px-4 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-[#6B6B78] cursor-not-allowed"
           />
-          <p className="text-[#6B6B78] text-xs mt-2">Contact support to change your email address</p>
+          <p className="text-[#6B6B78] text-xs mt-2">{isZh ? "如需更改邮箱，请联系客服" : "Contact support to change your email address"}</p>
         </div>
 
         {/* Save Button */}
@@ -310,7 +311,7 @@ export default function Settings() {
           ) : (
             <>
               <Save className="w-5 h-5" />
-              Save Changes
+              {isZh ? '保存更改' : 'Save Changes'}
             </>
           )}
         </button>
@@ -321,7 +322,7 @@ export default function Settings() {
           className="w-full py-3 bg-[#18181F] border border-[#9E2B25]/30 text-[#FF6B6B] font-medium rounded-xl hover:bg-[#9E2B25]/10 transition-all flex items-center justify-center gap-2"
         >
           <LogOut className="w-5 h-5" />
-          Sign Out
+          {isZh ? '退出登录' : 'Sign Out'}
         </button>
       </div>
     </div>

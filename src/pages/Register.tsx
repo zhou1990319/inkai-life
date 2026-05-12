@@ -6,7 +6,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Register() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isZh = language === 'zh';
   const { signUp } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -22,10 +23,10 @@ export default function Register() {
 
   // 密码强度检查
   const passwordChecks = [
-    { test: password.length >= 8, label: '8+ characters' },
-    { test: /[A-Z]/.test(password), label: 'Uppercase letter' },
-    { test: /[a-z]/.test(password), label: 'Lowercase letter' },
-    { test: /[0-9]/.test(password), label: 'Number' },
+    { test: password.length >= 8, label: isZh ? '8+ 个字符' : '8+ characters' },
+    { test: /[A-Z]/.test(password), label: isZh ? '大写字母' : 'Uppercase letter' },
+    { test: /[a-z]/.test(password), label: isZh ? '小写字母' : 'Lowercase letter' },
+    { test: /[0-9]/.test(password), label: isZh ? '数字' : 'Number' },
   ];
   const strengthScore = passwordChecks.filter(c => c.test).length;
 
@@ -36,17 +37,17 @@ export default function Register() {
 
     // 基本验证
     if (username.length < 3) {
-      setError('Username must be at least 3 characters');
+      setError(isZh ? '用户名至少需要3个字符' : 'Username must be at least 3 characters');
       setLoading(false);
       return;
     }
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      setError('Username can only contain letters, numbers, and underscores');
+      setError(isZh ? '用户名只能包含字母、数字和下划线' : 'Username can only contain letters, numbers, and underscores');
       setLoading(false);
       return;
     }
     if (strengthScore < 3) {
-      setError('Password is too weak. Please include uppercase, lowercase, and numbers.');
+      setError(isZh ? '密码太弱，请包含大写字母、小写字母和数字。' : 'Password is too weak. Please include uppercase, lowercase, and numbers.');
       setLoading(false);
       return;
     }
@@ -65,9 +66,9 @@ export default function Register() {
       }
     } catch (err: any) {
       if (err.message?.includes('already registered')) {
-        setError('This email is already registered. Try signing in.');
+        setError(isZh ? '该邮箱已注册，请直接登录。' : 'This email is already registered. Try signing in.');
       } else {
-        setError(err.message || 'Registration failed. Please try again.');
+        setError(err.message || (isZh ? '注册失败，请重试。' : 'Registration failed. Please try again.'));
       }
     } finally {
       setLoading(false);
@@ -87,8 +88,7 @@ export default function Register() {
           </div>
           <h1 className="text-2xl font-bold text-white mb-3">{t('auth.confirm_email') || 'Check your email'}</h1>
           <p className="text-[#B0B0B8] mb-6">
-            We've sent a confirmation link to <span className="text-[#CFAF6E]">{email}</span>. 
-            Please click the link to activate your account.
+            {isZh ? `我们已向 <span className="text-[#CFAF6E]">${email}</span> 发送了确认链接。请点击链接激活您的账户。` : `We've sent a confirmation link to <span className="text-[#CFAF6E]">${email}</span>. Please click the link to activate your account.`}
           </p>
           <button
             onClick={() => navigate('/login')}
@@ -147,7 +147,7 @@ export default function Register() {
                 pattern="[a-zA-Z0-9_]+"
               />
             </div>
-            <p className="text-[#6B6B78] text-xs mt-1">Letters, numbers, and underscores only</p>
+            <p className="text-[#6B6B78] text-xs mt-1">{isZh ? "仅支持字母、数字和下划线" : "Letters, numbers, and underscores only"}</p>
           </div>
 
           {/* Email */}
@@ -226,10 +226,10 @@ export default function Register() {
 
           {/* Terms */}
           <p className="text-[#6B6B78] text-xs text-center">
-            By signing up, you agree to our{' '}
-            <Link to="/terms" className="text-[#CFAF6E] hover:underline">Terms</Link>
-            {' '}and{' '}
-            <Link to="/privacy" className="text-[#CFAF6E] hover:underline">Privacy Policy</Link>
+            {isZh ? '注册即表示您同意我们的' : 'By signing up, you agree to our'}{' '}
+            <Link to="/terms" className="text-[#CFAF6E] hover:underline">{isZh ? '服务条款' : 'Terms'}</Link>
+            {' '}{isZh ? '和' : 'and'}{' '}
+            <Link to="/privacy" className="text-[#CFAF6E] hover:underline">{isZh ? '隐私政策' : 'Privacy Policy'}</Link>
           </p>
 
           <button
