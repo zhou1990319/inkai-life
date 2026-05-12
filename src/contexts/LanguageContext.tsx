@@ -1,13 +1,15 @@
 ﻿import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 // 支持的语言类型
-export type Language = 'en' | 'ja' | 'zh' | 'pt' | 'es' | 'de';
+export type Language = 'en' | 'ja' | 'zh' | 'ko' | 'fr' | 'pt' | 'es' | 'de';
 
 // 语言配置
 export const LANGUAGES: { id: Language; name: string; nativeName: string; flag: string }[] = [
   { id: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸' },
   { id: 'ja', name: 'Japanese', nativeName: '日本語', flag: '🇯🇵' },
   { id: 'zh', name: 'Chinese', nativeName: '中文', flag: '🇨🇳' },
+  { id: 'ko', name: 'Korean', nativeName: '한국어', flag: '🇰🇷' },
+  { id: 'fr', name: 'French', nativeName: 'Français', flag: '🇫🇷' },
   { id: 'pt', name: 'Portuguese', nativeName: 'Português', flag: '🇧🇷' },
   { id: 'es', name: 'Spanish', nativeName: 'Español', flag: '🇪🇸' },
   { id: 'de', name: 'German', nativeName: 'Deutsch', flag: '🇩🇪' },
@@ -1447,7 +1449,248 @@ const translations: Record<Language, Record<string, string>> = {
     'legal.privacy': 'Datenschutzrichtlinie',
     'legal.disclaimer': 'Haftungsausschluss',
   },
-};
+  ko: {
+    // Navigation
+    'nav.home': '홈',
+    'nav.community': '커뮤니티',
+    'nav.inspire': '영감',
+    'nav.artists': '아티스트',
+    'nav.upgrade': '업그레이드',
+    'nav.apply_artist': '아티스트 신청',
+    'nav.sign_in': '로그인',
+    'nav.profile': '프로필',
+    'nav.notifications': '알림',
+    'nav.post': '게시',
+    'nav.alerts': '알림',
+    'nav.me': '나',
+    
+    // Home Page - Popular Styles
+    'home.popular_styles': '인기 타투 스타일',
+    'home.explore_all': '모두 보기',
+    'home.trending': '트렌딩',
+
+    // AI Generator
+    'ai.title': 'AI 타투 생성기',
+    'ai.subtitle': 'AI로 멋진 중국 전통 타투 디자인을 만드세요',
+    'ai.style': '스타일',
+    'ai.body_part': '신체 부위',
+    'ai.prompt_placeholder': '타투 아이디어를 입력하세요...',
+    'ai.generate': '타투 생성',
+    'ai.generating': '생성 중...',
+    'ai.sign_in_to_generate': '로그인하여 생성',
+    'ai.preview': '미리보기',
+    'ai.download': 'HD 다운로드',
+    'ai.share': '공유',
+    'ai.your_design': '타투 디자인이 여기에 표시됩니다',
+    'ai.upload_image': '참고 이미지 업로드',
+    'ai.analyzing': '문화적 의미 분석 중...',
+
+    // Pricing (basic)
+    'pricing.free': '무료',
+    'pricing.monthly': '월간',
+    'pricing.yearly': '연간',
+    'pricing.lifetime': '평생',
+    'pricing.per_day': '/일',
+    'pricing.per_month': '/월',
+    'pricing.per_year': '/년',
+    'pricing.generations': '생성',
+    'pricing.watermark': '워터마크',
+    'pricing.no_watermark': '워터마크 없음',
+    'pricing.upgrade': '업그레이드',
+
+    // Common
+    'common.loading': '로딩 중...',
+    'common.error': '오류',
+    'common.success': '성공',
+    'common.cancel': '취소',
+    'common.confirm': '확인',
+    'common.save': '저장',
+    'common.delete': '삭제',
+    'common.edit': '편집',
+    'common.close': '닫기',
+
+    // Body Parts
+    'body.arm': '팔',
+    'body.back': '등',
+    'body.chest': '가슴',
+    'body.wrist': '손목',
+    'body.collarbone': '쇄골',
+    'body.thigh': '허벅지',
+    'body.calf': '종아리',
+
+    // Auth - Login
+    'auth.welcome_back': '돌아오신 것을 환영합니다',
+    'auth.sign_in_to_continue': '계속하려면 로그인하세요',
+    'auth.sign_in': '로그인',
+    'auth.signing_in': '로그인 중...',
+    'auth.email': '이메일',
+    'auth.password': '비밀번호',
+    'auth.enter_email': '이메일을 입력하세요',
+    'auth.enter_password': '비밀번호를 입력하세요',
+    'auth.no_account': '계정이 없으신가요?',
+    'auth.sign_up_link': '가입하기',
+    'auth.forgot_password': '비밀번호를 잊으셨나요?',
+
+    // Auth - Register
+    'auth.create_account': '계정 만들기',
+    'auth.join_community': 'InkAI.life 커뮤니티에 가입하세요',
+    'auth.username': '사용자 이름',
+    'auth.choose_username': '사용자 이름을 선택하세요',
+    'auth.create_password': '비밀번호 만들기',
+    'auth.creating': '생성 중...',
+    'auth.has_account': '이미 계정이 있으신가요?',
+    'auth.sign_in_link': '로그인',
+    'auth.agree_terms': '동의합니다',
+    'auth.terms_of_service': '이용약관',
+    'auth.sign_up': '가입하기',
+    'auth.sign_in_required': '로그인이 필요합니다',
+    'auth.sign_in_desc': '계속하려면 로그인하세요',
+    'auth.login_to_post': '작업을 공유하려면 로그인',
+    'auth.login_to_post_desc': '타투 애호가 커뮤니티에 가입하세요',
+    'auth.login_to_like': '좋아요를 누르려면 로그인',
+    'auth.login_to_like_desc': '멋진 작품에 대한 감사를 표현하세요',
+    'auth.login_to_comment': '댓글을 달려면 로그인',
+    'auth.login_to_comment_desc': '커뮤니티와 생각을 공유하세요',
+    'auth.login_to_generate': '만들려면 로그인',
+    'auth.login_to_generate_desc': 'AI 타투 디자인 도구에 액세스',
+    'auth.login_to_save': '저장하려면 로그인',
+    'auth.login_to_save_desc': '좋아하는 디자인을 북마크하세요',
+    'auth.login_to_follow': '팔로우하려면 로그인',
+    'auth.login_to_follow_desc': '좋아하는 아티스트와 연결하세요',
+    'auth.confirm_email': '이메일을 확인하세요',
+    'auth.go_to_signin': '로그인으로 이동',
+
+    // Styles
+    'style.oriental': '동양풍',
+    'style.japanese': '일본풍',
+    'style.american_traditional': '미국 전통',
+    'style.neo_traditional': '네오 트래디셔널',
+    'style.blackwork': '다크 & 블랙워크',
+    'style.watercolor': '수채화',
+    'style.minimalist': '미니멀리스트',
+    'style.realism': '사실주의',
+
+    // Home Page
+    'home.hero_title': 'AI로 멋진 중국 전통 타투를 만드세요',
+    'home.hero_subtitle': '아이디어를 몇 초 만에 독특한 타투 디자인으로 변환하세요. 첨단 AI 기술로 구동됩니다.',
+    'home.get_started': '무료로 시작하기',
+    'home.view_examples': '예시 보기',
+    'home.features_title': 'InkAI를 선택하는 이유',
+    'home.feature_ai_title': 'AI 기반 디자인',
+    'home.feature_ai_desc': '첨단 AI 기술로 독특한 타투 디자인을 즉시 생성',
+    'home.feature_style_title': '전통적인 스타일',
+    'home.feature_style_desc': '진정한 중국 전통 타투 스타일과 문화적 요소를 탐색',
+    'home.feature_community_title': '커뮤니티 갤러리',
+    'home.feature_community_desc': '디자인을 공유하고 커뮤니티에서 영감을 얻으세요',
+    'home.feature_artist_title': '전문 아티스트',
+    'home.feature_artist_desc': '다음 타투를 위해 인증된 타투 아티스트와 연결',
+    'home.how_it_works': '작동 방식',
+    'home.step1_title': '비전을 설명하세요',
+    'home.step1_desc': '원하는 타투 스타일과 디자인을 알려주세요',
+    'home.step2_title': 'AI가 생성합니다',
+    'home.step2_desc': 'AI가 설명을 바탕으로 독특한 디자인을 생성',
+    'home.step3_title': '다운로드 & 공유',
+    'home.step3_desc': '타투 아티스트를 위한 고품질 디자인을 받으세요',
+
+    // Explore Page
+    'explore.title': '커뮤니티',
+    'explore.recommend': '추천',
+    'explore.latest': '최신',
+    'explore.hot': '인기',
+    'explore.following': '팔로잉',
+    'explore.search_placeholder': '게시물 검색...',
+    'explore.no_results': '게시물을 찾을 수 없습니다',
+    'explore.load_more': '더 보기',
+    'explore.trending_tags': '트렌딩 태그',
+
+    // Inspire Page
+    'inspire.title': '영감',
+    'inspire.subtitle': '전통적인 중국 타투 프롬프트에서 영감을 얻으세요',
+    'inspire.copy_prompt': '프롬프트 복사',
+    'inspire.copied': '복사됨!',
+
+    // Pricing Page
+    'pricing.title': '멤버십 플랜',
+    'pricing.subtitle': '가장 적합한 플랜을 선택하세요',
+    'pricing.current_plan': '현재 플랜',
+    'pricing.features': '기능',
+    'pricing.unlimited_generations': '무제한 생성',
+    'pricing.priority_support': '우선 지원',
+    'pricing.exclusive_styles': '독점 스타일',
+    'pricing.choose_plan': '플랜 선택',
+
+    // Profile Page
+    'profile.posts': '게시물',
+    'profile.saved': '저장됨',
+    'profile.followers': '팔로워',
+    'profile.following': '팔로잉',
+    'profile.edit_profile': '프로필 편집',
+    'profile.follow': '팔로우',
+    'profile.unfollow': '팔로우 취소',
+    'profile.no_posts': '아직 게시물이 없습니다',
+    'profile.settings': '설정',
+    'profile.display_name': '표시 이름',
+
+    // Create Page
+    'create.title': '게시물 만들기',
+    'create.select_images': '이미지 선택',
+    'create.drag_or_click': '이미지를 드래그 앤 드롭하거나 클릭하여 선택',
+    'create.post_type': '게시물 유형',
+    'create.work': '타투 작업',
+    'create.idea': '아이디어',
+    'create.tattoo_style': '타투 스타일',
+    'create.tags': '태그',
+    'create.visibility': '공개 설정',
+    'create.public': '공개',
+    'create.followers_only': '팔로워만',
+    'create.private': '비공개',
+    'create.post': '게시',
+    'create.posting': '게시 중...',
+
+    // Post Detail
+    'post.likes': '좋아요',
+    'post.comments': '댓글',
+    'post.share': '공유',
+    'post.report': '신고',
+    'post.write_comment': '댓글을 작성하세요...',
+    'post.send': '보내기',
+    'post.delete': '삭제',
+    'post.edit': '편집',
+
+    // Notifications
+    'notifications.title': '알림',
+    'notifications.mark_all_read': '모두 읽음으로 표시',
+    'notifications.no_notifications': '아직 알림이 없습니다',
+    'notifications.liked': '님이 회원님의 게시물을 좋아합니다',
+    'notifications.commented': '님이 회원님의 게시물에 댓글을 달았습니다',
+    'notifications.followed': '님이 회원님을 팔로우하기 시작했습니다',
+    'notifications.save': '님이 회원님의 게시물을 저장했습니다',
+
+    // Artist
+    'artist.apply': '아티스트로 신청',
+    'artist.portfolio': '포트폴리오',
+    'artist.specialties': '전문 분야',
+    'artist.experience': '경력',
+    'artist.book_appointment': '예약하기',
+    'artist.view_profile': '프로필 보기',
+
+    // Common Actions
+    'action.like': '좋아요',
+    'action.unlike': '좋아요 취소',
+    'action.save': '저장',
+    'action.unsave': '저장 취소',
+    'action.share': '공유',
+    'action.report': '신고',
+    'action.delete': '삭제',
+    'action.edit': '편집',
+    'action.follow': '팔로우',
+    'action.unfollow': '팔로우 취소',
+
+    // Legal
+    'legal.terms': '이용약관',
+    'legal.privacy': '개인정보 처리방침',
+    'legal.disclaimer': '면책조항',
+  },};
 
 // Context 类型
 interface LanguageContextType {
