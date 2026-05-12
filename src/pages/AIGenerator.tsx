@@ -53,7 +53,7 @@ const bodyParts = [
 /**
  * 未登录遮罩层组件
  */
-function LoginRequiredOverlay({ onLogin, onUpgrade }: { onLogin: () => void; onUpgrade: () => void }) {
+function LoginRequiredOverlay({ onLogin, onUpgrade, t }: { onLogin: () => void; onUpgrade: () => void; t: (key: string) => string }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -64,23 +64,23 @@ function LoginRequiredOverlay({ onLogin, onUpgrade }: { onLogin: () => void; onU
         <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-amber-500/20 flex items-center justify-center">
           <Lock className="w-10 h-10 text-amber-400" />
         </div>
-        <h3 className="text-2xl font-bold text-white mb-3">Login Required</h3>
+        <h3 className="text-2xl font-bold text-white mb-3">{t('nav.sign_in')}</h3>
         <p className="text-slate-400 mb-6">
-          Sign in to start generating your unique tattoo designs. Free users get 10 generations per day!
+          {t('ai.sign_in_to_generate')}
         </p>
         <div className="space-y-3">
           <button
             onClick={onLogin}
             className="w-full py-3 px-6 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold rounded-xl hover:from-amber-400 hover:to-amber-500 transition-all"
           >
-            Sign In / Sign Up
+            {t('nav.sign_in')}
           </button>
           <button
             onClick={onUpgrade}
             className="w-full py-3 px-6 bg-slate-800 text-amber-400 font-medium rounded-xl hover:bg-slate-700 transition-all flex items-center justify-center gap-2"
           >
             <Crown className="w-4 h-4" />
-            View Membership Plans
+            {t('nav.upgrade')}
           </button>
         </div>
       </div>
@@ -91,7 +91,7 @@ function LoginRequiredOverlay({ onLogin, onUpgrade }: { onLogin: () => void; onU
 /**
  * 会员状态栏组件
  */
-function MembershipStatusBar({ user, membership }: { user: Profile; membership: ReturnType<typeof useMembership> }) {
+function MembershipStatusBar({ user, membership, t }: { user: Profile; membership: ReturnType<typeof useMembership>; t: (key: string) => string }) {
   const { currentPlan, benefits, message } = membership;
   const isFree = currentPlan === 'free';
 
@@ -114,7 +114,7 @@ function MembershipStatusBar({ user, membership }: { user: Profile; membership: 
                 {user.display_name || user.username}
               </span>
               {isFree ? (
-                <span className="text-xs px-2 py-0.5 bg-slate-700 text-slate-400 rounded-full">Free</span>
+                <span className="text-xs px-2 py-0.5 bg-slate-700 text-slate-400 rounded-full">{t('pricing.free')}</span>
               ) : (
                 <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded-full">
                   {getPlanDescription(currentPlan)}
@@ -131,7 +131,7 @@ function MembershipStatusBar({ user, membership }: { user: Profile; membership: 
             href="#/pricing"
             className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 text-sm font-medium rounded-lg hover:from-amber-400 hover:to-amber-500 transition-all"
           >
-            Upgrade
+            {t('nav.upgrade')}
           </a>
         )}
       </div>
@@ -431,10 +431,10 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
             className="bg-slate-900/50 border border-amber-500/20 rounded-2xl p-6 relative"
           >
             {/* 未登录遮罩层 */}
-            {!user && <LoginRequiredOverlay onLogin={handleLogin} onUpgrade={handleUpgrade} />}
+            {!user && <LoginRequiredOverlay onLogin={handleLogin} onUpgrade={handleUpgrade} t={t} />}
 
             {/* 已登录：显示会员状态栏 */}
-            {user && <MembershipStatusBar user={user} membership={membership} />}
+            {user && <MembershipStatusBar user={user} membership={membership} t={t} />}
 
             <div className="flex gap-4 mb-6">
                 <button
@@ -483,16 +483,12 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder={t('ai.prompt_placeholder')}
-              <textarea
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Describe your tattoo idea..."
                 className="w-full h-32 bg-slate-800 border border-slate-700 rounded-xl p-4 text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none resize-none"
               />
             </div>
 
             <div className="mb-6">
-              <label className="block text-amber-400 mb-3 font-medium">Style</label>
+              <label className="block text-amber-400 mb-3 font-medium">{t('ai.style')}</label>
               <div className="grid grid-cols-4 gap-2">
                 {TATTOO_STYLES.map((style) => (
                   <button
@@ -504,7 +500,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
                         : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                     }`}
                   >
-                    <div className="font-medium">{style.name}</div>
+                    <div className="font-medium">{t(`style.${style.id}`)}</div>
                     <div className="text-xs opacity-70">{style.nameZh}</div>
                   </button>
                 ))}
@@ -512,7 +508,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
             </div>
 
             <div className="mb-6">
-              <label className="block text-amber-400 mb-3 font-medium">Body Part</label>
+              <label className="block text-amber-400 mb-3 font-medium">{t('ai.body_part')}</label>
               <div className="flex gap-2">
                 {bodyParts.map((part) => (
                   <button
@@ -524,7 +520,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
                         : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                     }`}
                   >
-                    {part.nameZh}
+                    {t(`body.${part.id}`)}
                   </button>
                 ))}
               </div>
@@ -534,7 +530,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
             {user && benefits.watermark && (
               <div className="mb-4 p-3 bg-slate-800/50 border border-slate-700 rounded-lg flex items-center gap-2 text-slate-400 text-sm">
                 <AlertCircle className="w-4 h-4 text-amber-500" />
-                Images will have a watermark. <a href="#/pricing" className="text-amber-400 hover:underline">Upgrade to remove</a>
+                {t('pricing.watermark')}. <a href="#/pricing" className="text-amber-400 hover:underline">{t('pricing.upgrade')} to remove</a>
               </div>
             )}
 
@@ -560,7 +556,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
               ) : (
                 <Sparkles className="w-5 h-5" />
               )}
-              {!user ? 'Sign In to Generate' : loading ? 'Generating...' : 'Generate Tattoo'}
+              {!user ? t('ai.sign_in_to_generate') : loading ? t('ai.generating') : t('ai.generate')}
             </button>
           </motion.div>
 
@@ -569,7 +565,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
             animate={{ opacity: 1, x: 0 }}
             className="bg-slate-900/50 border border-amber-500/20 rounded-2xl p-6 flex flex-col"
           >
-            <h3 className="text-amber-400 font-medium mb-4">Preview</h3>
+            <h3 className="text-amber-400 font-medium mb-4">{t('ai.preview')}</h3>
             <div className="flex-1 bg-slate-950 rounded-xl flex items-center justify-center min-h-[400px]">
               {generatedImage ? (
                 <motion.img
@@ -582,17 +578,17 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
               ) : (
                 <div className="text-center text-slate-500">
                   <ImageIcon className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                  <p>Your tattoo design will appear here</p>
+                  <p>{t('ai.your_design')}</p>
                 </div>
               )}
             </div>
             {generatedImage && (
               <div className="mt-4 flex gap-3">
                 <button className="flex-1 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors">
-                  Download HD
+                  {t('ai.download')}
                 </button>
                 <button className="flex-1 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors">
-                  Share
+                  {t('ai.share')}
                 </button>
               </div>
             )}

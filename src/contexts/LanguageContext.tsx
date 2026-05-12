@@ -40,6 +40,8 @@ const translations: Record<Language, Record<string, string>> = {
     'ai.download': 'Download HD',
     'ai.share': 'Share',
     'ai.your_design': 'Your tattoo design will appear here',
+    'ai.upload_image': 'Upload reference image',
+    'ai.analyzing': 'Analyzing cultural meaning...',
 
     // Pricing
     'pricing.title': 'Membership Plans',
@@ -109,6 +111,8 @@ const translations: Record<Language, Record<string, string>> = {
     'ai.download': 'HD ダウンロード',
     'ai.share': '共有',
     'ai.your_design': 'タトゥーデザインがここに表示されます',
+    'ai.upload_image': '参照画像をアップロード',
+    'ai.analyzing': '文化的意味を分析中...',
 
     'pricing.title': 'メンバーシッププラン',
     'pricing.free': 'フリー',
@@ -174,6 +178,8 @@ const translations: Record<Language, Record<string, string>> = {
     'ai.download': '下载高清',
     'ai.share': '分享',
     'ai.your_design': '你的纹身设计将显示在这里',
+    'ai.upload_image': '上传参考图片',
+    'ai.analyzing': '正在分析文化含义...',
 
     'pricing.title': '会员计划',
     'pricing.free': '免费',
@@ -239,6 +245,8 @@ const translations: Record<Language, Record<string, string>> = {
     'ai.download': 'Baixar HD',
     'ai.share': 'Compartilhar',
     'ai.your_design': 'Seu design de tatuagem aparecerá aqui',
+    'ai.upload_image': 'Carregar imagem de referência',
+    'ai.analyzing': 'Analisando significado cultural...',
 
     'pricing.title': 'Planos de Assinatura',
     'pricing.free': 'Grátis',
@@ -304,6 +312,8 @@ const translations: Record<Language, Record<string, string>> = {
     'ai.download': 'Descargar HD',
     'ai.share': 'Compartir',
     'ai.your_design': 'Tu diseño de tatuaje aparecerá aquí',
+    'ai.upload_image': 'Subir imagen de referencia',
+    'ai.analyzing': 'Analizando significado cultural...',
 
     'pricing.title': 'Planes de Membresía',
     'pricing.free': 'Gratis',
@@ -369,6 +379,8 @@ const translations: Record<Language, Record<string, string>> = {
     'ai.download': 'HD Herunterladen',
     'ai.share': 'Teilen',
     'ai.your_design': 'Dein Tattoo-Design erscheint hier',
+    'ai.upload_image': 'Referenzbild hochladen',
+    'ai.analyzing': 'Kulturelle Bedeutung analysieren...',
 
     'pricing.title': 'Mitgliedschaftspläne',
     'pricing.free': 'Kostenlos',

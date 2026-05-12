@@ -4,6 +4,7 @@ import { Sparkles, Upload, Wand2, Image as ImageIcon, Loader2, Download, Share2,
 import { generateImageWithVolcengine } from '../../services/volcengineImage';
 import { persistGeneratedImage } from '../../services/storage';
 import { analyzeTattooMeaning } from '../../services/aiChat';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 // 海外纹身风格选项 - 2行4列布局
 const TATTOO_STYLES = [
@@ -53,6 +54,7 @@ export default function ImageGenerator() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useLanguage();
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
@@ -132,9 +134,9 @@ export default function ImageGenerator() {
         >
           <h1 className="text-4xl md:text-5xl font-bold text-amber-400 mb-4">
             <Sparkles className="inline-block mr-3" />
-            AI Tattoo Generator
+            {t('ai.title')}
           </h1>
-          <p className="text-slate-400 text-lg">Create unique Chinese traditional tattoo designs with AI</p>
+          <p className="text-slate-400 text-lg">{t('ai.subtitle')}</p>
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-8">
@@ -144,7 +146,7 @@ export default function ImageGenerator() {
             className="bg-slate-900/50 border border-amber-500/20 rounded-2xl p-6"
           >
             <div className="mb-6">
-              <label className="block text-amber-400 font-medium mb-2">Describe your tattoo idea</label>
+              <label className="block text-amber-400 font-medium mb-2">{t('ai.prompt_placeholder')}</label>
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
@@ -154,7 +156,7 @@ export default function ImageGenerator() {
             </div>
 
             <div className="mb-6">
-              <label className="block text-amber-400 font-medium mb-3">Tattoo Style</label>
+              <label className="block text-amber-400 font-medium mb-3">{t('ai.style')}</label>
               <div className="grid grid-cols-4 gap-2">
                 {TATTOO_STYLES.map((style) => (
                   <button
@@ -166,7 +168,7 @@ export default function ImageGenerator() {
                         : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-amber-500/50'
                     }`}
                   >
-                    <div className="font-medium">{style.name}</div>
+                    <div className="font-medium">{t(`style.${style.id}`)}</div>
                     <div className="text-xs opacity-70">{style.nameZh}</div>
                   </button>
                 ))}
@@ -174,7 +176,7 @@ export default function ImageGenerator() {
             </div>
 
             <div className="mb-6">
-              <label className="block text-amber-400 font-medium mb-3">Body Placement</label>
+              <label className="block text-amber-400 font-medium mb-3">{t('ai.body_part')}</label>
               <div className="flex gap-2">
                 {BODY_PARTS.map((part) => (
                   <button
@@ -187,7 +189,7 @@ export default function ImageGenerator() {
                     }`}
                   >
                     <span className="mr-1">{part.icon}</span>
-                    {part.nameZh}
+                    {t(`body.${part.id}`)}
                   </button>
                 ))}
               </div>
@@ -200,7 +202,7 @@ export default function ImageGenerator() {
                 className="w-full p-4 border-2 border-dashed border-slate-600 rounded-xl hover:border-amber-500/50 transition-colors flex items-center justify-center gap-2 text-slate-400"
               >
                 <Upload size={20} />
-                {referenceImage ? referenceImage.name : 'Upload reference image'}
+                {referenceImage ? referenceImage.name : t('ai.upload_image')}
               </button>
               <input
                 ref={fileInputRef}
@@ -224,9 +226,9 @@ export default function ImageGenerator() {
               className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold rounded-xl hover:from-amber-400 hover:to-amber-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
             >
               {isGenerating ? (
-                <><Loader2 className="animate-spin" /> Generating...</>
+                <><Loader2 className="animate-spin" /> {t('ai.generating')}</>
               ) : (
-                <><Wand2 /> Generate Tattoo</>
+                <><Wand2 /> {t('ai.generate')}</>
               )}
             </button>
           </motion.div>
@@ -266,7 +268,7 @@ export default function ImageGenerator() {
                   {isAnalyzing ? (
                     <div className="flex items-center gap-2 text-amber-400">
                       <Loader2 className="animate-spin" size={16} />
-                      Analyzing cultural meaning...
+                      {t('ai.analyzing')}
                     </div>
                   ) : culturalMeaning && (
                     <div className="bg-slate-800/50 rounded-xl p-4 border border-amber-500/20">

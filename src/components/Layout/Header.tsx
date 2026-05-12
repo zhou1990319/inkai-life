@@ -22,9 +22,15 @@ export default function Header({ user }: { user: Profile | null }) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const location = useLocation();
-  const { language, setLanguage, currentLanguage } = useLanguage();
+  const { language, setLanguage, currentLanguage, t } = useLanguage();
 
-  useEffect(() => {
+  // 导航项配置
+  const navItems = [
+    { path: '/', labelKey: 'nav.home', icon: 'fa-home' },
+    { path: '/explore', labelKey: 'nav.community', icon: 'fa-users' },
+    { path: '/inspire', labelKey: 'nav.inspire', icon: 'fa-lightbulb' },
+    { path: '/artists', labelKey: 'nav.artists', icon: 'fa-paint-brush' },
+  ];
     const checkUserStatus = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
@@ -74,7 +80,7 @@ export default function Header({ user }: { user: Profile | null }) {
                   }`}
                 >
                   <i className={`fa-solid ${item.icon} text-xs`} />
-                  <span>{item.label}</span>
+                  <span>{t(item.labelKey)}</span>
                 </Link>
               );
             })}
@@ -149,7 +155,7 @@ export default function Header({ user }: { user: Profile | null }) {
             >
               <Crown className="w-3.5 h-3.5" />
               <span>
-                {currentPlan === 'free' ? 'Upgrade' : currentPlan === 'monthly' ? 'Monthly' : currentPlan === 'yearly' ? 'Yearly' : 'VIP'}
+                {currentPlan === 'free' ? t('nav.upgrade') : currentPlan === 'monthly' ? t('pricing.monthly') : currentPlan === 'yearly' ? t('pricing.yearly') : 'VIP'}
               </span>
             </Link>
 
@@ -159,7 +165,7 @@ export default function Header({ user }: { user: Profile | null }) {
                 className="px-4 py-1.5 bg-[#9E2B25] text-white text-sm font-semibold rounded-full hover:bg-[#B8342D] transition-colors flex items-center gap-1.5"
               >
                 <i className="fa-solid fa-paint-brush text-xs" />
-                <span>Apply Artist</span>
+                <span>{t('nav.apply_artist')}</span>
               </Link>
             )}
 
@@ -180,7 +186,7 @@ export default function Header({ user }: { user: Profile | null }) {
                 to="/login"
                 className="px-4 py-1.5 bg-[#9E2B25] text-white text-sm font-semibold rounded-full hover:bg-[#B8342D] transition-colors"
               >
-                Sign In
+                {t('nav.sign_in')}
               </Link>
             )}
             {user && (
@@ -231,10 +237,10 @@ export default function Header({ user }: { user: Profile | null }) {
                     }`}
                   >
                     <i className={`fa-solid ${item.icon} w-4 text-center`} />
-                    <span>{item.label}</span>
+                    <span>{t(item.labelKey)}</span>
                   </Link>
                 );
-              }              )}}
+              })}
               {/* 移动端语言选择 */}
               <div className="pt-3 pb-1 border-t border-[#2A2A36]">
                 <div className="text-xs text-[#6B6B78] mb-2 px-4">Language / 语言</div>
@@ -265,7 +271,7 @@ export default function Header({ user }: { user: Profile | null }) {
                   onClick={() => setIsMenuOpen(false)}
                   className="flex-1 py-2.5 text-center bg-[#CFAF6E] text-[#0B0B0E] text-sm font-bold rounded-xl"
                 >
-                  Upgrade
+                  {t('nav.upgrade')}
                 </Link>
                 {!isArtist && (
                   <Link
@@ -273,7 +279,7 @@ export default function Header({ user }: { user: Profile | null }) {
                     onClick={() => setIsMenuOpen(false)}
                     className="flex-1 py-2.5 text-center bg-[#9E2B25] text-white text-sm font-semibold rounded-xl"
                   >
-                    Apply Artist
+                    {t('nav.apply_artist')}
                   </Link>
                 )}
               </div>
