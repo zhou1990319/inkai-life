@@ -8,31 +8,16 @@
   box-sizing: border-box;
 }
 
-/* ── 暗黑国风 Design Tokens ── */
 :root {
-  /* backgrounds */
-  --bg-base:   #0B0B0E;   /* 玄黑主背景 */
-  --bg-card:   #18181F;   /* 深炭灰卡片背景 */
-  --bg-raised: #1E1E27;   /* 悬浮/hover 层 */
-  --border:    #2A2A36;   /* 描边 */
-
-  /* brand */
-  --vermilion:       #9E2B25;  /* 暗朱砂红 - 主按钮/强调 */
-  --vermilion-light: #B8342D;  /* hover 态 */
-  --gold:            #CFAF6E;  /* 哑光鎏金 - 装饰/高亮 */
-  --gold-dim:        #A88B4E;  /* 次级金色 */
-
-  /* text */
-  --text-primary:   #FFFFFF;
-  --text-secondary: #B0B0B8;
-  --text-muted:     #6B6B78;
-
-  /* legacy aliases (keep for compatibility) */
-  --ink-black: #0B0B0E;
-  --ink-dark:  #18181F;
-  --ink-gray:  #2A2A36;
-  --cinnabar:  #9E2B25;
-  --cinnabar-light: #B8342D;
+  --ink-black: #0a0a0a;
+  --ink-dark: #141414;
+  --ink-gray: #1a1a1a;
+  --cinnabar: #c41e3a;
+  --cinnabar-light: #d4384d;
+  --gold: #c9a050;
+  --gold-light: #d4af37;
+  --rice-paper: #f5f0e8;
+  --ink-text: #d4c4b0;
 }
 
 body {
@@ -41,43 +26,20 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--bg-base);
-  color: var(--text-primary);
+  background-color: var(--ink-black);
+  color: var(--rice-paper);
 }
 
-/* ── 细滚动条 ── */
 .scrollbar-thin::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: var(--bg-card);
-}
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: var(--gold-dim);
-  border-radius: 2px;
+  width: 6px;
+  height: 6px;
 }
 
-/* ── 中式线条装饰（用于 Inspire 卡片）── */
-.chinese-border {
-  position: relative;
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: var(--ink-gray);
 }
-.chinese-border::before,
-.chinese-border::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--gold-dim) 20%,
-    var(--gold) 50%,
-    var(--gold-dim) 80%,
-    transparent 100%
-  );
-  opacity: 0.35;
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--gold);
+  border-radius: 3px;
 }
-.chinese-border::before { top: 0; }
-.chinese-border::after  { bottom: 0; }
