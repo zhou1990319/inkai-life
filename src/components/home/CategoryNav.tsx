@@ -30,7 +30,7 @@ export default function CategoryNav({ activeCategory, onCategoryChange }: Catego
               className={`flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-all ${
                 activeCategory === cat.id
                   ? 'bg-[#c9a050] text-[#0a0a0a] font-medium'
-                  : 'bg-[#1a1a1a] text-gray-400 hover:text-white hover:bg-[#2a2a2a]'
+                  : 'bg-[#1a1a1a] text-orange-300 hover:text-white hover:bg-[#2a2a2a]'
               }`}
             >
               <span>{cat.icon}</span>

@@ -15,7 +15,7 @@ export default function FeaturedArtists() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-2xl font-bold text-white">Featured Artists</h2>
-            <p className="text-gray-400 text-sm mt-1">Top tattoo masters from China</p>
+            <p className="text-orange-300 text-sm mt-1">Top tattoo masters from China</p>
           </div>
           <button className="text-[#c9a050] hover:text-[#d4af37] text-sm font-medium">View All</button>
         </div>
@@ -40,7 +40,7 @@ export default function FeaturedArtists() {
                   <span className="text-[#c9a050] text-xs">{artist.style}</span>
                 </div>
               </div>
-              <div className="flex items-center justify-between text-xs text-gray-400">
+              <div className="flex items-center justify-between text-xs text-orange-300">
                 <span className="flex items-center gap-1">
                   <MapPin size={12} /> {artist.location}
                 </span>

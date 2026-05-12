@@ -15,7 +15,7 @@ const plans = [
     id: 'free',
     name: 'Inker',
     icon: Star,
-    color: 'from-gray-600 to-gray-700',
+    color: 'from-orange-900/50 to-orange-800/60',
     price: 0,
     period: 'Free Forever',
     description: 'Get started with AI tattoo designs',
@@ -193,14 +193,14 @@ export default function Pricing({ user }: PricingProps) {
             InkAI Premium Membership
           </span>
         </h1>
-        <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+        <p className="text-orange-300 text-lg max-w-2xl mx-auto">
           Chinese-style AI tattoo generator. Choose your perfect plan
         </p>
 
         {/* Comparison Note */}
-        <div className="mt-6 inline-flex items-center gap-2 bg-gray-800/50 rounded-full px-4 py-2">
+        <div className="mt-6 inline-flex items-center gap-2 bg-orange-900/40 rounded-full px-4 py-2">
           <span className="text-amber-400 text-sm font-medium">vs Competitors</span>
-          <span className="text-gray-400 text-sm">|</span>
+          <span className="text-orange-300 text-sm">|</span>
           <span className="text-green-400 text-sm">Monthly 20% cheaper | Yearly 50% cheaper</span>
         </div>
       </motion.div>
@@ -225,8 +225,8 @@ export default function Pricing({ user }: PricingProps) {
               transition={{ delay: index * 0.1 }}
               className={`relative rounded-2xl overflow-hidden ${
                 plan.popular
-                  ? 'bg-gradient-to-br from-gray-800 to-gray-900 border-2 border-amber-500/50'
-                  : 'bg-gray-800/50 border border-gray-700'
+                  ? 'bg-gradient-to-br from-orange-900/60 to-orange-800/80 border-2 border-amber-500/50'
+                  : 'bg-orange-900/40 border border-orange-500/30'
               }`}
             >
               {/* Popular Badge */}
@@ -249,7 +249,7 @@ export default function Pricing({ user }: PricingProps) {
                     <span className="text-red-400 font-medium">
                       🎉 {plan.earlyBird.label}
                     </span>
-                    <span className="text-gray-400">
+                    <span className="text-orange-300">
                       {plan.earlyBird.remaining} spots left
                     </span>
                   </div>
@@ -264,29 +264,29 @@ export default function Pricing({ user }: PricingProps) {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-white">{plan.name}</h3>
-                    <p className="text-gray-500 text-sm">{plan.description}</p>
+                    <p className="text-orange-400 text-sm">{plan.description}</p>
                   </div>
                 </div>
 
                 {/* Price */}
                 <div className="mb-6">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-gray-500">$</span>
-                    <span className={`text-4xl font-bold ${plan.price === 0 ? 'text-gray-400' : 'text-white'}`}>
+                    <span className="text-orange-400">$</span>
+                    <span className={`text-4xl font-bold ${plan.price === 0 ? 'text-orange-300' : 'text-white'}`}>
                       {showPrice}
                     </span>
-                    <span className="text-gray-500">{plan.period}</span>
+                    <span className="text-orange-400">{plan.period}</span>
                   </div>
                   {originalPrice && (
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-gray-600 line-through text-sm">${originalPrice}</span>
+                      <span className="text-orange-500 line-through text-sm">${originalPrice}</span>
                       <span className="bg-red-500/20 text-red-400 text-xs px-2 py-0.5 rounded">
                         Save ${originalPrice - showPrice}
                       </span>
                     </div>
                   )}
                   {plan.monthlyEquivalent && (
-                    <p className="text-gray-500 text-sm mt-1">{plan.monthlyEquivalent}</p>
+                    <p className="text-orange-400 text-sm mt-1">{plan.monthlyEquivalent}</p>
                   )}
                 </div>
 
@@ -299,10 +299,10 @@ export default function Pricing({ user }: PricingProps) {
                   disabled={loading || isCurrentPlan}
                   className={`w-full py-3 rounded-xl font-bold transition-all mb-6 ${
                     isCurrentPlan
-                      ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                      ? 'bg-orange-900/60 text-orange-400 cursor-not-allowed'
                       : plan.popular
                       ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black shadow-lg shadow-amber-500/25'
-                      : 'bg-white/10 hover:bg-white/20 text-white border border-gray-600'
+                      : 'bg-white/10 hover:bg-white/20 text-white border border-orange-500/30'
                   }`}
                 >
                   {isCurrentPlan ? 'Current Plan' : loading ? 'Processing...' : plan.cta}
@@ -315,14 +315,14 @@ export default function Pricing({ user }: PricingProps) {
                       {feature.included ? (
                         <Check className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
                       ) : (
-                        <X className="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" />
+                        <X className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
                       )}
                       <div className="flex-1">
-                        <span className={feature.included ? 'text-gray-300' : 'text-gray-600'}>
+                        <span className={feature.included ? 'text-orange-200' : 'text-orange-500'}>
                           {feature.text}
                         </span>
                         {feature.note && (
-                          <p className="text-gray-600 text-xs mt-0.5">{feature.note}</p>
+                          <p className="text-orange-500 text-xs mt-0.5">{feature.note}</p>
                         )}
                       </div>
                     </div>
@@ -365,16 +365,16 @@ export default function Pricing({ user }: PricingProps) {
               a: 'Free users get 10 generations per day - perfect for trying out Chinese-style tattoo designs.',
             },
           ].map((faq, i) => (
-            <div key={i} className="bg-gray-800/50 rounded-xl p-5 border border-gray-700">
+            <div key={i} className="bg-orange-900/40 rounded-xl p-5 border border-orange-500/30">
               <h3 className="text-white font-medium mb-2">{faq.q}</h3>
-              <p className="text-gray-400 text-sm">{faq.a}</p>
+              <p className="text-orange-300 text-sm">{faq.a}</p>
             </div>
           ))}
         </div>
       </motion.div>
 
       {/* Footer Note */}
-      <div className="text-center mt-12 text-gray-500 text-sm">
+      <div className="text-center mt-12 text-orange-400 text-sm">
         <p>All prices in USD. PayPal / Credit Card / Apple Pay / Google Pay accepted</p>
         <p className="mt-2">Questions? Read our <a href="#/privacy" className="text-amber-400 hover:underline">Privacy Policy</a></p>
       </div>
