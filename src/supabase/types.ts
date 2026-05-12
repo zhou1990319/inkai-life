@@ -407,6 +407,10 @@ export type Database = {
           updated_at: string | null
           username: string
           website: string | null
+          // 会员字段
+          subscription_status: string | null
+          current_plan: string | null
+          trial_available: boolean | null
         }
         Insert: {
           artist_verified?: boolean | null
@@ -422,6 +426,9 @@ export type Database = {
           updated_at?: string | null
           username: string
           website?: string | null
+          subscription_status?: string | null
+          current_plan?: string | null
+          trial_available?: boolean | null
         }
         Update: {
           artist_verified?: boolean | null
@@ -437,6 +444,9 @@ export type Database = {
           updated_at?: string | null
           username?: string
           website?: string | null
+          subscription_status?: string | null
+          current_plan?: string | null
+          trial_available?: boolean | null
         }
         Relationships: []
       }

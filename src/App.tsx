@@ -104,8 +104,8 @@ function App() {
                 element={user ? <Notifications /> : <Navigate to="/login" />}
               />
 
-              {/* AI 工作室 */}
-              <Route path="/ai-studio" element={<AIGenerator />} />
+              {/* AI 工作室（需登录） */}
+              <Route path="/ai-studio" element={<AIGenerator user={user} />} />
 
               {/* 艺术家主页 */}
               <Route path="/artist/:id" element={<ArtistDetail />} />

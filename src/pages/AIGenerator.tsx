@@ -1,8 +1,139 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Upload, Wand2, Image as ImageIcon, AlertCircle } from 'lucide-react';
+import { Sparkles, Upload, Wand2, Image as ImageIcon, AlertCircle, Lock, Crown, Zap } from 'lucide-react';
 import { generateImageWithVolcengine, generateTattooFromImage } from '../services/volcengineImage';
 import { uploadImage } from '../services/storage';
+import { useMembership, getPlanDescription, PLAN_BENEFITS } from '../hooks/useMembership';
+import type { Database } from '../supabase/types';
+
+type Profile = Database['public']['Tables']['profiles']['Row'];
+
+interface AIGeneratorProps {
+  user: Profile | null;
+}
+
+// 海外纹身风格选项 - 2行4列布局
+const TATTOO_STYLES = [
+  // 第一排
+  { id: 'oriental', name: 'Oriental', nameZh: '中式', keywords: 'oriental style, traditional chinese art, ink wash painting, chinese dragon, phoenix' },
+  { id: 'japanese', name: 'Japanese', nameZh: '日式', keywords: 'japanese tattoo, irezumi, traditional japanese art, bold outlines, cherry blossom, koi fish' },
+  { id: 'american-traditional', name: 'American Traditional', nameZh: '美式传统', keywords: 'american traditional tattoo, bold lines, vibrant colors, nautical themes, eagle, rose' },
+  { id: 'neo-traditional', name: 'Neo-Traditional', nameZh: '新传统', keywords: 'neo-traditional tattoo, bold colors, detailed illustrations, modern interpretation' },
+  // 第二排
+  { id: 'blackwork', name: 'Dark & Blackwork', nameZh: '暗黑黑灰', keywords: 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, tribal influence' },
+  { id: 'watercolor', name: 'Watercolor', nameZh: '水彩', keywords: 'watercolor tattoo style, ink wash effect, flowing colors, artistic brush strokes' },
+  { id: 'minimalist', name: 'Minimalist', nameZh: '极简线条', keywords: 'minimalist tattoo, fine line work, delicate designs, single needle technique' },
+  { id: 'realism', name: 'Realism', nameZh: '写实', keywords: 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo' },
+];
+
+// 风格关键词映射表
+const STYLE_KEYWORDS_MAP: Record<string, string> = {
+  'oriental': 'oriental style, traditional chinese art, ink wash painting, chinese dragon, phoenix, mythological elements',
+  'japanese': 'japanese tattoo, irezumi style, traditional japanese art, bold outlines, cherry blossom, koi fish, samurai',
+  'american-traditional': 'american traditional tattoo, bold lines, vibrant colors, nautical themes, eagle, rose, classic tattoo design',
+  'neo-traditional': 'neo-traditional tattoo, bold colors, detailed illustrations, modern twist on classic designs, rich shading',
+  'blackwork': 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, tribal influence, gothic elements',
+  'watercolor': 'watercolor tattoo style, ink wash effect, flowing watercolor splashes, artistic brush strokes, colorful',
+  'minimalist': 'minimalist tattoo, fine line work, delicate single line designs, subtle, elegant, single needle technique',
+  'realism': 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo, life-like rendering, high detail',
+};
+
+const bodyParts = [
+  { id: 'arm', name: 'Arm' },
+  { id: 'back', name: 'Back' },
+  { id: 'chest', name: 'Chest' },
+  { id: 'wrist', name: 'Wrist' },
+  { id: 'collarbone', name: 'Collarbone' },
+];
+
+/**
+ * 未登录遮罩层组件
+ */
+function LoginRequiredOverlay({ onLogin, onUpgrade }: { onLogin: () => void; onUpgrade: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/95 backdrop-blur-sm rounded-2xl"
+    >
+      <div className="text-center p-8 max-w-md">
+        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-amber-500/20 flex items-center justify-center">
+          <Lock className="w-10 h-10 text-amber-400" />
+        </div>
+        <h3 className="text-2xl font-bold text-white mb-3">Login Required</h3>
+        <p className="text-slate-400 mb-6">
+          Sign in to start generating your unique tattoo designs. Free users get 10 generations per day!
+        </p>
+        <div className="space-y-3">
+          <button
+            onClick={onLogin}
+            className="w-full py-3 px-6 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold rounded-xl hover:from-amber-400 hover:to-amber-500 transition-all"
+          >
+            Sign In / Sign Up
+          </button>
+          <button
+            onClick={onUpgrade}
+            className="w-full py-3 px-6 bg-slate-800 text-amber-400 font-medium rounded-xl hover:bg-slate-700 transition-all flex items-center justify-center gap-2"
+          >
+            <Crown className="w-4 h-4" />
+            View Membership Plans
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/**
+ * 会员状态栏组件
+ */
+function MembershipStatusBar({ user, membership }: { user: Profile; membership: ReturnType<typeof useMembership> }) {
+  const { currentPlan, benefits, message } = membership;
+  const isFree = currentPlan === 'free';
+
+  return (
+    <div className="mb-6 p-4 bg-slate-800/50 border border-amber-500/20 rounded-xl">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          {isFree ? (
+            <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center">
+              <Zap className="w-5 h-5 text-slate-400" />
+            </div>
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+              <Crown className="w-5 h-5 text-amber-400" />
+            </div>
+          )}
+          <div>
+            <div className="flex items-center gap-2">
+              <span className={`font-medium ${isFree ? 'text-slate-300' : 'text-amber-400'}`}>
+                {user.display_name || user.username}
+              </span>
+              {isFree ? (
+                <span className="text-xs px-2 py-0.5 bg-slate-700 text-slate-400 rounded-full">Free</span>
+              ) : (
+                <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded-full">
+                  {getPlanDescription(currentPlan)}
+                </span>
+              )}
+            </div>
+            <p className={`text-sm ${isFree ? 'text-amber-400' : 'text-slate-400'}`}>
+              {message || (benefits.isUnlimited ? 'Unlimited generations!' : `Max resolution: ${benefits.maxResolution}`)}
+            </p>
+          </div>
+        </div>
+        {isFree && (
+          <a
+            href="#/pricing"
+            className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 text-sm font-medium rounded-lg hover:from-amber-400 hover:to-amber-500 transition-all"
+          >
+            Upgrade
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // 海外纹身风格选项 - 2行4列布局
 const TATTOO_STYLES = [
@@ -139,7 +270,7 @@ function compressWithCanvas(file: File): Promise<{ base64: string }> {
   });
 }
 
-export default function AIGenerator() {
+export default function AIGenerator({ user }: AIGeneratorProps) {
   const [prompt, setPrompt] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('oriental');
   const [selectedBodyPart, setSelectedBodyPart] = useState('arm');
@@ -149,14 +280,42 @@ export default function AIGenerator() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // 会员状态管理
+  const membership = useMembership(user);
+  const { canGenerate, benefits, recordGeneration, getResolution, currentPlan } = membership;
+
+  // 跳转到登录页面
+  const handleLogin = () => {
+    window.location.hash = '#/login';
+  };
+
+  // 跳转到定价页面
+  const handleUpgrade = () => {
+    window.location.hash = '#/pricing';
+  };
+
   const handleGenerate = async () => {
+    // 检查是否登录
+    if (!user) {
+      return;
+    }
+    // 检查生成次数限制
+    if (!canGenerate) {
+      setError('今日生成次数已用完，请明天再来或升级会员！');
+      return;
+    }
     if (!prompt && mode === 'text') return;
+
     setLoading(true);
     setError(null);
     try {
       // 获取选中风格的关键词
       const styleKeywords = selectedStyle ? STYLE_KEYWORDS_MAP[selectedStyle] || '' : '';
       const bodyPartName = selectedBodyPart ? bodyParts.find(b => b.id === selectedBodyPart)?.name : '';
+      // 根据会员等级获取分辨率
+      const resolution = getResolution('1024x1024');
+      // 根据会员等级决定是否加水印
+      const watermark = benefits.watermark;
       let fullPrompt: string;
       let result;
 
@@ -166,9 +325,9 @@ export default function AIGenerator() {
 
         result = await generateImageWithVolcengine({
           prompt: fullPrompt,
-          size: '1024x1024',
+          size: resolution,
           n: 1,
-          watermark: false,
+          watermark: watermark,
         });
       } else {
         // 图生图：以原图为基础，融入纹身风格
@@ -177,14 +336,16 @@ export default function AIGenerator() {
         result = await generateImageWithVolcengine({
           prompt: fullPrompt,
           image_url: uploadedImage!,
-          size: '1024x1024',
+          size: resolution,
           n: 1,
-          watermark: false,
+          watermark: watermark,
         });
       }
 
       if (result.success && result.image_url) {
         setGeneratedImage(result.image_url);
+        // 记录生成到日志
+        recordGeneration(result.image_url, resolution);
       } else {
         setError(result.error || '生成失败，请重试');
       }
@@ -258,8 +419,14 @@ export default function AIGenerator() {
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-slate-900/50 border border-amber-500/20 rounded-2xl p-6"
+            className="bg-slate-900/50 border border-amber-500/20 rounded-2xl p-6 relative"
           >
+            {/* 未登录遮罩层 */}
+            {!user && <LoginRequiredOverlay onLogin={handleLogin} onUpgrade={handleUpgrade} />}
+
+            {/* 已登录：显示会员状态栏 */}
+            {user && <MembershipStatusBar user={user} membership={membership} />}
+
             <div className="flex gap-4 mb-6">
               <button
                 onClick={() => setMode('text')}
@@ -350,6 +517,14 @@ export default function AIGenerator() {
               </div>
             </div>
 
+            {/* 水印提示 */}
+            {user && benefits.watermark && (
+              <div className="mb-4 p-3 bg-slate-800/50 border border-slate-700 rounded-lg flex items-center gap-2 text-slate-400 text-sm">
+                <AlertCircle className="w-4 h-4 text-amber-500" />
+                Images will have a watermark. <a href="#/pricing" className="text-amber-400 hover:underline">Upgrade to remove</a>
+              </div>
+            )}
+
             {error && (
               <div className="mb-4 p-3 bg-red-500/20 border border-red-500/40 rounded-lg flex items-center gap-2 text-red-400">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -359,7 +534,7 @@ export default function AIGenerator() {
 
             <button
               onClick={handleGenerate}
-              disabled={loading || (!prompt && mode === 'text') || (mode === 'image' && !uploadedImage)}
+              disabled={loading || !user || (!canGenerate) || (!prompt && mode === 'text') || (mode === 'image' && !uploadedImage)}
               className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:from-amber-400 hover:to-amber-500 transition-all"
             >
               {loading ? (
@@ -372,7 +547,7 @@ export default function AIGenerator() {
               ) : (
                 <Sparkles className="w-5 h-5" />
               )}
-              {loading ? 'Generating...' : 'Generate Tattoo'}
+              {!user ? 'Sign In to Generate' : loading ? 'Generating...' : 'Generate Tattoo'}
             </button>
           </motion.div>
 
