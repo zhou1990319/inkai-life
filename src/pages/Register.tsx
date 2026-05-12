@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, Sparkles } from 'lucide-react';
 import { supabase } from '../supabase/client';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Register() {
+  const { t } = useLanguage();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,8 +48,8 @@ export default function Register() {
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center">
             <Sparkles className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Create Account</h1>
-          <p className="text-slate-400">Join InkAI.life community</p>
+          <h1 className="text-2xl font-bold text-white mb-2">{t('auth.create_account')}</h1>
+          <p className="text-slate-400">{t('auth.join_community')}</p>
         </div>
 
         {error && (
@@ -58,7 +60,7 @@ export default function Register() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-amber-400 text-sm font-medium mb-2">Username</label>
+            <label className="block text-amber-400 text-sm font-medium mb-2">{t('auth.username')}</label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
               <input
@@ -66,14 +68,14 @@ export default function Register() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none"
-                placeholder="Choose a username"
+                placeholder={t('auth.choose_username')}
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-amber-400 text-sm font-medium mb-2">Email</label>
+            <label className="block text-amber-400 text-sm font-medium mb-2">{t('auth.email')}</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
               <input
@@ -81,14 +83,14 @@ export default function Register() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none"
-                placeholder="Enter your email"
+                placeholder={t('auth.enter_email')}
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-amber-400 text-sm font-medium mb-2">Password</label>
+            <label className="block text-amber-400 text-sm font-medium mb-2">{t('auth.password')}</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
               <input
@@ -96,7 +98,7 @@ export default function Register() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none"
-                placeholder="Create a password"
+                placeholder={t('auth.create_password')}
                 required
               />
             </div>
@@ -107,14 +109,14 @@ export default function Register() {
             disabled={loading}
             className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold rounded-lg hover:from-amber-400 hover:to-amber-500 disabled:opacity-50 transition-all"
           >
-            {loading ? 'Creating...' : 'Create Account'}
+            {loading ? t('auth.creating') : t('auth.create_account')}
           </button>
         </form>
 
         <p className="text-center mt-6 text-slate-400">
-          Already have an account?{' '}
+          {t('auth.has_account')}{' '}
           <Link to="/login" className="text-amber-400 hover:underline">
-            Sign in
+            {t('auth.sign_in_link')}
           </Link>
         </p>
       </motion.div>

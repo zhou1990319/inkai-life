@@ -77,6 +77,31 @@ const translations: Record<Language, Record<string, string>> = {
     'body.thigh': 'Thigh',
     'body.calf': 'Calf',
 
+    // Auth - Login
+    'auth.welcome_back': 'Welcome Back',
+    'auth.sign_in_to_continue': 'Sign in to continue your journey',
+    'auth.sign_in': 'Sign In',
+    'auth.signing_in': 'Signing in...',
+    'auth.email': 'Email',
+    'auth.password': 'Password',
+    'auth.enter_email': 'Enter your email',
+    'auth.enter_password': 'Enter your password',
+    'auth.no_account': "Don't have an account?",
+    'auth.sign_up_link': 'Sign up',
+    'auth.forgot_password': 'Forgot password?',
+    
+    // Auth - Register
+    'auth.create_account': 'Create Account',
+    'auth.join_community': 'Join InkAI.life community',
+    'auth.username': 'Username',
+    'auth.choose_username': 'Choose a username',
+    'auth.create_password': 'Create a password',
+    'auth.creating': 'Creating...',
+    'auth.has_account': 'Already have an account?',
+    'auth.sign_in_link': 'Sign in',
+    'auth.agree_terms': 'I agree to the',
+    'auth.terms_of_service': 'Terms of Service',
+
     // Styles
     'style.oriental': 'Oriental',
     'style.japanese': 'Japanese',
@@ -153,9 +178,33 @@ const translations: Record<Language, Record<string, string>> = {
     'style.watercolor': '水彩',
     'style.minimalist': 'ミニマリスト',
     'style.realism': 'リアリスム',
-  },
 
-  zh: {
+    // Auth - Login
+    'auth.welcome_back': 'おかえりなさい',
+    'auth.sign_in_to_continue': 'サインインして続行',
+    'auth.sign_in': 'ログイン',
+    'auth.signing_in': 'ログイン中...',
+    'auth.email': 'メールアドレス',
+    'auth.password': 'パスワード',
+    'auth.enter_email': 'メールアドレスを入力',
+    'auth.enter_password': 'パスワードを入力',
+    'auth.no_account': 'アカウントをお持ちでない方',
+    'auth.sign_up_link': '新規登録',
+    'auth.forgot_password': 'パスワードをお忘れですか？',
+    
+    // Auth - Register
+    'auth.create_account': 'アカウント作成',
+    'auth.join_community': 'InkAI.life コミュニティに参加',
+    'auth.username': 'ユーザー名',
+    'auth.choose_username': 'ユーザー名を選択',
+    'auth.create_password': 'パスワードを作成',
+    'auth.creating': '作成中...',
+    'auth.has_account': 'すでにアカウントをお持ちの方',
+    'auth.sign_in_link': 'ログイン',
+    'auth.agree_terms': '同意する',
+    'auth.terms_of_service': '利用規約',
+
+    'body.arm': '腕',
     'nav.home': '首页',
     'nav.community': '社区',
     'nav.inspire': '灵感',
@@ -220,9 +269,33 @@ const translations: Record<Language, Record<string, string>> = {
     'style.watercolor': '水彩',
     'style.minimalist': '极简线条',
     'style.realism': '写实',
-  },
 
-  pt: {
+    // Auth - Login
+    'auth.welcome_back': '欢迎回来',
+    'auth.sign_in_to_continue': '登录以继续您的旅程',
+    'auth.sign_in': '登录',
+    'auth.signing_in': '登录中...',
+    'auth.email': '邮箱',
+    'auth.password': '密码',
+    'auth.enter_email': '输入您的邮箱',
+    'auth.enter_password': '输入您的密码',
+    'auth.no_account': '还没有账户？',
+    'auth.sign_up_link': '立即注册',
+    'auth.forgot_password': '忘记密码？',
+    
+    // Auth - Register
+    'auth.create_account': '创建账户',
+    'auth.join_community': '加入 InkAI.life 社区',
+    'auth.username': '用户名',
+    'auth.choose_username': '选择用户名',
+    'auth.create_password': '创建密码',
+    'auth.creating': '创建中...',
+    'auth.has_account': '已有账户？',
+    'auth.sign_in_link': '立即登录',
+    'auth.agree_terms': '我同意',
+    'auth.terms_of_service': '服务条款',
+
+    'body.arm': '手臂',
     'nav.home': 'Início',
     'nav.community': 'Comunidade',
     'nav.inspire': 'Inspiração',
@@ -287,9 +360,33 @@ const translations: Record<Language, Record<string, string>> = {
     'style.watercolor': 'Aquarela',
     'style.minimalist': 'Minimalista',
     'style.realism': 'Realismo',
-  },
 
-  es: {
+    // Auth - Login
+    'auth.welcome_back': 'Bem-vindo de Volta',
+    'auth.sign_in_to_continue': 'Entre para continuar sua jornada',
+    'auth.sign_in': 'Entrar',
+    'auth.signing_in': 'Entrando...',
+    'auth.email': 'E-mail',
+    'auth.password': 'Senha',
+    'auth.enter_email': 'Digite seu e-mail',
+    'auth.enter_password': 'Digite sua senha',
+    'auth.no_account': 'Não tem uma conta?',
+    'auth.sign_up_link': 'Cadastre-se',
+    'auth.forgot_password': 'Esqueceu a senha?',
+    
+    // Auth - Register
+    'auth.create_account': 'Criar Conta',
+    'auth.join_community': 'Junte-se à comunidade InkAI.life',
+    'auth.username': 'Nome de Usuário',
+    'auth.choose_username': 'Escolha um nome de usuário',
+    'auth.create_password': 'Crie uma senha',
+    'auth.creating': 'Criando...',
+    'auth.has_account': 'Já tem uma conta?',
+    'auth.sign_in_link': 'Entrar',
+    'auth.agree_terms': 'Eu concordo com o',
+    'auth.terms_of_service': 'Termos de Serviço',
+
+    'body.arm': 'Braço',
     'nav.home': 'Inicio',
     'nav.community': 'Comunidad',
     'nav.inspire': 'Inspiración',
@@ -354,9 +451,33 @@ const translations: Record<Language, Record<string, string>> = {
     'style.watercolor': 'Acuarela',
     'style.minimalist': 'Minimalista',
     'style.realism': 'Realismo',
-  },
 
-  de: {
+    // Auth - Login
+    'auth.welcome_back': 'Bienvenido de Nuevo',
+    'auth.sign_in_to_continue': 'Inicia sesión para continuar tu viaje',
+    'auth.sign_in': 'Iniciar Sesión',
+    'auth.signing_in': 'Iniciando sesión...',
+    'auth.email': 'Correo Electrónico',
+    'auth.password': 'Contraseña',
+    'auth.enter_email': 'Ingresa tu correo electrónico',
+    'auth.enter_password': 'Ingresa tu contraseña',
+    'auth.no_account': '¿No tienes una cuenta?',
+    'auth.sign_up_link': 'Regístrate',
+    'auth.forgot_password': '¿Olvidaste tu contraseña?',
+    
+    // Auth - Register
+    'auth.create_account': 'Crear Cuenta',
+    'auth.join_community': 'Únete a la comunidad InkAI.life',
+    'auth.username': 'Nombre de Usuario',
+    'auth.choose_username': 'Elige un nombre de usuario',
+    'auth.create_password': 'Crea una contraseña',
+    'auth.creating': 'Creando...',
+    'auth.has_account': '¿Ya tienes una cuenta?',
+    'auth.sign_in_link': 'Inicia sesión',
+    'auth.agree_terms': 'Acepto los',
+    'auth.terms_of_service': 'Términos de Servicio',
+
+    'body.arm': 'Brazo',
     'nav.home': 'Startseite',
     'nav.community': 'Gemeinschaft',
     'nav.inspire': 'Inspiration',
@@ -421,6 +542,31 @@ const translations: Record<Language, Record<string, string>> = {
     'style.watercolor': 'Aquarell',
     'style.minimalist': 'Minimalistisch',
     'style.realism': 'Realismus',
+
+    // Auth - Login
+    'auth.welcome_back': 'Willkommen Zurück',
+    'auth.sign_in_to_continue': 'Melde dich an um fortzufahren',
+    'auth.sign_in': 'Anmelden',
+    'auth.signing_in': 'Anmelden...',
+    'auth.email': 'E-Mail',
+    'auth.password': 'Passwort',
+    'auth.enter_email': 'Gib deine E-Mail ein',
+    'auth.enter_password': 'Gib dein Passwort ein',
+    'auth.no_account': 'Noch kein Konto?',
+    'auth.sign_up_link': 'Registrieren',
+    'auth.forgot_password': 'Passwort vergessen?',
+    
+    // Auth - Register
+    'auth.create_account': 'Konto Erstellen',
+    'auth.join_community': 'Werde Teil der InkAI.life Community',
+    'auth.username': 'Benutzername',
+    'auth.choose_username': 'Wähle einen Benutzernamen',
+    'auth.create_password': 'Erstelle ein Passwort',
+    'auth.creating': 'Wird erstellt...',
+    'auth.has_account': 'Bereits ein Konto?',
+    'auth.sign_in_link': 'Anmelden',
+    'auth.agree_terms': 'Ich stimme den',
+    'auth.terms_of_service': 'Nutzungsbedingungen zu',
   },
 };
 
