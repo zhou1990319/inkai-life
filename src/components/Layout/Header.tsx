@@ -3,18 +3,22 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Search, Bell, User, Crown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../supabase/client';
+import { NotificationService } from '../../services/community';
+import { NotificationBadge } from '../../components/Community';
+import type { Profile } from '../../supabase/types';
 
 const navItems = [
   { path: '/', label: 'Home', icon: 'fa-home' },
   { path: '/explore', label: 'Community', icon: 'fa-users' },
-  { path: '/create', label: 'Inspire', icon: 'fa-lightbulb' },
+  { path: '/inspire', label: 'Inspire', icon: 'fa-lightbulb' },
   { path: '/artists', label: 'Artists', icon: 'fa-paint-brush' },
 ];
 
-export default function Header() {
+export default function Header({ user }: { user: Profile | null }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isArtist, setIsArtist] = useState(false);
   const [currentPlan, setCurrentPlan] = useState('free');
+  const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
 
   useEffect(() => {
@@ -28,10 +32,14 @@ export default function Header() {
           .single();
         setIsArtist(data?.is_artist || false);
         setCurrentPlan(data?.current_plan || 'free');
+        // 加载未读通知数
+        NotificationService.getUnreadCount(session.user.id).then(setUnreadCount);
+      } else {
+        setUnreadCount(0);
       }
     };
     checkUserStatus();
-  }, [location]);
+  }, [location, user]);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#0B0B0E]/95 backdrop-blur-md border-b border-[#2A2A36]">
@@ -98,19 +106,38 @@ export default function Header() {
               </Link>
             )}
 
-            <button className="p-2 text-[#6B6B78] hover:text-[#CFAF6E] transition-colors">
-              <Search className="w-4.5 h-4.5" />
-            </button>
-            <button className="p-2 text-[#6B6B78] hover:text-[#CFAF6E] transition-colors relative">
-              <Bell className="w-4.5 h-4.5" />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#9E2B25] rounded-full" />
-            </button>
-            <Link
-              to="/profile"
-              className="w-8 h-8 rounded-full bg-[#18181F] border border-[#2A2A36] flex items-center justify-center hover:border-[#CFAF6E]/40 transition-colors"
-            >
-              <User className="w-4 h-4 text-[#B0B0B8]" />
-            </Link>
+            {user ? (
+              <Link
+                to="/notifications"
+                className="relative p-2 text-[#6B6B78] hover:text-[#CFAF6E] transition-colors"
+              >
+                <Bell className="w-4.5 h-4.5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 flex items-center justify-center px-1 bg-[#9E2B25] text-white text-[10px] font-bold rounded-full">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                className="px-4 py-1.5 bg-[#9E2B25] text-white text-sm font-semibold rounded-full hover:bg-[#B8342D] transition-colors"
+              >
+                Sign In
+              </Link>
+            )}
+            {user && (
+              <Link
+                to={`/profile/${user.username}`}
+                className="w-8 h-8 rounded-full bg-[#18181F] border border-[#2A2A36] flex items-center justify-center hover:border-[#CFAF6E]/40 transition-colors overflow-hidden"
+              >
+                {user.avatar_url ? (
+                  <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-4 h-4 text-[#B0B0B8]" />
+                )}
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu toggle */}

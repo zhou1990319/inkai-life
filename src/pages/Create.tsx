@@ -1,294 +1,399 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Upload, Image as ImageIcon, Sparkles, X, Check } from 'lucide-react';
-import { supabase } from '../supabase/client';
-import { uploadImage } from '../services/storage';
-import { useNavigate } from 'react-router-dom';
+// ============================================
+// InkAI 发布帖子页面 (Create)
+// 支持多图上传、文字描述、标签、权限设置
+// ============================================
 
-const styles = [
-  { id: 'ink-wash', name: 'Ink Wash', icon: '水墨' },
-  { id: 'dragon', name: 'Dragon', icon: '龙' },
-  { id: 'phoenix', name: 'Phoenix', icon: '凤' },
-  { id: 'dunhuang', name: 'Dunhuang', icon: '敦煌' },
-  { id: 'mythical', name: 'Mythical Beasts', icon: '神兽' },
-  { id: 'calligraphy', name: 'Calligraphy', icon: '书法' },
-  { id: 'opera', name: 'Opera Mask', icon: '脸谱' },
-  { id: 'totem', name: 'Totem', icon: '图腾' },
-  { id: 'koi', name: 'Koi Fish', icon: '锦鲤' },
-  { id: 'lotus', name: 'Lotus', icon: '荷花' },
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import {
+  ImagePlus, X, Sparkles, ChevronDown, ChevronUp,
+  Globe, Users, Lock, MapPin, Loader2, Eye, Check
+} from 'lucide-react';
+import { supabase } from '../supabase/client';
+import type { Database } from '../supabase/types';
+import { ImageUploader, VisibilitySelector } from '../components/Community';
+import { PostService, TagService } from '../services/community';
+
+type Profile = Database['public']['Tables']['profiles']['Row'];
+
+const PRESET_STYLES = [
+  'BlackAndGrey', 'Traditional', 'WatercolorTattoo', 'JapaneseTattoo',
+  'ChineseTattoo', 'Minimalist', 'GeometricTattoo', 'RealisticTattoo',
+  'DragonTattoo', 'ScriptTattoo', 'FloralTattoo', 'SkullTattoo',
+  'AnimalTattoo', 'NeoTraditional', 'FineLineTattoo'
 ];
 
-const bodyParts = [
-  { id: 'arm', name: 'Arm' },
-  { id: 'back', name: 'Back' },
-  { id: 'chest', name: 'Chest' },
-  { id: 'wrist', name: 'Wrist' },
-  { id: 'ankle', name: 'Ankle' },
-  { id: 'shoulder', name: 'Shoulder' },
+const BODY_PARTS = [
+  'Arm', 'Back', 'Chest', 'Wrist', 'Ankle', 'Shoulder',
+  'Leg', 'Neck', 'Finger', 'Ribs', 'Forearm', 'Calf'
+];
+
+const POST_TYPES = [
+  { id: 'handwork', label: 'Handwork', desc: 'Traditional hand-drawn design', icon: '✋' },
+  { id: 'finished', label: 'Finished Work', desc: 'Completed tattoo on skin', icon: '🎨' },
+  { id: 'ai_generated', label: 'AI Generated', desc: 'Created with AI tools', icon: '✨' },
+  { id: 'daily', label: 'Daily Share', desc: 'Behind the scenes /日常', icon: '📸' },
 ];
 
 export default function Create() {
   const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState<Profile | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [images, setImages] = useState<string[]>([]);
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [selectedBodyPart, setSelectedBodyPart] = useState('');
-  const [image, setImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [visibility, setVisibility] = useState<'public' | 'followers' | 'private'>('public');
+  const [postType, setPostType] = useState<string>('finished');
+  const [location, setLocation] = useState('');
+  const [customTag, setCustomTag] = useState('');
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
 
+  // 检查登录
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+    supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        const { data } = await supabase
+        supabase
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
-          .single();
-        setUser(data);
+          .single()
+          .then(({ data }) => {
+            if (data) {
+              setCurrentUser(data);
+            } else {
+              navigate('/login');
+            }
+          });
+      } else {
+        navigate('/login');
       }
-    };
-    getUser();
+    });
   }, []);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        setError('Image must be less than 10MB');
-        return;
-      }
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        setError('Please select an image file');
-        return;
-      }
-      setError(null);
-      setImage(file);
-      setPreview(URL.createObjectURL(file));
-    }
+  const toggleStyle = (style: string) => {
+    setSelectedStyles(prev =>
+      prev.includes(style)
+        ? prev.filter(s => s !== style)
+        : [...prev, style]
+    );
   };
 
-  const toggleStyle = (styleId: string) => {
-    setSelectedStyles(prev =>
-      prev.includes(styleId)
-        ? prev.filter(s => s !== styleId)
-        : [...prev, styleId]
-    );
+  const addCustomTag = () => {
+    const tag = customTag.trim().replace(/^#/, '').toLowerCase();
+    if (tag && !selectedStyles.includes(tag)) {
+      setSelectedStyles(prev => [...prev, tag]);
+    }
+    setCustomTag('');
   };
 
   const handleSubmit = async () => {
     if (!title.trim()) {
-      setError('Please enter a title');
+      setError('Please enter a title for your post');
       return;
     }
-    if (!image) {
-      setError('Please upload an image');
+    if (images.length === 0) {
+      setError('Please upload at least one image');
       return;
     }
-    if (!user?.id) {
+    if (!currentUser) {
       setError('Please login first');
+      navigate('/login');
       return;
     }
 
-    setLoading(true);
+    setSubmitting(true);
     setError(null);
 
     try {
-      // 1. Upload image to Supabase storage
-      const { publicUrl } = await uploadImage(image, 'tattoo-images');
+      const isAiGenerated = postType === 'ai_generated';
 
-      // 2. Create post in database
-      const { data: post, error: postError } = await supabase
-        .from('tattoo_posts')
-        .insert({
-          title: title.trim(),
-          description: description.trim() || null,
-          image_url: publicUrl,
-          user_id: user.id,
-          style: selectedStyles.length > 0 ? selectedStyles : null,
-          body_part: selectedBodyPart || null,
-          is_public: true,
-          likes_count: 0,
-          comments_count: 0,
-          saves_count: 0,
-          views_count: 0,
-        })
-        .select()
-        .single();
+      const post = await PostService.createPost({
+        userId: currentUser.id,
+        title: title.trim(),
+        description: description.trim() || undefined,
+        imageUrls: images,
+        style: selectedStyles,
+        bodyPart: selectedBodyPart || undefined,
+        visibility,
+        location: location.trim() || undefined,
+        isAiGenerated,
+      });
 
-      if (postError) throw postError;
+      // 创建标签关联
+      for (const tag of selectedStyles) {
+        const tagId = await TagService.getOrCreateTag(tag);
+        await supabase.from('post_tag_relations').insert({
+          post_id: post.id,
+          tag_id: tagId,
+        });
+      }
 
-      // Success! Navigate to the post
-      alert('Post published successfully!');
+      alert('Post published successfully! 🎉');
       navigate(`/post/${post.id}`);
     } catch (err: any) {
       console.error('Failed to create post:', err);
-      setError(err.message || 'Failed to create post. Please try again.');
+      setError(err.message || 'Failed to publish post. Please try again.');
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] pt-20 pb-24">
-      <div className="max-w-2xl mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-[#141414] rounded-2xl p-6 border border-[#2a2a2a]"
-        >
-          <h1 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-            <Sparkles className="text-amber-500" />
-            Create Post
-          </h1>
-
-          {/* Error Message */}
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-xl text-red-400 text-sm flex items-center gap-2"
-            >
-              <X className="w-4 h-4" />
-              {error}
-            </motion.div>
-          )}
-
-          {/* Image Upload */}
-          <div className="mb-6">
-            <label className="block text-gray-400 mb-2">Upload Image *</label>
-            <div className="relative">
-              {preview ? (
-                <div className="relative">
-                  <img
-                    src={preview}
-                    alt="Preview"
-                    className="w-full aspect-square object-cover rounded-xl"
-                  />
-                  <button
-                    onClick={() => {
-                      setImage(null);
-                      setPreview(null);
-                    }}
-                    className="absolute top-2 right-2 p-2 bg-black/60 rounded-full hover:bg-black/80 transition-colors"
-                  >
-                    <X className="w-5 h-5 text-white" />
-                  </button>
-                </div>
-              ) : (
-                <label className="flex flex-col items-center justify-center w-full aspect-square border-2 border-dashed border-[#2a2a2a] rounded-xl cursor-pointer hover:border-amber-500/50 hover:bg-amber-500/5 transition-all">
-                  <Upload className="w-12 h-12 text-gray-500 mb-2" />
-                  <span className="text-gray-500 text-sm">Click to upload</span>
-                  <span className="text-gray-600 text-xs mt-1">Max 10MB</span>
-                </label>
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-              />
-            </div>
-          </div>
-
-          {/* Title */}
-          <div className="mb-4">
-            <label className="block text-gray-400 mb-2">Title *</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Give your work a title"
-              maxLength={100}
-              className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:outline-none"
-            />
-            <span className="text-gray-600 text-xs mt-1">{title.length}/100</span>
-          </div>
-
-          {/* Description */}
-          <div className="mb-4">
-            <label className="block text-gray-400 mb-2">Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe your tattoo design, inspiration, story..."
-              rows={4}
-              maxLength={500}
-              className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:outline-none resize-none"
-            />
-            <span className="text-gray-600 text-xs">{description.length}/500</span>
-          </div>
-
-          {/* Style Tags */}
-          <div className="mb-4">
-            <label className="block text-gray-400 mb-3">Style Tags</label>
-            <div className="flex flex-wrap gap-2">
-              {styles.map(style => (
-                <button
-                  key={style.id}
-                  onClick={() => toggleStyle(style.id)}
-                  className={`px-4 py-2 rounded-full text-sm transition-all flex items-center gap-1 ${
-                    selectedStyles.includes(style.id)
-                      ? 'bg-amber-500 text-black'
-                      : 'bg-[#1a1a1a] text-gray-400 border border-[#2a2a2a] hover:border-amber-500/50'
-                  }`}
-                >
-                  {selectedStyles.includes(style.id) && <Check className="w-3 h-3" />}
-                  <span>{style.name}</span>
-                  <span className="text-xs opacity-60">{style.icon}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Body Part */}
-          <div className="mb-6">
-            <label className="block text-gray-400 mb-3">Body Placement (Optional)</label>
-            <div className="flex flex-wrap gap-2">
-              {bodyParts.map(part => (
-                <button
-                  key={part.id}
-                  onClick={() => setSelectedBodyPart(part.id === selectedBodyPart ? '' : part.id)}
-                  className={`px-4 py-2 rounded-full text-sm transition-all ${
-                    selectedBodyPart === part.id
-                      ? 'bg-amber-500 text-black'
-                      : 'bg-[#1a1a1a] text-gray-400 border border-[#2a2a2a] hover:border-amber-500/50'
-                  }`}
-                >
-                  {part.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Submit Button */}
+    <div className="min-h-screen bg-[#0B0B0E]">
+      {/* 顶部导航 */}
+      <div className="sticky top-16 z-40 bg-[#0B0B0E]/95 backdrop-blur-md border-b border-[#2A2A36]">
+        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+          <button
+            onClick={() => navigate(-1)}
+            className="text-[#B0B0B8] hover:text-white transition-colors"
+          >
+            Cancel
+          </button>
+          <h1 className="text-white font-semibold">Create Post</h1>
           <button
             onClick={handleSubmit}
-            disabled={loading || !title.trim() || !image}
-            className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold rounded-xl hover:from-amber-400 hover:to-amber-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+            disabled={submitting || !title.trim() || images.length === 0}
+            className="px-4 py-1.5 bg-[#9E2B25] text-white rounded-full text-sm font-medium hover:bg-[#B8342D] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5"
           >
-            {loading ? (
+            {submitting ? (
               <>
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                  className="w-5 h-5 border-2 border-black border-t-transparent rounded-full"
-                />
-                Publishing...
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                Posting...
               </>
+            ) : 'Post'}
+          </button>
+        </div>
+      </div>
+
+      <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+        {/* 错误提示 */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 bg-[#9E2B25]/10 border border-[#9E2B25]/30 rounded-xl text-[#9E2B25] text-sm flex items-center gap-2"
+          >
+            <X className="w-4 h-4 flex-shrink-0" />
+            {error}
+          </motion.div>
+        )}
+
+        {/* 图片上传 */}
+        <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-white font-semibold">Images</h2>
+            {images.length > 0 && (
+              <span className="text-[#6B6B78] text-xs">{images.length}/9</span>
+            )}
+          </div>
+          <ImageUploader
+            images={images}
+            onChange={setImages}
+            maxImages={9}
+            userId={currentUser?.id}
+          />
+        </div>
+
+        {/* 标题 */}
+        <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-3">
+          <h2 className="text-white font-semibold">Title *</h2>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Give your work a compelling title..."
+            maxLength={100}
+            className="w-full bg-[#1E1E27] border border-[#2A2A36] rounded-xl px-4 py-3 text-white placeholder-[#6B6B78] focus:border-[#CFAF6E]/50 focus:outline-none transition-colors text-sm"
+          />
+          <div className="flex items-center justify-between">
+            <span className="text-[#6B6B78] text-xs">{title.length}/100</span>
+          </div>
+        </div>
+
+        {/* 描述 */}
+        <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-3">
+          <h2 className="text-white font-semibold">Description</h2>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Tell the story behind your work — inspiration, meaning, process..."
+            rows={4}
+            maxLength={500}
+            className="w-full bg-[#1E1E27] border border-[#2A2A36] rounded-xl px-4 py-3 text-white placeholder-[#6B6B78] focus:border-[#CFAF6E]/50 focus:outline-none transition-colors resize-none text-sm"
+          />
+          <div className="flex justify-end">
+            <span className="text-[#6B6B78] text-xs">{description.length}/500</span>
+          </div>
+        </div>
+
+        {/* 作品类型 */}
+        <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-3">
+          <h2 className="text-white font-semibold">Post Type</h2>
+          <div className="grid grid-cols-2 gap-2">
+            {POST_TYPES.map(type => (
+              <button
+                key={type.id}
+                onClick={() => setPostType(type.id)}
+                className={`
+                  p-3 rounded-xl border transition-all text-left
+                  ${postType === type.id
+                    ? 'border-[#CFAF6E]/50 bg-[#CFAF6E]/5'
+                    : 'border-[#2A2A36] hover:border-[#2A2A36]/80'
+                  }
+                `}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-lg">{type.icon}</span>
+                  <span className={`text-sm font-medium ${postType === type.id ? 'text-white' : 'text-[#B0B0B8]'}`}>
+                    {type.label}
+                  </span>
+                </div>
+                <p className="text-[#6B6B78] text-[10px]">{type.desc}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 风格标签 */}
+        <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-3">
+          <h2 className="text-white font-semibold">Style Tags</h2>
+          <div className="flex flex-wrap gap-2">
+            {PRESET_STYLES.map(style => (
+              <button
+                key={style}
+                onClick={() => toggleStyle(style)}
+                className={`
+                  px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1
+                  ${selectedStyles.includes(style)
+                    ? 'bg-[#9E2B25] text-white border border-[#9E2B25]'
+                    : 'bg-[#1E1E27] text-[#B0B0B8] border border-[#2A2A36] hover:border-[#9E2B25]/40'
+                  }
+                `}
+              >
+                {selectedStyles.includes(style) && <Check className="w-3 h-3" />}
+                {style}
+              </button>
+            ))}
+          </div>
+          {/* 自定义标签 */}
+          <div className="flex gap-2 mt-3">
+            <input
+              type="text"
+              value={customTag}
+              onChange={(e) => setCustomTag(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomTag())}
+              placeholder="Add custom tag..."
+              className="flex-1 bg-[#1E1E27] border border-[#2A2A36] rounded-xl px-3 py-2 text-sm text-white placeholder-[#6B6B78] focus:border-[#CFAF6E]/50 focus:outline-none transition-colors"
+            />
+            <button
+              onClick={addCustomTag}
+              className="px-4 py-2 bg-[#1E1E27] border border-[#2A2A36] rounded-xl text-[#B0B0B8] hover:text-[#CFAF6E] hover:border-[#CFAF6E]/40 transition-colors text-sm"
+            >
+              Add
+            </button>
+          </div>
+        </div>
+
+        {/* 高级选项 */}
+        <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] overflow-hidden">
+          <button
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="w-full p-5 flex items-center justify-between text-left"
+          >
+            <h2 className="text-white font-semibold">Advanced Options</h2>
+            {showAdvanced ? (
+              <ChevronUp className="w-4 h-4 text-[#6B6B78]" />
             ) : (
-              <>
-                <Sparkles className="w-5 h-5" />
-                Publish Post
-              </>
+              <ChevronDown className="w-4 h-4 text-[#6B6B78]" />
             )}
           </button>
-        </motion.div>
+
+          {showAdvanced && (
+            <motion.div
+              initial={{ height: 0 }}
+              animate={{ height: 'auto' }}
+              className="px-5 pb-5 space-y-5 overflow-hidden"
+            >
+              {/* 身体部位 */}
+              <div className="space-y-3">
+                <h3 className="text-[#B0B0B8] text-sm">Body Placement</h3>
+                <div className="flex flex-wrap gap-2">
+                  {BODY_PARTS.map(part => (
+                    <button
+                      key={part}
+                      onClick={() => setSelectedBodyPart(prev => prev === part ? '' : part)}
+                      className={`
+                        px-3 py-1.5 rounded-full text-xs transition-all
+                        ${selectedBodyPart === part
+                          ? 'bg-[#CFAF6E] text-[#0B0B0E] font-medium'
+                          : 'bg-[#1E1E27] text-[#B0B0B8] border border-[#2A2A36] hover:border-[#2A2A36]/80'
+                        }
+                      `}
+                    >
+                      {part}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 可见性 */}
+              <div className="space-y-3">
+                <h3 className="text-[#B0B0B8] text-sm">Who Can See This</h3>
+                <VisibilitySelector value={visibility} onChange={setVisibility} />
+              </div>
+
+              {/* 位置 */}
+              <div className="space-y-3">
+                <h3 className="text-[#B0B0B8] text-sm">Location (Optional)</h3>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B6B78]" />
+                  <input
+                    type="text"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder="e.g. Los Angeles, CA"
+                    className="w-full bg-[#1E1E27] border border-[#2A2A36] rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-[#6B6B78] focus:border-[#CFAF6E]/50 focus:outline-none transition-colors"
+                  />
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </div>
+
+        {/* 预览区块 */}
+        <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-3">
+          <div className="flex items-center gap-2">
+            <Eye className="w-4 h-4 text-[#6B6B78]" />
+            <h2 className="text-white font-semibold">Preview</h2>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {selectedStyles.map(tag => (
+              <span
+                key={tag}
+                className="px-2.5 py-1 bg-[#0B0B0E] text-[#CFAF6E] text-xs rounded-full border border-[#CFAF6E]/25"
+              >
+                #{tag}
+              </span>
+            ))}
+            {images.length > 0 && (
+              <span className="px-2.5 py-1 bg-[#0B0B0E] text-[#9E2B25] text-xs rounded-full border border-[#9E2B25]/25">
+                {images.length} {images.length === 1 ? 'image' : 'images'}
+              </span>
+            )}
+            <span className={`px-2.5 py-1 bg-[#0B0B0E] text-xs rounded-full border border-[#2A2A36] flex items-center gap-1 ${
+              visibility === 'public' ? 'text-white' : visibility === 'followers' ? 'text-[#CFAF6E]' : 'text-[#6B6B78]'
+            }`}>
+              {visibility === 'public' && <Globe className="w-3 h-3" />}
+              {visibility === 'followers' && <Users className="w-3 h-3" />}
+              {visibility === 'private' && <Lock className="w-3 h-3" />}
+              {visibility === 'public' ? 'Public' : visibility === 'followers' ? 'Followers' : 'Private'}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );

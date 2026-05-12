@@ -24,6 +24,7 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Disclaimer from './pages/Disclaimer';
 import Pricing from './pages/Pricing';
+import Notifications from './pages/Notifications';
 
 function App() {
   const [user, setUser] = useState<Profile | null>(null);
@@ -59,11 +60,11 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="w-8 h-8 border-2 border-[#c9a050] border-t-transparent rounded-full"
+          className="w-8 h-8 border-2 border-[#CFAF6E] border-t-transparent rounded-full"
         />
       </div>
     );
@@ -71,22 +72,58 @@ function App() {
 
   return (
     <HashRouter>
-      <div className="min-h-screen bg-[#0a0a0a] text-white">
+      <div className="min-h-screen bg-[#0B0B0E] text-white">
         <Header user={user} />
         <main className="pb-20 min-h-screen">
           <AnimatePresence mode="wait">
             <Routes>
+              {/* 首页 */}
               <Route path="/" element={<Home />} />
+
+              {/* 社区 */}
               <Route path="/explore" element={<Explore />} />
-              <Route path="/create" element={<Inspire />} />
-              <Route path="/profile/:username?" element={<Profile />} />
+
+              {/* 帖子详情 */}
               <Route path="/post/:id" element={<PostDetail />} />
-              <Route path="/artist/:id" element={<ArtistDetail />} />
+
+              {/* 用户主页 */}
+              <Route path="/profile/:username?" element={<Profile />} />
+
+              {/* 发布帖子（需登录） */}
+              <Route
+                path="/create"
+                element={user ? <Create /> : <Navigate to="/login" />}
+              />
+
+              {/* 灵感模板库 */}
+              <Route path="/inspire" element={<Inspire />} />
+
+              {/* 通知中心（需登录） */}
+              <Route
+                path="/notifications"
+                element={user ? <Notifications /> : <Navigate to="/login" />}
+              />
+
+              {/* AI 工作室 */}
               <Route path="/ai-studio" element={<AIGenerator />} />
-              <Route path="/artist-apply" element={user ? <ArtistOnboarding /> : <Navigate to="/login" />} />
+
+              {/* 艺术家主页 */}
+              <Route path="/artist/:id" element={<ArtistDetail />} />
+
+              {/* 艺术家申请（需登录） */}
+              <Route
+                path="/artist-apply"
+                element={user ? <ArtistOnboarding /> : <Navigate to="/login" />}
+              />
+
+              {/* 定价 */}
               <Route path="/pricing" element={<Pricing user={user} />} />
+
+              {/* 认证 */}
               <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
               <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
+
+              {/* 法律 */}
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/disclaimer" element={<Disclaimer />} />

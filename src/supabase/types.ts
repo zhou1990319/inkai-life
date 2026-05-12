@@ -449,15 +449,19 @@ export type Database = {
           description: string | null
           id: string
           image_url: string
+          image_urls: string[] | null
           is_ai_generated: boolean | null
           is_public: boolean | null
           likes_count: number | null
+          location: string | null
+          report_count: number | null
           saves_count: number | null
           style: string[] | null
           thumbnail_url: string | null
           title: string
           updated_at: string | null
           user_id: string
+          visibility: string | null
           views_count: number | null
         }
         Insert: {
@@ -468,15 +472,19 @@ export type Database = {
           description?: string | null
           id?: string
           image_url: string
+          image_urls?: string[] | null
           is_ai_generated?: boolean | null
           is_public?: boolean | null
           likes_count?: number | null
+          location?: string | null
+          report_count?: number | null
           saves_count?: number | null
           style?: string[] | null
           thumbnail_url?: string | null
           title: string
           updated_at?: string | null
           user_id: string
+          visibility?: string | null
           views_count?: number | null
         }
         Update: {
@@ -487,15 +495,19 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string
+          image_urls?: string[] | null
           is_ai_generated?: boolean | null
           is_public?: boolean | null
           likes_count?: number | null
+          location?: string | null
+          report_count?: number | null
           saves_count?: number | null
           style?: string[] | null
           thumbnail_url?: string | null
           title?: string
           updated_at?: string | null
           user_id?: string
+          visibility?: string | null
           views_count?: number | null
         }
         Relationships: [
@@ -506,6 +518,162 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      post_reports: {
+        Row: {
+          admin_notes: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          post_id: string
+          reason: string
+          reporter_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          post_id: string
+          reason: string
+          reporter_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          post_id?: string
+          reason?: string
+          reporter_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_reports_post_id_fkey"
+            columns: ["post_id"]
+            referencedRelation: "tattoo_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comment_likes: {
+        Row: {
+          comment_id: string
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_tags: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_featured: boolean | null
+          posts_count: number | null
+          tag: string
+          trending_score: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_featured?: boolean | null
+          posts_count?: number | null
+          tag: string
+          trending_score?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_featured?: boolean | null
+          posts_count?: number | null
+          tag?: string
+          trending_score?: number | null
+        }
+        Relationships: []
+      }
+      post_tag_relations: {
+        Row: {
+          post_id: string
+          tag_id: string
+        }
+        Insert: {
+          post_id: string
+          tag_id: string
+        }
+        Update: {
+          post_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_tag_relations_post_id_fkey"
+            columns: ["post_id"]
+            referencedRelation: "tattoo_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_settings: {
+        Row: {
+          comments_notifications: boolean | null
+          created_at: string | null
+          follows_notifications: boolean | null
+          id: string
+          likes_notifications: boolean | null
+          mentions_notifications: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          comments_notifications?: boolean | null
+          created_at?: string | null
+          follows_notifications?: boolean | null
+          id?: string
+          likes_notifications?: boolean | null
+          mentions_notifications?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          comments_notifications?: boolean | null
+          created_at?: string | null
+          follows_notifications?: boolean | null
+          id?: string
+          likes_notifications?: boolean | null
+          mentions_notifications?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
