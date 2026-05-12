@@ -5,19 +5,31 @@ import { generateImageWithVolcengine } from '../../services/volcengineImage';
 import { persistGeneratedImage } from '../../services/storage';
 import { analyzeTattooMeaning } from '../../services/aiChat';
 
-const CHINESE_STYLES = [
-  { id: 'ink-landscape', name: 'Ink Landscape', icon: '⛰️' },
-  { id: 'dragon-phoenix', name: 'Dragon & Phoenix', icon: '🐉' },
-  { id: 'dunhuang', name: 'Dunhuang Flying', icon: '🧚' },
-  { id: 'mythical', name: 'Mythical Beasts', icon: '🦁' },
-  { id: 'calligraphy', name: 'Calligraphy', icon: '✒️' },
-  { id: 'opera-mask', name: 'Opera Mask', icon: '🎭' },
-  { id: 'totem', name: 'Traditional Totem', icon: '🔮' },
-  { id: 'koi-flower', name: 'Koi & Flowers', icon: '🌸' },
-  { id: 'taoist', name: 'Taoist Symbols', icon: '☯️' },
-  { id: 'ancient-figure', name: 'Ancient Figure', icon: '👤' },
-  { id: 'border', name: 'Chinese Border', icon: '⬜' },
+// 海外纹身风格选项 - 2行4列布局
+const TATTOO_STYLES = [
+  // 第一排
+  { id: 'oriental', name: 'Oriental', nameZh: '中式', keywords: 'oriental style, traditional chinese art, ink wash painting' },
+  { id: 'japanese', name: 'Japanese', nameZh: '日式', keywords: 'japanese tattoo, irezumi, traditional japanese art, bold outlines' },
+  { id: 'american-traditional', name: 'American Traditional', nameZh: '美式传统', keywords: 'american traditional tattoo, bold lines, vibrant colors, classic sailor jerry style' },
+  { id: 'neo-traditional', name: 'Neo-Traditional', nameZh: '新传统', keywords: 'neo-traditional tattoo, bold colors, detailed illustrations, modern interpretation' },
+  // 第二排
+  { id: 'blackwork', name: 'Dark & Blackwork', nameZh: '暗黑黑灰', keywords: 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, gothic style' },
+  { id: 'watercolor', name: 'Watercolor', nameZh: '水彩', keywords: 'watercolor tattoo style, ink wash effect, flowing colors, artistic brush strokes' },
+  { id: 'minimalist', name: 'Minimalist', nameZh: '极简线条', keywords: 'minimalist tattoo, fine line work, delicate designs, single needle technique' },
+  { id: 'realism', name: 'Realism', nameZh: '写实', keywords: 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo' },
 ];
+
+// 风格关键词映射表
+const STYLE_KEYWORDS_MAP: Record<string, string> = {
+  'oriental': 'oriental style, traditional chinese art, ink wash painting, chinese dragon, phoenix, mythological elements',
+  'japanese': 'japanese tattoo, irezumi style, traditional japanese art, bold outlines, cherry blossom, koi fish, samurai',
+  'american-traditional': 'american traditional tattoo, bold lines, vibrant colors, nautical themes, eagle, rose, classic tattoo design',
+  'neo-traditional': 'neo-traditional tattoo, bold colors, detailed illustrations, modern twist on classic designs, rich shading',
+  'blackwork': 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, tribal influence, gothic elements',
+  'watercolor': 'watercolor tattoo style, ink wash effect, flowing watercolor splashes, artistic brush strokes, colorful',
+  'minimalist': 'minimalist tattoo, fine line work, delicate single line designs, subtle, elegant, single needle technique',
+  'realism': 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo, life-like rendering, high detail',
+};
 
 const BODY_PARTS = [
   { id: 'arm', name: 'Arm', icon: '💪' },
@@ -44,16 +56,17 @@ export default function ImageGenerator() {
     setIsGenerating(true);
     setError(null);
     try {
-      const styleName = selectedStyle ? CHINESE_STYLES.find(s => s.id === selectedStyle)?.name : '';
+      // 获取选中风格的关键词
+      const styleKeywords = selectedStyle ? STYLE_KEYWORDS_MAP[selectedStyle] || '' : '';
       const bodyPartName = selectedBodyPart ? BODY_PARTS.find(b => b.id === selectedBodyPart)?.name : '';
+      
+      // 构建完整提示词
       const fullPrompt = [
         prompt,
-        styleName ? `${styleName} style` : '',
-        bodyPartName ? `designed for ${bodyPartName} placement` : '',
-        'Chinese traditional tattoo design',
-        'ink wash painting style',
-        'elegant, detailed',
-        'black and gold tones',
+        styleKeywords,
+        bodyPartName ? `${bodyPartName} placement` : '',
+        'tattoo design',
+        'professional tattoo artist quality',
       ].filter(Boolean).join(', ');
 
       const result = await generateImageWithVolcengine({
@@ -138,9 +151,9 @@ export default function ImageGenerator() {
             </div>
 
             <div className="mb-6">
-              <label className="block text-amber-400 font-medium mb-3">Chinese Style</label>
-              <div className="grid grid-cols-3 gap-2">
-                {CHINESE_STYLES.map((style) => (
+              <label className="block text-amber-400 font-medium mb-3">Tattoo Style</label>
+              <div className="grid grid-cols-4 gap-2">
+                {TATTOO_STYLES.map((style) => (
                   <button
                     key={style.id}
                     onClick={() => setSelectedStyle(style.id === selectedStyle ? '' : style.id)}
@@ -150,8 +163,8 @@ export default function ImageGenerator() {
                         : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-amber-500/50'
                     }`}
                   >
-                    <span className="mr-1">{style.icon}</span>
-                    {style.name}
+                    <div className="font-medium">{style.name}</div>
+                    <div className="text-xs opacity-70">{style.nameZh}</div>
                   </button>
                 ))}
               </div>

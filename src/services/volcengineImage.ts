@@ -112,20 +112,76 @@ export async function generateImageWithVolcengine(
   }
 }
 
+// ========== 纹身风格关键词映射表 ==========
+
+/**
+ * 纹身风格关键词映射 - 海外纹身圈通用术语
+ * 每个风格包含精准的AI生成提示词
+ */
+export const TATTOO_STYLE_KEYWORDS: Record<string, string> = {
+  // 第一排
+  'oriental': 'oriental style, traditional chinese art, ink wash painting, chinese dragon, phoenix, mythological elements, elegant brushwork',
+  'japanese': 'japanese tattoo, irezumi, traditional japanese art, bold outlines, cherry blossom, koi fish, samurai, wave, dragon',
+  'american-traditional': 'american traditional tattoo, bold lines, vibrant primary colors, nautical themes, eagle, rose, dagger, classic sailor jerry style',
+  'neo-traditional': 'neo-traditional tattoo, bold colors, detailed illustrations, modern interpretation, rich shading, decorative elements',
+
+  // 第二排
+  'blackwork': 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, tribal influence, gothic elements, decorative patterns',
+  'watercolor': 'watercolor tattoo style, ink wash effect, flowing watercolor splashes, artistic brush strokes, vibrant colors, painterly effect',
+  'minimalist': 'minimalist tattoo, fine line work, delicate single line designs, subtle elegant, single needle technique, simple clean lines',
+  'realism': 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo, life-like rendering, high detail, hyperrealistic',
+};
+
 // ========== 纹身专用封装 ==========
 
+/**
+ * 获取纹身风格的完整提示词
+ */
+export function getTattooStylePrompt(styleId: string, customDescription?: string): string {
+  const styleKeywords = TATTOO_STYLE_KEYWORDS[styleId] || TATTOO_STYLE_KEYWORDS['oriental'];
+
+  const promptParts = [
+    customDescription,
+    styleKeywords,
+    'tattoo design',
+    'professional tattoo artist quality',
+  ].filter(Boolean);
+
+  return promptParts.join(', ');
+}
+
+/**
+ * 获取图生图模式的纹身提示词
+ */
+export function getTattooStylePromptForImg2Img(styleId: string, customDescription?: string): string {
+  const styleKeywords = TATTOO_STYLE_KEYWORDS[styleId] || TATTOO_STYLE_KEYWORDS['oriental'];
+
+  const promptParts = [
+    customDescription,
+    'tattoo design inspired by the provided reference image',
+    'preserve original shape, outline and structure',
+    styleKeywords,
+    'tattoo illustration',
+    'fine line work',
+    'high contrast',
+  ].filter(Boolean);
+
+  return promptParts.join(', ');
+}
+
+/**
+ * 文生图模式 - 生成纹身设计
+ * @param description 纹身描述/要求
+ * @param styleId 风格ID
+ */
 export async function generateTattooDesign(
   description: string,
+  styleId?: string,
   options?: Partial<ImageGenerationOptions>
 ): Promise<ImageGenerationResult> {
-  const tattooPrompt = [
-    description,
-    'Chinese traditional tattoo style',
-    'fine line work',
-    'black ink illustration',
-    'high contrast',
-    'tattoo design sketch',
-  ].join(', ');
+  const tattooPrompt = styleId
+    ? getTattooStylePrompt(styleId, description)
+    : getTattooStylePrompt('oriental', description);
 
   return generateImageWithVolcengine({
     prompt: tattooPrompt,
@@ -139,24 +195,20 @@ export async function generateTattooDesign(
  * 图生图模式 - 以参考图为基础生成纹身设计
  * @param baseImageUrl 参考图的公开URL（Supabase Storage）
  * @param description 纹身描述/要求
+ * @param styleId 风格ID
  */
 export async function generateTattooFromImage(
   baseImageUrl: string,
   description: string,
+  styleId?: string,
   options?: Partial<Omit<ImageGenerationOptions, 'model' | 'image_url'>>
 ): Promise<ImageGenerationResult> {
-  // 构建更精准的提示词，强调保持原图结构
-  const prompt = [
-    description,
-    'tattoo design inspired by reference image',
-    'preserve original outline and structure',
-    'Chinese traditional tattoo style',
-    'black ink illustration',
-    'fine line work',
-  ].join(', ');
+  const tattooPrompt = styleId
+    ? getTattooStylePromptForImg2Img(styleId, description)
+    : getTattooStylePromptForImg2Img('oriental', description);
 
   return generateImageWithVolcengine({
-    prompt,
+    prompt: tattooPrompt,
     model: 'doubao-seedream-4-0-250828', // 4.0模型支持图生图
     image_url: baseImageUrl,               // 关键：传入参考图URL
     size: '1024x1024',

@@ -4,16 +4,31 @@ import { Sparkles, Upload, Wand2, Image as ImageIcon, AlertCircle } from 'lucide
 import { generateImageWithVolcengine, generateTattooFromImage } from '../services/volcengineImage';
 import { uploadImage } from '../services/storage';
 
-const styles = [
-  { id: 'ink-wash', name: 'Ink Wash', icon: '水墨' },
-  { id: 'dragon-phoenix', name: 'Dragon & Phoenix', icon: '龙凤' },
-  { id: 'dunhuang', name: 'Dunhuang', icon: '敦煌' },
-  { id: 'mythical', name: 'Mythical Beasts', icon: '神兽' },
-  { id: 'calligraphy', name: 'Calligraphy', icon: '书法' },
-  { id: 'opera', name: 'Opera Mask', icon: '脸谱' },
-  { id: 'totem', name: 'Totem', icon: '图腾' },
-  { id: 'koi', name: 'Koi & Flowers', icon: '锦鲤' },
+// 海外纹身风格选项 - 2行4列布局
+const TATTOO_STYLES = [
+  // 第一排
+  { id: 'oriental', name: 'Oriental', nameZh: '中式', keywords: 'oriental style, traditional chinese art, ink wash painting, chinese dragon, phoenix' },
+  { id: 'japanese', name: 'Japanese', nameZh: '日式', keywords: 'japanese tattoo, irezumi, traditional japanese art, bold outlines, cherry blossom, koi fish' },
+  { id: 'american-traditional', name: 'American Traditional', nameZh: '美式传统', keywords: 'american traditional tattoo, bold lines, vibrant colors, nautical themes, eagle, rose' },
+  { id: 'neo-traditional', name: 'Neo-Traditional', nameZh: '新传统', keywords: 'neo-traditional tattoo, bold colors, detailed illustrations, modern interpretation' },
+  // 第二排
+  { id: 'blackwork', name: 'Dark & Blackwork', nameZh: '暗黑黑灰', keywords: 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, tribal influence' },
+  { id: 'watercolor', name: 'Watercolor', nameZh: '水彩', keywords: 'watercolor tattoo style, ink wash effect, flowing colors, artistic brush strokes' },
+  { id: 'minimalist', name: 'Minimalist', nameZh: '极简线条', keywords: 'minimalist tattoo, fine line work, delicate designs, single needle technique' },
+  { id: 'realism', name: 'Realism', nameZh: '写实', keywords: 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo' },
 ];
+
+// 风格关键词映射表
+const STYLE_KEYWORDS_MAP: Record<string, string> = {
+  'oriental': 'oriental style, traditional chinese art, ink wash painting, chinese dragon, phoenix, mythological elements',
+  'japanese': 'japanese tattoo, irezumi style, traditional japanese art, bold outlines, cherry blossom, koi fish, samurai',
+  'american-traditional': 'american traditional tattoo, bold lines, vibrant colors, nautical themes, eagle, rose, classic tattoo design',
+  'neo-traditional': 'neo-traditional tattoo, bold colors, detailed illustrations, modern twist on classic designs, rich shading',
+  'blackwork': 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, tribal influence, gothic elements',
+  'watercolor': 'watercolor tattoo style, ink wash effect, flowing watercolor splashes, artistic brush strokes, colorful',
+  'minimalist': 'minimalist tattoo, fine line work, delicate single line designs, subtle, elegant, single needle technique',
+  'realism': 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo, life-like rendering, high detail',
+};
 
 const bodyParts = [
   { id: 'arm', name: 'Arm' },
@@ -126,7 +141,7 @@ function compressWithCanvas(file: File): Promise<{ base64: string }> {
 
 export default function AIGenerator() {
   const [prompt, setPrompt] = useState('');
-  const [selectedStyle, setSelectedStyle] = useState('ink-wash');
+  const [selectedStyle, setSelectedStyle] = useState('oriental');
   const [selectedBodyPart, setSelectedBodyPart] = useState('arm');
   const [mode, setMode] = useState<'text' | 'image'>('text');
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -139,12 +154,15 @@ export default function AIGenerator() {
     setLoading(true);
     setError(null);
     try {
+      // 获取选中风格的关键词
+      const styleKeywords = selectedStyle ? STYLE_KEYWORDS_MAP[selectedStyle] || '' : '';
+      const bodyPartName = selectedBodyPart ? bodyParts.find(b => b.id === selectedBodyPart)?.name : '';
       let fullPrompt: string;
       let result;
 
       if (mode === 'text') {
-        // 文生图：直接使用用户描述 + 风格标签
-        fullPrompt = `${prompt}, Chinese traditional tattoo design, ${selectedStyle} style, ${selectedBodyPart} placement, black ink illustration, tattoo sketch on skin`;
+        // 文生图：使用用户描述 + 风格关键词
+        fullPrompt = `${prompt}, ${styleKeywords}, ${bodyPartName ? `${bodyPartName} placement` : ''}, tattoo design, professional tattoo artist quality`;
 
         result = await generateImageWithVolcengine({
           prompt: fullPrompt,
@@ -154,8 +172,7 @@ export default function AIGenerator() {
         });
       } else {
         // 图生图：以原图为基础，融入纹身风格
-        // 关键：强调"保持原图结构"，而不是"转换/改变"
-        fullPrompt = `${prompt}, tattoo design inspired by the provided reference image, keep the original shape/outline/structure, ${selectedStyle} style, black ink tattoo illustration, fine line work, high contrast`;
+        fullPrompt = `${prompt}, tattoo design inspired by the provided reference image, keep the original shape/outline/structure, ${styleKeywords}, tattoo illustration, fine line work, high contrast`;
 
         result = await generateImageWithVolcengine({
           prompt: fullPrompt,
@@ -297,7 +314,7 @@ export default function AIGenerator() {
             <div className="mb-6">
               <label className="block text-amber-400 mb-3 font-medium">Style</label>
               <div className="grid grid-cols-4 gap-2">
-                {styles.map((style) => (
+                {TATTOO_STYLES.map((style) => (
                   <button
                     key={style.id}
                     onClick={() => setSelectedStyle(style.id)}
@@ -307,7 +324,8 @@ export default function AIGenerator() {
                         : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                     }`}
                   >
-                    {style.name}
+                    <div className="font-medium">{style.name}</div>
+                    <div className="text-xs opacity-70">{style.nameZh}</div>
                   </button>
                 ))}
               </div>
