@@ -271,6 +271,14 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.sign_in': 'ログイン',
     'nav.profile': 'プロフィール',
     'nav.notifications': '通知',
+    'nav.post': '投稿',
+    'nav.alerts': '通知',
+    'nav.me': 'マイページ',
+    
+    // Home Page - Popular Styles
+    'home.popular_styles': '人気のタトゥースタイル',
+    'home.explore_all': 'すべて見る',
+    'home.trending': 'トレンド',
 
     // AI Generator
     'ai.title': 'AI タトゥー ジェネレーター',
@@ -487,6 +495,14 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.sign_in': '登录',
     'nav.profile': '个人资料',
     'nav.notifications': '通知',
+    'nav.post': '发布',
+    'nav.alerts': '消息',
+    'nav.me': '我的',
+    
+    // Home Page - Popular Styles
+    'home.popular_styles': '热门纹身风格',
+    'home.explore_all': '查看全部',
+    'home.trending': '热门',
 
     // AI Generator
     'ai.title': 'AI 纹身生成器',
@@ -703,6 +719,14 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.sign_in': 'Entrar',
     'nav.profile': 'Perfil',
     'nav.notifications': 'Notificações',
+    'nav.post': 'Postar',
+    'nav.alerts': 'Alertas',
+    'nav.me': 'Eu',
+    
+    // Home Page - Popular Styles
+    'home.popular_styles': 'Estilos Populares',
+    'home.explore_all': 'Explorar Tudo',
+    'home.trending': 'Em Alta',
 
     // AI Generator
     'ai.title': 'Gerador de Tatuagem AI',
@@ -919,6 +943,14 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.sign_in': 'Iniciar Sesión',
     'nav.profile': 'Perfil',
     'nav.notifications': 'Notificaciones',
+    'nav.post': 'Publicar',
+    'nav.alerts': 'Alertas',
+    'nav.me': 'Yo',
+    
+    // Home Page - Popular Styles
+    'home.popular_styles': 'Estilos Populares',
+    'home.explore_all': 'Explorar Todo',
+    'home.trending': 'Tendencias',
 
     // AI Generator
     'ai.title': 'Generador de Tatuajes AI',
@@ -1135,6 +1167,14 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.sign_in': 'Anmelden',
     'nav.profile': 'Profil',
     'nav.notifications': 'Benachrichtigungen',
+    'nav.post': 'Posten',
+    'nav.alerts': 'Alerts',
+    'nav.me': 'Ich',
+    
+    // Home Page - Popular Styles
+    'home.popular_styles': 'Beliebte Tattoo-Stile',
+    'home.explore_all': 'Alle Erkunden',
+    'home.trending': 'Trending',
 
     // AI Generator
     'ai.title': 'AI Tattoo Generator',
