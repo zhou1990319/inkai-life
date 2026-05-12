@@ -26,54 +26,71 @@ const bodyParts = [
 /**
  * 使用 Canvas 压缩图片到合理大小
  * @param file 原始图片文件
- * @param maxWidth 最大宽度（像素）
- * @param quality 压缩质量 0-1
- * @returns base64 编码的压缩后图片
+ * @returns base64 编码的压缩后图片（确保 < 2MB）
  */
-function compressImage(file: File, maxWidth: number = 600, quality: number = 0.6): Promise<string> {
+function compressImage(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        // 计算压缩后的尺寸
         let width = img.width;
         let height = img.height;
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
+
+        // 限制最大尺寸：宽度不超过 800px
+        const MAX_WIDTH = 800;
+        if (width > MAX_WIDTH) {
+          height = Math.round((height * MAX_WIDTH) / width);
+          width = MAX_WIDTH;
         }
 
-        // 使用 Canvas 绘制
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
-        const ctx = canvas.getContext('2d')!;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas 初始化失败'));
+          return;
+        }
         ctx.drawImage(img, 0, 0, width, height);
 
-        // 强制转换为 JPEG 格式以支持有效压缩
-        // PNG 不支持 quality 参数，JPEG 才能压缩
-        let outputType = 'image/jpeg';
-        let currentQuality = quality;
-        let compressedBase64 = canvas.toDataURL(outputType, currentQuality).split(',')[1];
+        // 强制使用 JPEG 格式（支持有损压缩，PNG 无质量参数）
+        const outputType = 'image/jpeg';
 
-        // 如果压缩后仍然很大（>2MB base64），继续降低质量和尺寸
-        while (compressedBase64.length > 2 * 1024 * 1024 && currentQuality > 0.1) {
-          currentQuality -= 0.1;
-          if (width > 300) {
-            width = Math.round(width * 0.8);
-            height = Math.round(height * 0.8);
+        // 递归压缩：逐步降低质量，直到满足大小限制
+        // 2MB base64 ≈ 1.5MB 二进制
+        const MAX_BASE64_LEN = 2 * 1024 * 1024;
+        let quality = 0.7;
+        let compressedBase64 = canvas.toDataURL(outputType, quality).split(',')[1];
+        let iterations = 0;
+        const MAX_ITERATIONS = 20;
+
+        while (compressedBase64.length > MAX_BASE64_LEN && iterations < MAX_ITERATIONS) {
+          quality -= 0.05;
+          // 如果质量太低，开始缩小尺寸
+          if (quality < 0.3 && width > 400) {
+            width = Math.round(width * 0.7);
+            height = Math.round(height * 0.7);
             canvas.width = width;
             canvas.height = height;
             ctx.drawImage(img, 0, 0, width, height);
+            quality = 0.6; // 重置质量，因为尺寸变小了
           }
-          compressedBase64 = canvas.toDataURL(outputType, currentQuality).split(',')[1];
+          compressedBase64 = canvas.toDataURL(outputType, Math.max(quality, 0.1)).split(',')[1];
+          iterations++;
         }
 
-        console.log(`[compressImage] 压缩完成: ${img.width}x${img.height} -> ${width}x${height}, 质量: ${currentQuality}`);
+        const finalSizeKB = Math.round((compressedBase64.length * 0.75) / 1024);
+        console.log(`[compressImage] 完成: ${img.width}x${img.height} → ${width}x${height}, 质量: ${quality.toFixed(2)}, 大小: ~${finalSizeKB}KB, 迭代: ${iterations}次`);
+
+        if (compressedBase64.length > MAX_BASE64_LEN) {
+          reject(new Error(`图片过大（压缩后约 ${finalSizeKB}KB），请选择更小的图片`));
+          return;
+        }
+
         resolve(compressedBase64);
       };
-      img.onerror = () => reject(new Error('图片加载失败'));
+      img.onerror = () => reject(new Error('图片加载失败，请确认文件格式正确'));
       img.src = e.target?.result as string;
     };
     reader.onerror = () => reject(new Error('文件读取失败'));
@@ -144,14 +161,15 @@ export default function AIGenerator() {
       const compressedBase64 = await compressImage(file);
 
       // 通过服务端 API 上传（绕过 RLS 限制）
+      // 注意：compressImage 强制输出 JPEG，所以 contentType 必须设为 image/jpeg
       const response = await fetch('/api/upload-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           bucket: 'tattoo-images',
-          fileName: file.name,
+          fileName: file.name.replace(/\.[^.]+$/, '.jpg'), // 强制 .jpg 后缀
           fileData: compressedBase64,
-          contentType: file.type,
+          contentType: 'image/jpeg',
         }),
       });
 
