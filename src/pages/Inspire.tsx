@@ -7,7 +7,7 @@ interface PromptTemplate {
   style: string;
   styleZh: string;
   icon: string;
-  color: string;
+  accent: string;    // tailwind bg for the icon badge
   prompts: { title: string; text: string }[];
 }
 
@@ -17,7 +17,7 @@ const PROMPT_TEMPLATES: PromptTemplate[] = [
     style: 'Ink Wash',
     styleZh: '水墨',
     icon: '水',
-    color: 'from-slate-600 to-slate-800',
+    accent: 'bg-[#1E2530] border-[#2A3A50]',
     prompts: [
       {
         title: 'Mountain & Mist',
@@ -38,7 +38,7 @@ const PROMPT_TEMPLATES: PromptTemplate[] = [
     style: 'Dragon & Phoenix',
     styleZh: '龙凤',
     icon: '龙',
-    color: 'from-red-800 to-orange-900',
+    accent: 'bg-[#25181A] border-[#3A2020]',
     prompts: [
       {
         title: 'Azure Dragon',
@@ -49,7 +49,7 @@ const PROMPT_TEMPLATES: PromptTemplate[] = [
         text: 'Chinese phoenix tattoo design, Fenghuang bird spreading wings, vibrant feathers, rising from flames, symmetrical composition, traditional Chinese art style, bold black outlines, ornate detail work',
       },
       {
-        title: 'Dragon Phoenix Union',
+        title: 'Dragon & Phoenix Union',
         text: 'Dragon and phoenix tattoo, yin yang composition, intertwining serpentine dragon and graceful phoenix, Chinese traditional symbolism, circular design, bold linework, black ink with red accents, chest piece layout',
       },
     ],
@@ -59,7 +59,7 @@ const PROMPT_TEMPLATES: PromptTemplate[] = [
     style: 'Dunhuang',
     styleZh: '敦煌',
     icon: '敦',
-    color: 'from-amber-700 to-yellow-900',
+    accent: 'bg-[#201C10] border-[#342E18]',
     prompts: [
       {
         title: 'Flying Apsara',
@@ -80,7 +80,7 @@ const PROMPT_TEMPLATES: PromptTemplate[] = [
     style: 'Mythical Beasts',
     styleZh: '神兽',
     icon: '兽',
-    color: 'from-emerald-800 to-teal-900',
+    accent: 'bg-[#161E1A] border-[#223028]',
     prompts: [
       {
         title: 'Qilin',
@@ -101,7 +101,7 @@ const PROMPT_TEMPLATES: PromptTemplate[] = [
     style: 'Calligraphy',
     styleZh: '书法',
     icon: '墨',
-    color: 'from-zinc-700 to-neutral-900',
+    accent: 'bg-[#1A1A1A] border-[#2A2A2A]',
     prompts: [
       {
         title: 'Single Character Art',
@@ -122,7 +122,7 @@ const PROMPT_TEMPLATES: PromptTemplate[] = [
     style: 'Opera Mask',
     styleZh: '脸谱',
     icon: '谱',
-    color: 'from-rose-800 to-pink-900',
+    accent: 'bg-[#22141A] border-[#381E28]',
     prompts: [
       {
         title: 'Monkey King',
@@ -143,7 +143,7 @@ const PROMPT_TEMPLATES: PromptTemplate[] = [
     style: 'Koi & Lotus',
     styleZh: '锦鲤荷花',
     icon: '鲤',
-    color: 'from-blue-800 to-cyan-900',
+    accent: 'bg-[#141E22] border-[#1E303A]',
     prompts: [
       {
         title: 'Koi Ascending',
@@ -164,7 +164,7 @@ const PROMPT_TEMPLATES: PromptTemplate[] = [
     style: 'Totem & Pattern',
     styleZh: '图腾纹样',
     icon: '纹',
-    color: 'from-violet-800 to-purple-900',
+    accent: 'bg-[#1A1422] border-[#2A1E38]',
     prompts: [
       {
         title: 'Cloud Totem',
@@ -191,35 +191,40 @@ export default function Inspire() {
       ? PROMPT_TEMPLATES
       : PROMPT_TEMPLATES.filter((t) => t.id === activeStyle);
 
-  const handleCopy = (promptText: string, promptId: string) => {
-    navigator.clipboard.writeText(promptText).then(() => {
-      setCopiedId(promptId);
+  const handleCopy = (text: string, id: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedId(id);
       setTimeout(() => setCopiedId(null), 2000);
     });
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] pt-20 pb-24">
-      {/* Header */}
-      <div className="sticky top-16 z-40 bg-[#0a0a0a]/95 backdrop-blur-md border-b border-[#1a1a1a]">
+    <div className="min-h-screen bg-[#0B0B0E]">
+
+      {/* Sticky header */}
+      <div className="sticky top-16 z-40 bg-[#0B0B0E]/95 backdrop-blur-md border-b border-[#2A2A36]">
         <div className="max-w-7xl mx-auto px-4 py-4">
+          {/* Title row */}
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-black" />
+            <div className="w-9 h-9 rounded-xl bg-[#18181F] border border-[#2A2A36] flex items-center justify-center">
+              <BookOpen className="w-4.5 h-4.5 text-[#CFAF6E]" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white leading-tight">Inspire</h1>
-              <p className="text-gray-500 text-xs">Chinese tattoo AI prompt library — copy & use directly</p>
+              <h1 className="text-[17px] font-bold text-white leading-tight">Inspire</h1>
+              <p className="text-[#6B6B78] text-[11px] tracking-wide">
+                Chinese tattoo prompt library — copy & paste into AI Studio
+              </p>
             </div>
           </div>
-          {/* Style filter tabs */}
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+
+          {/* Style filter */}
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
             <button
               onClick={() => setActiveStyle('all')}
-              className={`px-4 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                 activeStyle === 'all'
-                  ? 'bg-amber-500 text-black font-semibold'
-                  : 'bg-[#1a1a1a] text-gray-400 hover:bg-[#2a2a2a]'
+                  ? 'bg-[#CFAF6E] text-[#0B0B0E] font-bold'
+                  : 'bg-[#18181F] text-[#B0B0B8] border border-[#2A2A36] hover:border-[#CFAF6E]/30 hover:text-white'
               }`}
             >
               All Styles
@@ -228,13 +233,13 @@ export default function Inspire() {
               <button
                 key={t.id}
                 onClick={() => setActiveStyle(t.id)}
-                className={`px-4 py-1.5 rounded-full text-sm whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                   activeStyle === t.id
-                    ? 'bg-amber-500 text-black font-semibold'
-                    : 'bg-[#1a1a1a] text-gray-400 hover:bg-[#2a2a2a]'
+                    ? 'bg-[#CFAF6E] text-[#0B0B0E] font-bold'
+                    : 'bg-[#18181F] text-[#B0B0B8] border border-[#2A2A36] hover:border-[#CFAF6E]/30 hover:text-white'
                 }`}
               >
-                <span className="text-xs">{t.icon}</span>
+                <span className="text-[10px]">{t.icon}</span>
                 <span>{t.style}</span>
               </button>
             ))}
@@ -242,8 +247,8 @@ export default function Inspire() {
         </div>
       </div>
 
-      {/* Prompt Cards */}
-      <div className="max-w-7xl mx-auto px-4 py-6 space-y-8">
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-10">
         {filteredTemplates.map((template, tIdx) => (
           <motion.section
             key={template.id}
@@ -251,89 +256,111 @@ export default function Inspire() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: tIdx * 0.06 }}
           >
-            {/* Style Header */}
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className={`w-10 h-10 rounded-xl bg-gradient-to-br ${template.color} flex items-center justify-center text-white font-bold text-lg`}
-              >
-                {template.icon}
+            {/* Style heading */}
+            <div className="flex items-center gap-3 mb-5">
+              {/* Chinese char badge */}
+              <div className={`w-10 h-10 rounded-xl ${template.accent} border flex items-center justify-center`}>
+                <span className="text-[#CFAF6E] font-bold text-lg leading-none">{template.icon}</span>
               </div>
               <div>
-                <h2 className="text-lg font-bold text-white">{template.style}</h2>
-                <span className="text-gray-500 text-sm">{template.styleZh}</span>
+                <h2 className="text-[15px] font-bold text-white">{template.style}</h2>
+                <span className="text-[#6B6B78] text-[11px]">{template.styleZh}</span>
               </div>
-              <span className="ml-auto text-xs text-gray-600 bg-[#1a1a1a] px-2 py-0.5 rounded-full">
+              {/* Decorative divider */}
+              <div className="flex-1 h-px bg-gradient-to-r from-[#2A2A36] via-[#CFAF6E]/20 to-transparent ml-2" />
+              <span className="text-[#6B6B78] text-[10px] bg-[#18181F] border border-[#2A2A36] px-2 py-0.5 rounded-full">
                 {template.prompts.length} prompts
               </span>
             </div>
 
-            {/* Prompt Cards Grid */}
+            {/* Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {template.prompts.map((prompt, pIdx) => {
                 const cardId = `${template.id}-${pIdx}`;
                 const isCopied = copiedId === cardId;
+
                 return (
                   <motion.div
                     key={pIdx}
-                    initial={{ opacity: 0, scale: 0.97 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: tIdx * 0.06 + pIdx * 0.04 }}
-                    className="bg-[#141414] border border-[#2a2a2a] rounded-xl p-4 hover:border-amber-500/40 transition-all group"
+                    className="group relative bg-[#18181F] border border-[#2A2A36] rounded-xl overflow-hidden hover:border-[#CFAF6E]/30 transition-colors"
                   >
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="text-white font-semibold text-sm flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                        {prompt.title}
-                      </h3>
+                    {/* Top gold line accent */}
+                    <div className="h-px bg-gradient-to-r from-transparent via-[#CFAF6E]/30 to-transparent" />
+
+                    <div className="p-4">
+                      {/* Card header */}
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="text-white font-semibold text-sm flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-[#CFAF6E] flex-shrink-0" />
+                          {prompt.title}
+                        </h3>
+                        <button
+                          onClick={() => handleCopy(prompt.text, cardId)}
+                          className={`flex-shrink-0 ml-2 p-1.5 rounded-lg transition-all ${
+                            isCopied
+                              ? 'bg-emerald-500/15 text-emerald-400'
+                              : 'bg-[#0B0B0E] text-[#6B6B78] hover:text-[#CFAF6E] hover:bg-[#CFAF6E]/8'
+                          }`}
+                          title="Copy prompt"
+                        >
+                          {isCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+
+                      {/* Prompt text */}
+                      <p className="text-[#B0B0B8] text-[11.5px] leading-relaxed line-clamp-4 font-mono tracking-tight">
+                        {prompt.text}
+                      </p>
+
+                      {/* Copy button */}
                       <button
                         onClick={() => handleCopy(prompt.text, cardId)}
-                        className={`flex-shrink-0 ml-2 p-1.5 rounded-lg transition-all ${
+                        className={`mt-3.5 w-full py-2 rounded-lg text-xs font-semibold tracking-wide transition-all ${
                           isCopied
-                            ? 'bg-green-500/20 text-green-400'
-                            : 'bg-[#2a2a2a] text-gray-500 hover:bg-amber-500/20 hover:text-amber-400 group-hover:text-amber-400'
+                            ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25'
+                            : 'bg-[#0B0B0E] text-[#CFAF6E] border border-[#2A2A36] hover:border-[#CFAF6E]/40 hover:bg-[#CFAF6E]/5'
                         }`}
-                        title="Copy prompt"
                       >
-                        {isCopied ? (
-                          <Check className="w-3.5 h-3.5" />
-                        ) : (
-                          <Copy className="w-3.5 h-3.5" />
-                        )}
+                        {isCopied ? '✓ Copied!' : 'Copy Prompt'}
                       </button>
                     </div>
-                    <p className="text-gray-400 text-xs leading-relaxed line-clamp-4">
-                      {prompt.text}
-                    </p>
-                    <button
-                      onClick={() => handleCopy(prompt.text, cardId)}
-                      className={`mt-3 w-full py-1.5 rounded-lg text-xs font-medium transition-all ${
-                        isCopied
-                          ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                          : 'bg-[#1a1a1a] text-gray-500 hover:bg-amber-500/10 hover:text-amber-400 border border-transparent hover:border-amber-500/30'
-                      }`}
-                    >
-                      {isCopied ? '✓ Copied!' : 'Copy Prompt'}
-                    </button>
+
+                    {/* Bottom gold line accent */}
+                    <div className="h-px bg-gradient-to-r from-transparent via-[#CFAF6E]/15 to-transparent" />
                   </motion.div>
                 );
               })}
             </div>
           </motion.section>
         ))}
-      </div>
 
-      {/* Bottom tip */}
-      <div className="max-w-7xl mx-auto px-4 pb-4">
-        <div className="rounded-xl bg-[#141414] border border-amber-500/20 p-4 flex items-start gap-3">
-          <span className="text-2xl">💡</span>
-          <div>
-            <p className="text-amber-400 font-semibold text-sm">How to use</p>
-            <p className="text-gray-500 text-xs mt-1 leading-relaxed">
-              Copy any prompt above and paste it into the <strong className="text-gray-400">AI Studio</strong> text box.
-              Combine with your own reference image for best results. Feel free to tweak keywords to match your vision.
-            </p>
+        {/* Usage tip */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="relative rounded-2xl bg-[#18181F] border border-[#2A2A36] overflow-hidden"
+        >
+          <div className="h-px bg-gradient-to-r from-transparent via-[#CFAF6E]/40 to-transparent" />
+          <div className="p-5 flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl bg-[#CFAF6E]/10 border border-[#CFAF6E]/20 flex items-center justify-center flex-shrink-0">
+              <span className="text-lg">💡</span>
+            </div>
+            <div>
+              <p className="text-[#CFAF6E] font-semibold text-sm mb-1">How to use these prompts</p>
+              <p className="text-[#6B6B78] text-xs leading-relaxed">
+                Copy any prompt and paste it into the{' '}
+                <strong className="text-[#B0B0B8]">AI Studio</strong>{' '}
+                text input. Pair with a reference image for image-to-image generation.
+                Tweak keywords freely to match your creative vision.
+              </p>
+            </div>
           </div>
-        </div>
+          <div className="h-px bg-gradient-to-r from-transparent via-[#CFAF6E]/20 to-transparent" />
+        </motion.div>
       </div>
     </div>
   );

@@ -34,112 +34,141 @@ export default function Header() {
   }, [location]);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950 border-b border-amber-700/30">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0B0B0E]/95 backdrop-blur-md border-b border-[#2A2A36]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-600 to-red-700 flex items-center justify-center">
-              <span className="text-stone-100 font-bold text-lg">墨</span>
+
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-2.5 group">
+            <div className="w-9 h-9 rounded-lg bg-[#18181F] border border-[#2A2A36] flex items-center justify-center group-hover:border-[#CFAF6E]/50 transition-colors">
+              <span className="text-[#CFAF6E] font-bold text-base leading-none">墨</span>
             </div>
-            <span className="text-xl font-bold text-stone-100 tracking-wider">
-              InkAI<span className="text-amber-500">.life</span>
+            <span className="text-lg font-bold text-white tracking-widest">
+              InkAI<span className="text-[#CFAF6E]">.life</span>
             </span>
           </Link>
 
+          {/* PC Nav */}
           <nav className="hidden md:flex items-center space-x-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`px-4 py-2 rounded-lg transition-all duration-300 flex items-center space-x-2 ${
-                  location.pathname === item.path
-                    ? 'text-amber-400 bg-amber-900/20 border border-amber-600/30'
-                    : 'text-stone-300 hover:text-amber-400 hover:bg-stone-800/50'
-                }`}
-              >
-                <i className={`fa-solid ${item.icon}`} />
-                <span>{item.label}</span>
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2 text-sm ${
+                    isActive
+                      ? 'text-[#CFAF6E] bg-[#CFAF6E]/8 border border-[#CFAF6E]/20'
+                      : 'text-[#B0B0B8] hover:text-white hover:bg-[#18181F]'
+                  }`}
+                >
+                  <i className={`fa-solid ${item.icon} text-xs`} />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
           </nav>
 
-          <div className="hidden md:flex items-center space-x-4">
-            {/* 会员入口 */}
+          {/* PC Right */}
+          <div className="hidden md:flex items-center space-x-3">
+            {/* 会员按钮 */}
             <Link
               to="/pricing"
-              className={`px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 transition-all ${
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all ${
                 currentPlan === 'free'
-                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 hover:from-amber-400 hover:to-orange-400'
+                  ? 'bg-[#CFAF6E] text-[#0B0B0E] hover:bg-[#E0C580]'
                   : currentPlan === 'lifetime'
-                  ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-stone-950'
-                  : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                  ? 'bg-[#CFAF6E] text-[#0B0B0E]'
+                  : 'bg-[#9E2B25]/20 text-[#CFAF6E] border border-[#9E2B25]/30'
               }`}
             >
-              <Crown className="w-4 h-4" />
+              <Crown className="w-3.5 h-3.5" />
               <span>
-                {currentPlan === 'free' ? '升级' : currentPlan === 'monthly' ? '月卡' : currentPlan === 'yearly' ? '年卡' : 'VIP'}
+                {currentPlan === 'free' ? 'Upgrade' : currentPlan === 'monthly' ? 'Monthly' : currentPlan === 'yearly' ? 'Yearly' : 'VIP'}
               </span>
             </Link>
 
             {!isArtist && (
               <Link
                 to="/artist-apply"
-                className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 font-semibold rounded-full hover:from-amber-400 hover:to-amber-500 transition-all flex items-center gap-2"
+                className="px-4 py-1.5 bg-[#9E2B25] text-white text-sm font-semibold rounded-full hover:bg-[#B8342D] transition-colors flex items-center gap-1.5"
               >
-                <i className="fa-solid fa-paint-brush text-sm" />
-                <span>Become Artist</span>
+                <i className="fa-solid fa-paint-brush text-xs" />
+                <span>Apply Artist</span>
               </Link>
             )}
-            <button className="p-2 text-stone-400 hover:text-amber-400 transition-colors">
-              <Search className="w-5 h-5" />
+
+            <button className="p-2 text-[#6B6B78] hover:text-[#CFAF6E] transition-colors">
+              <Search className="w-4.5 h-4.5" />
             </button>
-            <button className="p-2 text-stone-400 hover:text-amber-400 transition-colors relative">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+            <button className="p-2 text-[#6B6B78] hover:text-[#CFAF6E] transition-colors relative">
+              <Bell className="w-4.5 h-4.5" />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#9E2B25] rounded-full" />
             </button>
             <Link
               to="/profile"
-              className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-600 to-red-700 flex items-center justify-center hover:ring-2 hover:ring-amber-500/50 transition-all"
+              className="w-8 h-8 rounded-full bg-[#18181F] border border-[#2A2A36] flex items-center justify-center hover:border-[#CFAF6E]/40 transition-colors"
             >
-              <User className="w-5 h-5 text-stone-100" />
+              <User className="w-4 h-4 text-[#B0B0B8]" />
             </Link>
           </div>
 
+          {/* Mobile menu toggle */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 text-stone-300 hover:text-amber-400"
+            className="md:hidden p-2 text-[#B0B0B8] hover:text-[#CFAF6E] transition-colors"
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
+      {/* Mobile Dropdown */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-stone-900 border-t border-amber-700/30"
+            className="md:hidden bg-[#0B0B0E] border-t border-[#2A2A36]"
           >
-            <nav className="px-4 py-4 space-y-2">
-              {navItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setIsMenuOpen(false)}
-                  className={`block px-4 py-3 rounded-lg transition-all ${
-                    location.pathname === item.path
-                      ? 'text-amber-400 bg-amber-900/20 border border-amber-600/30'
-                      : 'text-stone-300 hover:text-amber-400 hover:bg-stone-800/50'
-                  }`}
-                >
-                  <span className="flex items-center space-x-3">
-                    <i className={`fa-solid ${item.icon}`} />
+            <nav className="px-4 py-3 space-y-1">
+              {navItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm ${
+                      isActive
+                        ? 'text-[#CFAF6E] bg-[#CFAF6E]/8 border border-[#CFAF6E]/15'
+                        : 'text-[#B0B0B8] hover:text-white hover:bg-[#18181F]'
+                    }`}
+                  >
+                    <i className={`fa-solid ${item.icon} w-4 text-center`} />
                     <span>{item.label}</span>
-                  </span>
+                  </Link>
+                );
+              })}
+              <div className="pt-2 border-t border-[#2A2A36] flex gap-2">
+                <Link
+                  to="/pricing"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex-1 py-2.5 text-center bg-[#CFAF6E] text-[#0B0B0E] text-sm font-bold rounded-xl"
+                >
+                  Upgrade
                 </Link>
-              ))}
+                {!isArtist && (
+                  <Link
+                    to="/artist-apply"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex-1 py-2.5 text-center bg-[#9E2B25] text-white text-sm font-semibold rounded-xl"
+                  >
+                    Apply Artist
+                  </Link>
+                )}
+              </div>
             </nav>
           </motion.div>
         )}

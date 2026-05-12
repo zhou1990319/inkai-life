@@ -17,48 +17,49 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0a0a0a] border-t border-[#1a1a1a] py-8 mt-auto">
+    <footer className="bg-[#0B0B0E] border-t border-[#2A2A36] py-8 mt-auto">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#c41e3a] to-[#8b0000] flex items-center justify-center">
-              <span className="text-white font-bold text-sm">I</span>
+          {/* Brand */}
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-[#18181F] border border-[#2A2A36] flex items-center justify-center">
+              <span className="text-[#CFAF6E] font-bold text-sm">墨</span>
             </div>
-            <span className="text-white font-bold">InkAI.life</span>
+            <span className="text-white font-bold tracking-widest text-sm">InkAI.life</span>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
+          {/* Legal links */}
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs">
             {legalLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className="text-gray-400 hover:text-[#c9a050] transition-colors"
+                className="text-[#6B6B78] hover:text-[#CFAF6E] transition-colors"
               >
                 {link.label}
               </Link>
             ))}
           </div>
 
-          <div className="flex items-center gap-4">
+          {/* Social icons */}
+          <div className="flex items-center gap-3">
             {socialLinks.map((social) => (
               <motion.a
                 key={social.label}
                 href={social.url}
                 whileHover={{ scale: 1.1 }}
-                className="w-9 h-9 rounded-full bg-[#1a1a1a] flex items-center justify-center text-gray-400 hover:text-[#c9a050] hover:bg-[#2a2a2a] transition-colors"
+                className="w-8 h-8 rounded-lg bg-[#18181F] border border-[#2A2A36] flex items-center justify-center text-[#6B6B78] hover:text-[#CFAF6E] hover:border-[#CFAF6E]/30 transition-all"
                 aria-label={social.label}
               >
-                <i className={social.icon} />
+                <i className={`${social.icon} text-xs`} />
               </motion.a>
             ))}
           </div>
         </div>
 
-        <div className="mt-6 pt-6 border-t border-[#1a1a1a] text-center text-xs text-gray-500">
-          <p>© 2024 InkAI.life. All rights reserved.</p>
-          <p className="mt-1">
-            AI-generated designs are for reference only. Consult professional tattoo artists before getting inked.
-          </p>
+        <div className="mt-6 pt-4 border-t border-[#2A2A36] text-center text-xs text-[#6B6B78] space-y-1">
+          <p>© 2024 InkAI.life · All rights reserved</p>
+          <p>AI-generated designs are for reference only. Consult a professional tattoo artist before getting inked.</p>
         </div>
       </div>
     </footer>
