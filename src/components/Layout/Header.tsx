@@ -6,8 +6,8 @@ import { supabase } from '../../supabase/client';
 
 const navItems = [
   { path: '/', label: 'Home', icon: 'fa-home' },
-  { path: '/explore', label: 'Explore', icon: 'fa-compass' },
-  { path: '/create', label: 'Create', icon: 'fa-magic' },
+  { path: '/explore', label: 'Community', icon: 'fa-users' },
+  { path: '/create', label: 'Inspire', icon: 'fa-lightbulb' },
   { path: '/artists', label: 'Artists', icon: 'fa-paint-brush' },
 ];
 

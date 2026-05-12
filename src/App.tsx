@@ -12,6 +12,7 @@ import Footer from './components/Layout/Footer';
 import Home from './pages/Home';
 import Explore from './pages/Explore';
 import Create from './pages/Create';
+import Inspire from './pages/Inspire';
 import Profile from './pages/Profile';
 import PostDetail from './pages/PostDetail';
 import ArtistDetail from './pages/ArtistDetail';
@@ -77,7 +78,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/explore" element={<Explore />} />
-              <Route path="/create" element={user ? <Create /> : <Navigate to="/login" />} />
+              <Route path="/create" element={<Inspire />} />
               <Route path="/profile/:username?" element={<Profile />} />
               <Route path="/post/:id" element={<PostDetail />} />
               <Route path="/artist/:id" element={<ArtistDetail />} />

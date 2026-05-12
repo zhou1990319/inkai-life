@@ -1,10 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, PlusCircle, User } from 'lucide-react';
+import { Home, Users, BookOpen, User } from 'lucide-react';
 
 const navItems = [
   { path: '/', label: 'Home', icon: Home },
-  { path: '/explore', label: 'Explore', icon: Compass },
-  { path: '/create', label: 'Create', icon: PlusCircle },
+  { path: '/explore', label: 'Community', icon: Users },
+  { path: '/create', label: 'Inspire', icon: BookOpen },
   { path: '/profile', label: 'Profile', icon: User },
 ];
 

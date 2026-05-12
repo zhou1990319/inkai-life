@@ -2,9 +2,9 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Home,
-  Compass,
-  Sparkles,
   Users,
+  Sparkles,
+  BookOpen,
   Bookmark,
   Settings,
   User
@@ -12,9 +12,9 @@ import {
 
 const menuItems = [
   { icon: Home, label: 'Home', path: '/' },
-  { icon: Compass, label: 'Explore', path: '/explore' },
+  { icon: Users, label: 'Community', path: '/explore' },
+  { icon: BookOpen, label: 'Inspire', path: '/create' },
   { icon: Sparkles, label: 'AI Studio', path: '/ai-studio' },
-  { icon: Users, label: 'Artists', path: '/artists' },
   { icon: Bookmark, label: 'Saved', path: '/saved' },
 ];
 
