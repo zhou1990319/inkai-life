@@ -140,7 +140,7 @@ export default function Notifications() {
             </button>
             <h1 className="text-white font-semibold flex items-center gap-2">
               <Bell className="w-5 h-5 text-[#CFAF6E]" />
-              Notifications
+              {t('notifications.title')}
               {unreadCount > 0 && (
                 <span className="px-2 py-0.5 bg-[#9E2B25] text-white text-xs rounded-full">
                   {unreadCount}
@@ -159,7 +159,7 @@ export default function Notifications() {
               ) : (
                 <CheckCheck className="w-3.5 h-3.5" />
               )}
-              Mark all read
+              {t('notifications.mark_all_read')}
             </button>
           )}
         </div>
@@ -174,7 +174,7 @@ export default function Notifications() {
         ) : notifications.length === 0 ? (
           <EmptyState
             icon={<Bell className="w-8 h-8 text-[#6B6B78]" />}
-            title="No notifications yet"
+            title={t('notifications.no_notifications')}
             description="When someone likes, comments, or follows you, you'll see it here"
           />
         ) : (
@@ -252,9 +252,9 @@ export default function Notifications() {
                   {loadingMore ? (
                     <div className="flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Loading...
+                      {t('common.loading')}...
                     </div>
-                  ) : 'Load More'}
+                  ) : t('explore.load_more')}
                 </button>
               </div>
             )}

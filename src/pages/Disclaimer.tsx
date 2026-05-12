@@ -12,7 +12,7 @@ export default function Disclaimer() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="text-3xl font-bold text-amber-400 mb-4">Disclaimer & Terms</h1>
+          <h1 className="text-3xl font-bold text-amber-400 mb-4">{t('legal.disclaimer')}</h1>
           <p className="text-slate-400">Please read these important notices before using InkAI.life</p>
         </motion.div>
 

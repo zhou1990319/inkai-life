@@ -13,7 +13,7 @@ export default function Privacy() {
           className="text-center mb-12"
         >
           <Shield className="w-16 h-16 text-amber-400 mx-auto mb-4" />
-          <h1 className="text-3xl font-bold text-white mb-2">Privacy Policy</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">{t('legal.privacy')}</h1>
           <p className="text-stone-400">Last updated: May 8, 2026</p>
         </motion.div>
 

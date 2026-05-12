@@ -314,7 +314,7 @@ export default function ArtistDetail() {
             <button onClick={() => navigate(-1)} className="p-2 hover:bg-stone-800 rounded-full">
               <ChevronLeft className="w-5 h-5 text-stone-400" />
             </button>
-            <span className="text-stone-400 text-sm">Artist Profile</span>
+            <span className="text-stone-400 text-sm">{t('artist.portfolio')}</span>
           </div>
         </div>
       </div>
@@ -350,11 +350,11 @@ export default function ArtistDetail() {
               <div className="flex gap-6 mb-4">
                 <div>
                   <span className="text-xl font-bold text-white">{portfolio.length}</span>
-                  <span className="text-stone-500 ml-1">Works</span>
+                  <span className="text-stone-500 ml-1">{t('artist.portfolio')}</span>
                 </div>
                 <div>
                   <span className="text-xl font-bold text-white">{followersCount}</span>
-                  <span className="text-stone-500 ml-1">Followers</span>
+                  <span className="text-stone-500 ml-1">{t('profile.followers')}</span>
                 </div>
               </div>
 
@@ -385,14 +385,14 @@ export default function ArtistDetail() {
                       : 'bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950'
                   }`}
                 >
-                  {isFollowing ? 'Following' : 'Follow'}
+                  {isFollowing ? t('profile.following') : t('profile.follow')}
                 </button>
                 <button
                   onClick={startConversation}
                   className="px-6 py-2 rounded-full font-medium bg-stone-800 text-white border border-stone-700 hover:border-amber-500/50 transition-all flex items-center justify-center gap-2"
                 >
                   <MessageSquare className="w-4 h-4" />
-                  Message
+                  {t('artist.book_appointment')}
                 </button>
               </div>
             )}
@@ -440,7 +440,7 @@ export default function ArtistDetail() {
               {portfolio.length === 0 ? (
                 <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-12 text-center">
                   <Image className="w-12 h-12 text-stone-600 mx-auto mb-4" />
-                  <p className="text-stone-400">No works yet</p>
+                  <p className="text-stone-400">{t('profile.no_posts')} yet</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -485,7 +485,7 @@ export default function ArtistDetail() {
               {products.length === 0 ? (
                 <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-12 text-center">
                   <ShoppingBag className="w-12 h-12 text-stone-600 mx-auto mb-4" />
-                  <p className="text-stone-400">No products listed</p>
+                  <p className="text-stone-400">{t('profile.no_posts')} listed</p>
                   {isOwnProfile && (
                     <p className="text-stone-500 text-sm mt-2">Add products from your artist dashboard</p>
                   )}
@@ -547,7 +547,7 @@ export default function ArtistDetail() {
               exit={{ opacity: 0, y: -20 }}
               className="bg-stone-900/80 border border-stone-800 rounded-2xl p-6"
             >
-              <h3 className="text-lg font-semibold text-white mb-4">About</h3>
+              <h3 className="text-lg font-semibold text-white mb-4">{t('artist.specialties')}</h3>
               {profile.bio ? (
                 <p className="text-stone-300 leading-relaxed">{profile.bio}</p>
               ) : (

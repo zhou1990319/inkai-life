@@ -14,7 +14,7 @@ export default function Terms() {
         >
           <div className="text-center mb-8">
             <Scroll className="w-12 h-12 text-amber-400 mx-auto mb-4" />
-            <h1 className="text-3xl font-bold text-white mb-2">Terms of Service</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">{t('legal.terms')}</h1>
             <p className="text-slate-400">Last updated: May 2025</p>
           </div>
 
