@@ -292,7 +292,7 @@ export default function Settings() {
           </h2>
           <input
             type="email"
-            value={profile?.email || user?.email || ''}
+            value={user?.email || ''}
             disabled
             className="w-full px-4 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-[#6B6B78] cursor-not-allowed"
           />
