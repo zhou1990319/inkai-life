@@ -8,13 +8,6 @@ import { NotificationBadge } from '../../components/Community';
 import type { Profile } from '../../supabase/types';
 import { useLanguage, LANGUAGES, type Language } from '../../contexts/LanguageContext';
 
-const navItems = [
-  { path: '/', label: 'Home', icon: 'fa-home' },
-  { path: '/explore', label: 'Community', icon: 'fa-users' },
-  { path: '/inspire', label: 'Inspire', icon: 'fa-lightbulb' },
-  { path: '/artists', label: 'Artists', icon: 'fa-paint-brush' },
-];
-
 export default function Header({ user }: { user: Profile | null }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isArtist, setIsArtist] = useState(false);
@@ -31,6 +24,8 @@ export default function Header({ user }: { user: Profile | null }) {
     { path: '/inspire', labelKey: 'nav.inspire', icon: 'fa-lightbulb' },
     { path: '/artists', labelKey: 'nav.artists', icon: 'fa-paint-brush' },
   ];
+
+  useEffect(() => {
     const checkUserStatus = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {

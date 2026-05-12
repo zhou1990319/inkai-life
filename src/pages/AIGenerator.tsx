@@ -139,43 +139,6 @@ function MembershipStatusBar({ user, membership, t }: { user: Profile; membershi
   );
 }
 
-// 海外纹身风格选项 - 2行4列布局
-const TATTOO_STYLES = [
-  // 第一排
-  { id: 'oriental', name: 'Oriental', nameZh: '中式', keywords: 'oriental style, traditional chinese art, ink wash painting, chinese dragon, phoenix' },
-  { id: 'japanese', name: 'Japanese', nameZh: '日式', keywords: 'japanese tattoo, irezumi, traditional japanese art, bold outlines, cherry blossom, koi fish' },
-  { id: 'american-traditional', name: 'American Traditional', nameZh: '美式传统', keywords: 'american traditional tattoo, bold lines, vibrant colors, nautical themes, eagle, rose' },
-  { id: 'neo-traditional', name: 'Neo-Traditional', nameZh: '新传统', keywords: 'neo-traditional tattoo, bold colors, detailed illustrations, modern interpretation' },
-  // 第二排
-  { id: 'blackwork', name: 'Dark & Blackwork', nameZh: '暗黑黑灰', keywords: 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, tribal influence' },
-  { id: 'watercolor', name: 'Watercolor', nameZh: '水彩', keywords: 'watercolor tattoo style, ink wash effect, flowing colors, artistic brush strokes' },
-  { id: 'minimalist', name: 'Minimalist', nameZh: '极简线条', keywords: 'minimalist tattoo, fine line work, delicate designs, single needle technique' },
-  { id: 'realism', name: 'Realism', nameZh: '写实', keywords: 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo' },
-];
-
-// 风格关键词映射表
-const STYLE_KEYWORDS_MAP: Record<string, string> = {
-  'oriental': 'oriental style, traditional chinese art, ink wash painting, chinese dragon, phoenix, mythological elements',
-  'japanese': 'japanese tattoo, irezumi style, traditional japanese art, bold outlines, cherry blossom, koi fish, samurai',
-  'american-traditional': 'american traditional tattoo, bold lines, vibrant colors, nautical themes, eagle, rose, classic tattoo design',
-  'neo-traditional': 'neo-traditional tattoo, bold colors, detailed illustrations, modern twist on classic designs, rich shading',
-  'blackwork': 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, tribal influence, gothic elements',
-  'watercolor': 'watercolor tattoo style, ink wash effect, flowing watercolor splashes, artistic brush strokes, colorful',
-  'minimalist': 'minimalist tattoo, fine line work, delicate single line designs, subtle, elegant, single needle technique',
-  'realism': 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo, life-like rendering, high detail',
-};
-
-// 身体部位选项 - name: 英文(AI用), nameZh: 中文(UI显示)
-const bodyParts = [
-  { id: 'arm', name: 'arm', nameZh: '手臂' },
-  { id: 'back', name: 'back', nameZh: '背部' },
-  { id: 'chest', name: 'chest', nameZh: '胸部' },
-  { id: 'wrist', name: 'wrist', nameZh: '手腕' },
-  { id: 'collarbone', name: 'collarbone', nameZh: '锁骨' },
-  { id: 'thigh', name: 'thigh', nameZh: '大腿' },
-  { id: 'calf', name: 'calf', nameZh: '小腿' },
-];
-
 /**
  * 图片压缩函数 - 使用 Canvas 压缩到合理大小
  * 如果压缩失败，直接使用原文件（浏览器原生 base64）

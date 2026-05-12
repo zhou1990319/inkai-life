@@ -488,5 +488,4 @@ export function useLanguage() {
 }
 
 // 导出语言列表供组件使用
-export { LANGUAGES };
 export type { Language };
