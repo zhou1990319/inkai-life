@@ -38,12 +38,15 @@ const STYLE_KEYWORDS_MAP: Record<string, string> = {
   'realism': 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo, life-like rendering, high detail',
 };
 
+// 身体部位选项 - name: 英文(AI用), nameZh: 中文(UI显示)
 const bodyParts = [
-  { id: 'arm', name: 'Arm' },
-  { id: 'back', name: 'Back' },
-  { id: 'chest', name: 'Chest' },
-  { id: 'wrist', name: 'Wrist' },
-  { id: 'collarbone', name: 'Collarbone' },
+  { id: 'arm', name: 'arm', nameZh: '手臂' },
+  { id: 'back', name: 'back', nameZh: '背部' },
+  { id: 'chest', name: 'chest', nameZh: '胸部' },
+  { id: 'wrist', name: 'wrist', nameZh: '手腕' },
+  { id: 'collarbone', name: 'collarbone', nameZh: '锁骨' },
+  { id: 'thigh', name: 'thigh', nameZh: '大腿' },
+  { id: 'calf', name: 'calf', nameZh: '小腿' },
 ];
 
 /**
@@ -161,12 +164,15 @@ const STYLE_KEYWORDS_MAP: Record<string, string> = {
   'realism': 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo, life-like rendering, high detail',
 };
 
+// 身体部位选项 - name: 英文(AI用), nameZh: 中文(UI显示)
 const bodyParts = [
-  { id: 'arm', name: 'Arm' },
-  { id: 'back', name: 'Back' },
-  { id: 'chest', name: 'Chest' },
-  { id: 'wrist', name: 'Wrist' },
-  { id: 'collarbone', name: 'Collarbone' },
+  { id: 'arm', name: 'arm', nameZh: '手臂' },
+  { id: 'back', name: 'back', nameZh: '背部' },
+  { id: 'chest', name: 'chest', nameZh: '胸部' },
+  { id: 'wrist', name: 'wrist', nameZh: '手腕' },
+  { id: 'collarbone', name: 'collarbone', nameZh: '锁骨' },
+  { id: 'thigh', name: 'thigh', nameZh: '大腿' },
+  { id: 'calf', name: 'calf', nameZh: '小腿' },
 ];
 
 /**
@@ -312,6 +318,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
       // 获取选中风格的关键词
       const styleKeywords = selectedStyle ? STYLE_KEYWORDS_MAP[selectedStyle] || '' : '';
       const bodyPartName = selectedBodyPart ? bodyParts.find(b => b.id === selectedBodyPart)?.name : '';
+      const bodyPartNameZh = selectedBodyPart ? bodyParts.find(b => b.id === selectedBodyPart)?.nameZh : '';
       // 根据会员等级获取分辨率
       const resolution = getResolution('1024x1024');
       // 根据会员等级决定是否加水印
@@ -511,7 +518,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
                         : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                     }`}
                   >
-                    {part.name}
+                    {part.nameZh}
                   </button>
                 ))}
               </div>

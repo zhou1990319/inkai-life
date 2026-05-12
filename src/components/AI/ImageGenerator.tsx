@@ -31,12 +31,15 @@ const STYLE_KEYWORDS_MAP: Record<string, string> = {
   'realism': 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo, life-like rendering, high detail',
 };
 
+// 身体部位选项 - name: 英文(AI用), nameZh: 中文(UI显示)
 const BODY_PARTS = [
-  { id: 'arm', name: 'Arm', icon: '💪' },
-  { id: 'back', name: 'Back', icon: '👤' },
-  { id: 'chest', name: 'Chest', icon: '❤️' },
-  { id: 'wrist', name: 'Wrist', icon: '⌚' },
-  { id: 'collarbone', name: 'Collarbone', icon: '🦴' },
+  { id: 'arm', name: 'arm', nameZh: '手臂', icon: '💪' },
+  { id: 'back', name: 'back', nameZh: '背部', icon: '👤' },
+  { id: 'chest', name: 'chest', nameZh: '胸部', icon: '❤️' },
+  { id: 'wrist', name: 'wrist', nameZh: '手腕', icon: '⌚' },
+  { id: 'collarbone', name: 'collarbone', nameZh: '锁骨', icon: '🦴' },
+  { id: 'thigh', name: 'thigh', nameZh: '大腿', icon: '🦵' },
+  { id: 'calf', name: 'calf', nameZh: '小腿', icon: '🦶' },
 ];
 
 export default function ImageGenerator() {
@@ -184,7 +187,7 @@ export default function ImageGenerator() {
                     }`}
                   >
                     <span className="mr-1">{part.icon}</span>
-                    {part.name}
+                    {part.nameZh}
                   </button>
                 ))}
               </div>
