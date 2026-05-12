@@ -1,9 +1,8 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Upload, Wand2, Image as ImageIcon, AlertCircle, Lock, Crown, Zap } from 'lucide-react';
-import { generateImageWithVolcengine, generateTattooFromImage } from '../services/volcengineImage';
-import { uploadImage } from '../services/storage';
-import { useMembership, getPlanDescription, PLAN_BENEFITS } from '../hooks/useMembership';
+import { Sparkles, Upload, Wand2, Image as ImageIcon, AlertCircle, Lock, Crown, Zap, Download, Share2 } from 'lucide-react';
+import { generateImageWithVolcengine } from '../services/volcengineImage';
+import { useMembership, getPlanDescription } from '../hooks/useMembership';
 import { useLanguage } from '../contexts/LanguageContext';
 import type { Database } from '../supabase/types';
 
@@ -13,19 +12,17 @@ interface AIGeneratorProps {
   user: Profile | null;
 }
 
-// 海外纹身风格选项 - 2行4列布局
+// 海外纹身风格选项 - 卡片式布局
 function getTattooStyles(isZh: boolean) {
   return [
-    // 第一排
-    { id: 'oriental', name: isZh ? '中式' : 'Oriental', nameZh: '中式', keywords: 'oriental style, traditional chinese art, ink wash painting, chinese dragon, phoenix' },
-    { id: 'japanese', name: isZh ? '日式' : 'Japanese', nameZh: '日式', keywords: 'japanese tattoo, irezumi, traditional japanese art, bold outlines, cherry blossom, koi fish' },
-    { id: 'american-traditional', name: isZh ? '美式传统' : 'American Traditional', nameZh: '美式传统', keywords: 'american traditional tattoo, bold lines, vibrant colors, nautical themes, eagle, rose' },
-    { id: 'neo-traditional', name: isZh ? '新传统' : 'Neo-Traditional', nameZh: '新传统', keywords: 'neo-traditional tattoo, bold colors, detailed illustrations, modern interpretation' },
-    // 第二排
-    { id: 'blackwork', name: isZh ? '暗黑黑灰' : 'Dark & Blackwork', nameZh: '暗黑黑灰', keywords: 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, tribal influence' },
-    { id: 'watercolor', name: isZh ? '水彩' : 'Watercolor', nameZh: '水彩', keywords: 'watercolor tattoo style, ink wash effect, flowing colors, artistic brush strokes' },
-    { id: 'minimalist', name: isZh ? '极简线条' : 'Minimalist', nameZh: '极简线条', keywords: 'minimalist tattoo, fine line work, delicate designs, single needle technique' },
-    { id: 'realism', name: isZh ? '写实' : 'Realism', nameZh: '写实', keywords: 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo' },
+    { id: 'oriental', name: isZh ? '中式' : 'Oriental', nameZh: '中式', keywords: 'oriental style, traditional chinese art, ink wash painting, chinese dragon, phoenix', icon: '🏯' },
+    { id: 'japanese', name: isZh ? '日式' : 'Japanese', nameZh: '日式', keywords: 'japanese tattoo, irezumi, traditional japanese art, bold outlines, cherry blossom, koi fish', icon: '⛩️' },
+    { id: 'american-traditional', name: isZh ? '美式传统' : 'American Traditional', nameZh: '美式传统', keywords: 'american traditional tattoo, bold lines, vibrant colors, nautical themes, eagle, rose', icon: '🦅' },
+    { id: 'neo-traditional', name: isZh ? '新传统' : 'Neo-Traditional', nameZh: '新传统', keywords: 'neo-traditional tattoo, bold colors, detailed illustrations, modern interpretation', icon: '🎨' },
+    { id: 'blackwork', name: isZh ? '暗黑黑灰' : 'Dark & Blackwork', nameZh: '暗黑黑灰', keywords: 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, tribal influence', icon: '🖤' },
+    { id: 'watercolor', name: isZh ? '水彩' : 'Watercolor', nameZh: '水彩', keywords: 'watercolor tattoo style, ink wash effect, flowing colors, artistic brush strokes', icon: '💧' },
+    { id: 'minimalist', name: isZh ? '极简线条' : 'Minimalist', nameZh: '极简线条', keywords: 'minimalist tattoo, fine line work, delicate designs, single needle technique', icon: '✒️' },
+    { id: 'realism', name: isZh ? '写实' : 'Realism', nameZh: '写实', keywords: 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo', icon: '📸' },
   ];
 }
 
@@ -41,7 +38,7 @@ const STYLE_KEYWORDS_MAP: Record<string, string> = {
   'realism': 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo, life-like rendering, high detail',
 };
 
-// 身体部位选项 - name: 英文(AI用), nameZh: 中文(UI显示)
+// 身体部位选项
 const bodyParts = [
   { id: 'arm', name: 'arm', nameZh: '手臂' },
   { id: 'back', name: 'back', nameZh: '背部' },
@@ -52,36 +49,33 @@ const bodyParts = [
   { id: 'calf', name: 'calf', nameZh: '小腿' },
 ];
 
-/**
- * 未登录遮罩层组件
- */
 function LoginRequiredOverlay({ onLogin, onUpgrade, t }: { onLogin: () => void; onUpgrade: () => void; t: (key: string) => string }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/95 backdrop-blur-sm rounded-2xl"
+      className="absolute inset-0 z-20 flex items-center justify-center bg-ink-black/95 backdrop-blur-xl rounded-3xl"
     >
-      <div className="text-center p-8 max-w-md">
-        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-amber-500/20 flex items-center justify-center">
-          <Lock className="w-10 h-10 text-amber-400" />
+      <div className="text-center p-10 max-w-md">
+        <div className="w-24 h-24 mx-auto mb-8 rounded-full bg-imperial-gold-500/20 flex items-center justify-center border border-imperial-gold-500/30">
+          <Lock className="w-12 h-12 text-imperial-gold-400" />
         </div>
-        <h3 className="text-2xl font-bold text-white mb-3">{t('nav.sign_in')}</h3>
-        <p className="text-slate-400 mb-6">
+        <h3 className="text-3xl font-display font-bold text-rice-paper mb-4">{t('nav.sign_in')}</h3>
+        <p className="text-rice-paper/60 mb-8 text-base">
           {t('ai.sign_in_to_generate')}
         </p>
-        <div className="space-y-3">
+        <div className="space-y-4">
           <button
             onClick={onLogin}
-            className="w-full py-3 px-6 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold rounded-xl hover:from-amber-400 hover:to-amber-500 transition-all"
+            className="w-full py-4 px-6 bg-gradient-to-r from-china-red-600 to-china-red-700 text-white font-bold rounded-2xl hover:from-china-red-500 hover:to-china-red-600 transition-all shadow-red-glow"
           >
             {t('nav.sign_in')}
           </button>
           <button
             onClick={onUpgrade}
-            className="w-full py-3 px-6 bg-slate-800 text-amber-400 font-medium rounded-xl hover:bg-slate-700 transition-all flex items-center justify-center gap-2"
+            className="w-full py-4 px-6 bg-white/5 border border-imperial-gold-500/30 text-imperial-gold-400 font-bold rounded-2xl hover:bg-imperial-gold-500/10 transition-all flex items-center justify-center gap-2"
           >
-            <Crown className="w-4 h-4" />
+            <Crown className="w-5 h-5" />
             {t('nav.upgrade')}
           </button>
         </div>
@@ -90,40 +84,37 @@ function LoginRequiredOverlay({ onLogin, onUpgrade, t }: { onLogin: () => void; 
   );
 }
 
-/**
- * 会员状态栏组件
- */
 function MembershipStatusBar({ user, membership, t, isZh }: { user: Profile; membership: ReturnType<typeof useMembership>; t: (key: string) => string; isZh: boolean }) {
   const { currentPlan, benefits, message } = membership;
   const isFree = currentPlan === 'free';
 
   return (
-    <div className="mb-6 p-4 bg-slate-800/50 border border-amber-500/20 rounded-xl">
+    <div className="mb-8 p-5 bg-white/5 backdrop-blur-sm border border-imperial-gold-500/20 rounded-2xl">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           {isFree ? (
-            <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center">
-              <Zap className="w-5 h-5 text-slate-400" />
+            <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
+              <Zap className="w-6 h-6 text-rice-paper/50" />
             </div>
           ) : (
-            <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
-              <Crown className="w-5 h-5 text-amber-400" />
+            <div className="w-12 h-12 rounded-xl bg-imperial-gold-500/20 flex items-center justify-center border border-imperial-gold-500/30">
+              <Crown className="w-6 h-6 text-imperial-gold-400" />
             </div>
           )}
           <div>
-            <div className="flex items-center gap-2">
-              <span className={`font-medium ${isFree ? 'text-slate-300' : 'text-amber-400'}`}>
+            <div className="flex items-center gap-3">
+              <span className={`font-bold text-lg ${isFree ? 'text-rice-paper/70' : 'text-imperial-gold-400'}`}>
                 {user.display_name || user.username}
               </span>
               {isFree ? (
-                <span className="text-xs px-2 py-0.5 bg-slate-700 text-slate-400 rounded-full">{t('pricing.free')}</span>
+                <span className="text-xs px-3 py-1 bg-white/10 text-rice-paper/50 rounded-full">{t('pricing.free')}</span>
               ) : (
-                <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded-full">
+                <span className="text-xs px-3 py-1 bg-imperial-gold-500/20 text-imperial-gold-400 rounded-full border border-imperial-gold-500/30">
                   {getPlanDescription(currentPlan)}
                 </span>
               )}
             </div>
-            <p className={`text-sm ${isFree ? 'text-amber-400' : 'text-slate-400'}`}>
+            <p className={`text-sm mt-1 ${isFree ? 'text-imperial-gold-400' : 'text-rice-paper/50'}`}>
               {message || (benefits.isUnlimited ? (isZh ? '无限次生成！' : 'Unlimited generations!') : (isZh ? `最大分辨率: ${benefits.maxResolution}` : `Max resolution: ${benefits.maxResolution}`))}
             </p>
           </div>
@@ -131,7 +122,7 @@ function MembershipStatusBar({ user, membership, t, isZh }: { user: Profile; mem
         {isFree && (
           <a
             href="#/pricing"
-            className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 text-sm font-medium rounded-lg hover:from-amber-400 hover:to-amber-500 transition-all"
+            className="px-6 py-3 bg-gradient-to-r from-imperial-gold-500 to-imperial-gold-600 text-ink-black text-sm font-bold rounded-xl hover:from-imperial-gold-400 hover:to-imperial-gold-500 transition-all shadow-gold"
           >
             {t('nav.upgrade')}
           </a>
@@ -141,15 +132,10 @@ function MembershipStatusBar({ user, membership, t, isZh }: { user: Profile; mem
   );
 }
 
-/**
- * 图片压缩函数 - 使用 Canvas 压缩到合理大小
- * 如果压缩失败，直接使用原文件（浏览器原生 base64）
- */
 async function compressImage(file: File): Promise<{ base64: string; size: number; method: string }> {
   const originalSize = file.size;
   console.log(`[上传] 原始文件: ${file.name}, 大小: ${(originalSize / 1024).toFixed(1)}KB, 类型: ${file.type}`);
 
-  // 方法1：尝试 Canvas 压缩
   try {
     const result = await compressWithCanvas(file);
     const compressedSize = Math.round(result.base64.length * 0.75);
@@ -159,7 +145,6 @@ async function compressImage(file: File): Promise<{ base64: string; size: number
     console.warn(`[上传] Canvas压缩失败: ${err}, 尝试备选方案`);
   }
 
-  // 方法2：备选 - 直接使用 FileReader base64（不做压缩）
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -172,9 +157,6 @@ async function compressImage(file: File): Promise<{ base64: string; size: number
   });
 }
 
-/**
- * Canvas 压缩核心逻辑
- */
 function compressWithCanvas(file: File): Promise<{ base64: string }> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -184,29 +166,21 @@ function compressWithCanvas(file: File): Promise<{ base64: string }> {
         try {
           let width = img.width;
           let height = img.height;
-
-          // 逐步缩小直到满足大小限制
-          // 目标：base64 < 3MB (足够上传)
           const MAX_BASE64 = 3 * 1024 * 1024;
-
           let quality = 0.8;
           let canvas: HTMLCanvasElement;
           let ctx: CanvasRenderingContext2D;
 
-          // 最多尝试 10 种尺寸组合
           for (let scale = 1; scale >= 0.2; scale -= 0.2) {
             const w = Math.round(width * scale);
             const h = Math.round(height * scale);
-
             canvas = document.createElement('canvas');
             canvas.width = w;
             canvas.height = h;
             ctx = canvas.getContext('2d');
             if (!ctx) continue;
-
             ctx.drawImage(img, 0, 0, w, h);
 
-            // 逐步降低质量
             for (let q = quality; q >= 0.2; q -= 0.1) {
               const base64 = canvas.toDataURL('image/jpeg', q).split(',')[1];
               if (base64.length <= MAX_BASE64) {
@@ -217,7 +191,6 @@ function compressWithCanvas(file: File): Promise<{ base64: string }> {
             }
           }
 
-          // 最后尝试：极小尺寸 + 最低质量
           canvas = document.createElement('canvas');
           canvas.width = 200;
           canvas.height = 200;
@@ -228,7 +201,6 @@ function compressWithCanvas(file: File): Promise<{ base64: string }> {
             resolve({ base64 });
             return;
           }
-
           reject(new Error('Canvas 处理失败'));
         } catch (err) {
           reject(err);
@@ -254,26 +226,19 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
   const { t, language } = useLanguage();
   const isZh = language === 'zh';
 
-  // 会员状态管理
   const membership = useMembership(user);
-  const { canGenerate, benefits, recordGeneration, getResolution, currentPlan } = membership;
+  const { canGenerate, benefits, recordGeneration, getResolution } = membership;
 
-  // 跳转到登录页面
   const handleLogin = () => {
     window.location.hash = '#/login';
   };
 
-  // 跳转到定价页面
   const handleUpgrade = () => {
     window.location.hash = '#/pricing';
   };
 
   const handleGenerate = async () => {
-    // 检查是否登录
-    if (!user) {
-      return;
-    }
-    // 检查生成次数限制
+    if (!user) return;
     if (!canGenerate) {
       setError(isZh ? '今日生成次数已用完，请明天再来或升级会员！' : 'Daily generation limit reached. Please try again tomorrow or upgrade!');
       return;
@@ -283,21 +248,15 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
     setLoading(true);
     setError(null);
     try {
-      // 获取选中风格的关键词
       const styleKeywords = selectedStyle ? STYLE_KEYWORDS_MAP[selectedStyle] || '' : '';
       const bodyPartName = selectedBodyPart ? bodyParts.find(b => b.id === selectedBodyPart)?.name : '';
-      const bodyPartNameZh = selectedBodyPart ? bodyParts.find(b => b.id === selectedBodyPart)?.nameZh : '';
-      // 根据会员等级获取分辨率
       const resolution = getResolution('1024x1024');
-      // 根据会员等级决定是否加水印
       const watermark = benefits.watermark;
       let fullPrompt: string;
       let result;
 
       if (mode === 'text') {
-        // 文生图：使用用户描述 + 风格关键词
         fullPrompt = `${prompt}, ${styleKeywords}, ${bodyPartName ? `${bodyPartName} placement` : ''}, tattoo design, professional tattoo artist quality`;
-
         result = await generateImageWithVolcengine({
           prompt: fullPrompt,
           size: resolution,
@@ -305,9 +264,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
           watermark: watermark,
         });
       } else {
-        // 图生图：以原图为基础，融入纹身风格
         fullPrompt = `${prompt}, tattoo design inspired by the provided reference image, keep the original shape/outline/structure, ${styleKeywords}, tattoo illustration, fine line work, high contrast`;
-
         result = await generateImageWithVolcengine({
           prompt: fullPrompt,
           image_url: uploadedImage!,
@@ -319,7 +276,6 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
 
       if (result.success && result.image_url) {
         setGeneratedImage(result.image_url);
-        // 记录生成到日志
         recordGeneration(result.image_url, resolution);
       } else {
         setError(result.error || (isZh ? '生成失败，请重试' : 'Generation failed, please try again'));
@@ -336,11 +292,9 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
     if (!file) return;
     setError(null);
     try {
-      // 压缩图片（带备用方案，压缩失败则用原图）
       const { base64: compressedBase64, method } = await compressImage(file);
       console.log(`[上传] 压缩方式: ${method}`);
 
-      // 通过服务端 API 上传（使用 JPEG 格式）
       const response = await fetch('/api/upload-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -375,40 +329,39 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-      <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-ink-black via-china-red-950/20 to-ink-black py-12">
+      <div className="max-w-7xl mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-16"
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-amber-400 mb-4">
+          <h1 className="text-5xl md:text-6xl font-display font-bold text-imperial-gold-400 mb-4">
             {t('ai.title')}
           </h1>
-          <p className="text-slate-400 text-lg">
+          <p className="text-rice-paper/60 text-xl">
             {t('ai.subtitle')}
           </p>
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-8">
+          {/* 左侧控制面板 */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-slate-900/50 border border-amber-500/20 rounded-2xl p-6 relative"
+            className="bg-white/5 backdrop-blur-sm border border-imperial-gold-500/20 rounded-3xl p-8 relative"
           >
-            {/* 未登录遮罩层 */}
             {!user && <LoginRequiredOverlay onLogin={handleLogin} onUpgrade={handleUpgrade} t={t} />}
-
-            {/* 已登录：显示会员状态栏 */}
             {user && <MembershipStatusBar user={user} membership={membership} t={t} isZh={isZh} />}
 
-            <div className="flex gap-4 mb-6">
-                <button
+            {/* 模式切换 - 毛玻璃卡片 */}
+            <div className="flex gap-4 mb-8">
+              <button
                 onClick={() => setMode('text')}
-                className={`flex-1 py-3 rounded-xl flex items-center justify-center gap-2 transition-all ${
+                className={`flex-1 py-4 rounded-2xl flex items-center justify-center gap-3 transition-all font-bold ${
                   mode === 'text'
-                    ? 'bg-amber-500 text-slate-950'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    ? 'bg-gradient-to-r from-china-red-600 to-china-red-700 text-white shadow-red-glow'
+                    : 'bg-white/5 text-rice-paper/70 hover:bg-white/10 border border-imperial-gold-500/20'
                 }`}
               >
                 <Wand2 className="w-5 h-5" />
@@ -416,10 +369,10 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
               </button>
               <button
                 onClick={() => setMode('image')}
-                className={`flex-1 py-3 rounded-xl flex items-center justify-center gap-2 transition-all ${
+                className={`flex-1 py-4 rounded-2xl flex items-center justify-center gap-3 transition-all font-bold ${
                   mode === 'image'
-                    ? 'bg-amber-500 text-slate-950'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    ? 'bg-gradient-to-r from-china-red-600 to-china-red-700 text-white shadow-red-glow'
+                    : 'bg-white/5 text-rice-paper/70 hover:bg-white/10 border border-imperial-gold-500/20'
                 }`}
               >
                 <ImageIcon className="w-5 h-5" />
@@ -427,15 +380,16 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
               </button>
             </div>
 
+            {/* 图片上传 */}
             {mode === 'image' && (
-              <div className="mb-6">
-                <label className="block w-full h-32 border-2 border-dashed border-slate-600 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-amber-500 transition-colors">
+              <div className="mb-8">
+                <label className="block w-full h-40 border-2 border-dashed border-imperial-gold-500/30 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-imperial-gold-500/60 hover:bg-imperial-gold-500/5 transition-all">
                   {uploadedImage ? (
-                    <img src={uploadedImage} alt="Uploaded" className="h-full object-contain" />
+                    <img src={uploadedImage} alt="Uploaded" className="h-full object-contain rounded-xl" />
                   ) : (
                     <>
-                      <Upload className="w-8 h-8 text-slate-400 mb-2" />
-                      <span className="text-slate-400">{isZh ? '上传参考图片' : 'Upload reference image'}</span>
+                      <Upload className="w-10 h-10 text-imperial-gold-400/50 mb-3" />
+                      <span className="text-rice-paper/50">{isZh ? '上传参考图片' : 'Upload reference image'}</span>
                     </>
                   )}
                   <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
@@ -443,47 +397,51 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
               </div>
             )}
 
-            <div className="mb-6">
-              <label className="block text-amber-400 mb-2 font-medium">{t('ai.prompt_placeholder').split('...')[0]}</label>
+            {/* 提示词输入 */}
+            <div className="mb-8">
+              <label className="block text-imperial-gold-400 mb-3 font-bold text-lg">{t('ai.prompt_placeholder').split('...')[0]}</label>
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder={t('ai.prompt_placeholder')}
-                className="w-full h-32 bg-slate-800 border border-slate-700 rounded-xl p-4 text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none resize-none"
+                className="w-full h-40 bg-white/5 border border-imperial-gold-500/20 rounded-2xl p-5 text-rice-paper placeholder-rice-paper/30 focus:border-imperial-gold-500/50 focus:outline-none resize-none"
               />
             </div>
 
-            <div className="mb-6">
-              <label className="block text-amber-400 mb-3 font-medium">{t('ai.style')}</label>
-              <div className="grid grid-cols-4 gap-2">
+            {/* 风格选择 - 卡片式布局 */}
+            <div className="mb-8">
+              <label className="block text-imperial-gold-400 mb-4 font-bold text-lg">{t('ai.style')}</label>
+              <div className="grid grid-cols-4 gap-3">
                 {getTattooStyles(isZh).map((style) => (
                   <button
                     key={style.id}
                     onClick={() => setSelectedStyle(style.id)}
-                    className={`p-3 rounded-lg text-sm transition-all ${
+                    className={`p-4 rounded-2xl text-sm transition-all ${
                       selectedStyle === style.id
-                        ? 'bg-amber-500 text-slate-950'
-                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        ? 'bg-gradient-to-br from-china-red-600 to-china-red-700 text-white shadow-red-glow'
+                        : 'bg-white/5 text-rice-paper/70 hover:bg-white/10 border border-imperial-gold-500/20'
                     }`}
                   >
-                    <div className="font-medium">{t(`style.${style.id}`)}</div>
+                    <div className="text-2xl mb-2">{style.icon}</div>
+                    <div className="font-bold">{t(`style.${style.id}`)}</div>
                     <div className="text-xs opacity-70">{style.nameZh}</div>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="mb-6">
-              <label className="block text-amber-400 mb-3 font-medium">{t('ai.body_part')}</label>
+            {/* 身体部位选择 */}
+            <div className="mb-8">
+              <label className="block text-imperial-gold-400 mb-4 font-bold text-lg">{t('ai.body_part')}</label>
               <div className="flex flex-wrap gap-2">
                 {bodyParts.map((part) => (
                   <button
                     key={part.id}
                     onClick={() => setSelectedBodyPart(part.id)}
-                    className={`flex-1 py-2 rounded-lg text-sm transition-all ${
+                    className={`px-5 py-3 rounded-xl text-sm font-bold transition-all ${
                       selectedBodyPart === part.id
-                        ? 'bg-amber-500 text-slate-950'
-                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        ? 'bg-gradient-to-r from-imperial-gold-500 to-imperial-gold-600 text-ink-black shadow-gold'
+                        : 'bg-white/5 text-rice-paper/70 hover:bg-white/10 border border-imperial-gold-500/20'
                     }`}
                   >
                     {t(`body.${part.id}`)}
@@ -494,62 +452,68 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
 
             {/* 水印提示 */}
             {user && benefits.watermark && (
-              <div className="mb-4 p-3 bg-slate-800/50 border border-slate-700 rounded-lg flex items-center gap-2 text-slate-400 text-sm">
-                <AlertCircle className="w-4 h-4 text-amber-500" />
-                {t('pricing.watermark')}. <a href="#/pricing" className="text-amber-400 hover:underline">{t('pricing.upgrade')} to remove</a>
+              <div className="mb-6 p-4 bg-white/5 border border-imperial-gold-500/20 rounded-xl flex items-center gap-3 text-rice-paper/50 text-sm">
+                <AlertCircle className="w-5 h-5 text-imperial-gold-400" />
+                {t('pricing.watermark')}. <a href="#/pricing" className="text-imperial-gold-400 hover:underline font-bold">{t('pricing.upgrade')} to remove</a>
               </div>
             )}
 
+            {/* 错误提示 */}
             {error && (
-              <div className="mb-4 p-3 bg-red-500/20 border border-red-500/40 rounded-lg flex items-center gap-2 text-red-400">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <div className="mb-6 p-4 bg-china-red-500/20 border border-china-red-500/40 rounded-xl flex items-center gap-3 text-china-red-400">
+                <AlertCircle className="w-5 h-5 flex-shrink-0" />
                 <span className="text-sm">{error}</span>
               </div>
             )}
 
+            {/* 生成按钮 - 中国红渐变大尺寸 */}
             <button
               onClick={handleGenerate}
               disabled={loading || !user || (!canGenerate) || (!prompt && mode === 'text') || (mode === 'image' && !uploadedImage)}
-              className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:from-amber-400 hover:to-amber-500 transition-all"
+              className="w-full py-5 bg-gradient-to-r from-china-red-600 to-china-red-700 text-white font-bold text-lg rounded-2xl flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed hover:from-china-red-500 hover:to-china-red-600 transition-all shadow-red-glow hover:shadow-lg"
             >
               {loading ? (
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 1, repeat: Infinity }}
                 >
-                  <Sparkles className="w-5 h-5" />
+                  <Sparkles className="w-6 h-6" />
                 </motion.div>
               ) : (
-                <Sparkles className="w-5 h-5" />
+                <Sparkles className="w-6 h-6" />
               )}
               {!user ? t('ai.sign_in_to_generate') : loading ? t('ai.generating') : t('ai.generate')}
             </button>
           </motion.div>
 
+          {/* 右侧结果展示 */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-slate-900/50 border border-amber-500/20 rounded-2xl p-6 flex flex-col"
+            className="bg-white/5 backdrop-blur-sm border border-imperial-gold-500/20 rounded-3xl p-8 flex flex-col"
           >
-            <h3 className="text-amber-400 font-medium mb-4">{t('ai.preview')}</h3>
-            <div className="flex-1 bg-slate-950 rounded-xl flex items-center justify-center min-h-[400px]">
+            <h3 className="text-imperial-gold-400 font-bold text-xl mb-6 flex items-center gap-2">
+              <ImageIcon className="w-5 h-5" />
+              {t('ai.preview')}
+            </h3>
+            <div className="flex-1 bg-ink-black/50 rounded-2xl border border-imperial-gold-500/20 flex items-center justify-center min-h-[500px]">
               {generatedImage ? (
                 <motion.img
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   src={generatedImage}
                   alt="Generated tattoo"
-                  className="max-w-full max-h-full rounded-lg"
+                  className="max-w-full max-h-full rounded-xl"
                 />
               ) : (
-                <div className="text-center text-slate-500">
-                  <ImageIcon className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                  <p>{t('ai.your_design')}</p>
+                <div className="text-center text-rice-paper/30">
+                  <ImageIcon className="w-24 h-24 mx-auto mb-6 opacity-30" />
+                  <p className="text-lg">{t('ai.your_design')}</p>
                 </div>
               )}
             </div>
             {generatedImage && (
-              <div className="mt-4 flex gap-3">
+              <div className="mt-6 flex gap-4">
                 <button
                   onClick={async () => {
                     try {
@@ -567,8 +531,9 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
                       console.error('Download failed:', err);
                     }
                   }}
-                  className="flex-1 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors"
+                  className="flex-1 py-4 bg-white/5 border border-imperial-gold-500/30 text-rice-paper rounded-xl hover:bg-imperial-gold-500/10 transition-all flex items-center justify-center gap-2 font-bold"
                 >
+                  <Download className="w-5 h-5" />
                   {t('ai.download')}
                 </button>
                 <button
@@ -588,8 +553,9 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
                       console.error('Share failed:', err);
                     }
                   }}
-                  className="flex-1 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors"
+                  className="flex-1 py-4 bg-white/5 border border-imperial-gold-500/30 text-rice-paper rounded-xl hover:bg-imperial-gold-500/10 transition-all flex items-center justify-center gap-2 font-bold"
                 >
+                  <Share2 className="w-5 h-5" />
                   {t('ai.share')}
                 </button>
               </div>
