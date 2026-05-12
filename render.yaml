@@ -4,7 +4,7 @@ services:
     runtime: node
     repo: https://github.com/zhou1990319/inkai-life
     branch: main
-    buildCommand: npm install && npm run build
+    buildCommand: npm install && npm run build && cp sitemap.xml dist/
     startCommand: node server/index.js
     plan: free
     numInstances: 1
@@ -20,3 +20,8 @@ services:
         value: sb_publishable_VuoZts73EHjAOcYjtqBADw_QJ_IcuzNt
       - key: ARK_API_KEY
         value: ark-6b3fbf0f-2778-4bf6-a09f-c06b08d6b69d-796cd
+      - key: KEEP_ALIVE_URL
+        value: https://inkai.life/health
+      # 可选：添加 Sentry DSN 启用错误监控
+      # - key: SENTRY_DSN
+      #   value: your-sentry-dsn-here

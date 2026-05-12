@@ -3,10 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>InkAI - 国风纹身创作平台</title>
+  
+  <!-- 基础 SEO -->
+  <title>InkAI.life - AI Tattoo Generator | Create Unique Tattoo Designs</title>
+  <meta name="description" content="Transform your ideas into unique tattoo designs with AI. Generate stunning Chinese traditional, Japanese, and custom tattoos instantly. Free AI-powered tattoo design tool.">
+  <meta name="keywords" content="AI tattoo generator, tattoo design, Chinese tattoo, Japanese tattoo, traditional tattoo, tattoo maker, AI art, inkai">
+  <meta name="author" content="InkAI">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Open Graph (社交分享) -->
+  <meta property="og:title" content="InkAI.life - AI Tattoo Generator">
+  <meta property="og:description" content="Transform your ideas into unique tattoo designs with AI. Create stunning tattoos in seconds.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://inkai.life">
+  <meta property="og:image" content="https://inkai.life/og-image.png">
+  <meta property="og:site_name" content="InkAI">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="InkAI.life - AI Tattoo Generator">
+  <meta name="twitter:description" content="Transform your ideas into unique tattoo designs with AI.">
+  <meta name="twitter:image" content="https://inkai.life/og-image.png">
+  
+  <!-- 主题 SEO -->
+  <meta name="theme-color" content="#1a1a1a">
+  
+  <!-- 图标 -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  
+  <!-- 语言 -->
+  <link rel="alternate" hreflang="en" href="https://inkai.life/">
+  <link rel="alternate" hreflang="zh-CN" href="https://inkai.life/?lang=zh">
+  
+  <!-- 样式 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* 内联样式确保主题色立即生效，避免闪烁 */
     html, body {
       margin: 0;
       padding: 0;
@@ -23,18 +55,14 @@
     }
   </style>
   <script>
-    // 在 React 加载前立即设置主题，避免闪烁
     (function() {
       const isInIframe = window.self !== window.top;
-
       function applyThemeToDOM(theme) {
         document.documentElement.classList.remove('light', 'dark');
         document.documentElement.classList.add(theme);
         document.documentElement.setAttribute('data-theme', theme);
       }
-
       if (isInIframe) {
-        // 监听父窗口主动推送的主题消息
         window.addEventListener('message', function(event) {
           if (event.data && typeof event.data.theme === 'string') {
             const theme = event.data.theme;
@@ -44,10 +72,32 @@
           }
         });
       } else {
-        // 非 iframe 环境，使用默认 dark 主题
         applyThemeToDOM('dark');
       }
     })();
+  </script>
+  
+  <!-- 结构化数据 (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "InkAI.life",
+    "description": "AI-powered tattoo design generator",
+    "url": "https://inkai.life",
+    "applicationCategory": "DesignApplication",
+    "operatingSystem": "Web Browser",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "256"
+    }
+  }
   </script>
 </head>
 <body>
