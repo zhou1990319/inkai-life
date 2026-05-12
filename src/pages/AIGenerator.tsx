@@ -24,76 +24,102 @@ const bodyParts = [
 ];
 
 /**
- * 使用 Canvas 压缩图片到合理大小
- * @param file 原始图片文件
- * @returns base64 编码的压缩后图片（确保 < 2MB）
+ * 图片压缩函数 - 使用 Canvas 压缩到合理大小
+ * 如果压缩失败，直接使用原文件（浏览器原生 base64）
  */
-function compressImage(file: File): Promise<string> {
+async function compressImage(file: File): Promise<{ base64: string; size: number; method: string }> {
+  const originalSize = file.size;
+  console.log(`[上传] 原始文件: ${file.name}, 大小: ${(originalSize / 1024).toFixed(1)}KB, 类型: ${file.type}`);
+
+  // 方法1：尝试 Canvas 压缩
+  try {
+    const result = await compressWithCanvas(file);
+    const compressedSize = Math.round(result.base64.length * 0.75);
+    console.log(`[上传] Canvas压缩成功: ${(compressedSize / 1024).toFixed(1)}KB (压缩率: ${(compressedSize / originalSize * 100).toFixed(0)}%)`);
+    return { base64: result.base64, size: compressedSize, method: 'canvas' };
+  } catch (err) {
+    console.warn(`[上传] Canvas压缩失败: ${err}, 尝试备选方案`);
+  }
+
+  // 方法2：备选 - 直接使用 FileReader base64（不做压缩）
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = (reader.result as string).split(',')[1];
+      console.log(`[上传] 使用原始文件上传: ${(base64.length * 0.75 / 1024).toFixed(1)}KB`);
+      resolve({ base64, size: file.size, method: 'original' });
+    };
+    reader.onerror = () => reject(new Error('文件读取失败'));
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
+ * Canvas 压缩核心逻辑
+ */
+function compressWithCanvas(file: File): Promise<{ base64: string }> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        let width = img.width;
-        let height = img.height;
+        try {
+          let width = img.width;
+          let height = img.height;
 
-        // 限制最大尺寸：宽度不超过 800px
-        const MAX_WIDTH = 800;
-        if (width > MAX_WIDTH) {
-          height = Math.round((height * MAX_WIDTH) / width);
-          width = MAX_WIDTH;
-        }
+          // 逐步缩小直到满足大小限制
+          // 目标：base64 < 3MB (足够上传)
+          const MAX_BASE64 = 3 * 1024 * 1024;
 
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          reject(new Error('Canvas 初始化失败'));
-          return;
-        }
-        ctx.drawImage(img, 0, 0, width, height);
+          let quality = 0.8;
+          let canvas: HTMLCanvasElement;
+          let ctx: CanvasRenderingContext2D;
 
-        // 强制使用 JPEG 格式（支持有损压缩，PNG 无质量参数）
-        const outputType = 'image/jpeg';
+          // 最多尝试 10 种尺寸组合
+          for (let scale = 1; scale >= 0.2; scale -= 0.2) {
+            const w = Math.round(width * scale);
+            const h = Math.round(height * scale);
 
-        // 递归压缩：逐步降低质量，直到满足大小限制
-        // 2MB base64 ≈ 1.5MB 二进制
-        const MAX_BASE64_LEN = 2 * 1024 * 1024;
-        let quality = 0.7;
-        let compressedBase64 = canvas.toDataURL(outputType, quality).split(',')[1];
-        let iterations = 0;
-        const MAX_ITERATIONS = 20;
+            canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            ctx = canvas.getContext('2d');
+            if (!ctx) continue;
 
-        while (compressedBase64.length > MAX_BASE64_LEN && iterations < MAX_ITERATIONS) {
-          quality -= 0.05;
-          // 如果质量太低，开始缩小尺寸
-          if (quality < 0.3 && width > 400) {
-            width = Math.round(width * 0.7);
-            height = Math.round(height * 0.7);
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(img, 0, 0, width, height);
-            quality = 0.6; // 重置质量，因为尺寸变小了
+            ctx.drawImage(img, 0, 0, w, h);
+
+            // 逐步降低质量
+            for (let q = quality; q >= 0.2; q -= 0.1) {
+              const base64 = canvas.toDataURL('image/jpeg', q).split(',')[1];
+              if (base64.length <= MAX_BASE64) {
+                console.log(`[Canvas] 尺寸: ${w}x${h}, 质量: ${q.toFixed(1)}, 大小: ${(base64.length * 0.75 / 1024).toFixed(0)}KB`);
+                resolve({ base64 });
+                return;
+              }
+            }
           }
-          compressedBase64 = canvas.toDataURL(outputType, Math.max(quality, 0.1)).split(',')[1];
-          iterations++;
+
+          // 最后尝试：极小尺寸 + 最低质量
+          canvas = document.createElement('canvas');
+          canvas.width = 200;
+          canvas.height = 200;
+          ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, 200, 200);
+            const base64 = canvas.toDataURL('image/jpeg', 0.3).split(',')[1];
+            resolve({ base64 });
+            return;
+          }
+
+          reject(new Error('Canvas 处理失败'));
+        } catch (err) {
+          reject(err);
         }
-
-        const finalSizeKB = Math.round((compressedBase64.length * 0.75) / 1024);
-        console.log(`[compressImage] 完成: ${img.width}x${img.height} → ${width}x${height}, 质量: ${quality.toFixed(2)}, 大小: ~${finalSizeKB}KB, 迭代: ${iterations}次`);
-
-        if (compressedBase64.length > MAX_BASE64_LEN) {
-          reject(new Error(`图片过大（压缩后约 ${finalSizeKB}KB），请选择更小的图片`));
-          return;
-        }
-
-        resolve(compressedBase64);
       };
-      img.onerror = () => reject(new Error('图片加载失败，请确认文件格式正确'));
+      img.onerror = () => reject(new Error('图片加载失败'));
       img.src = e.target?.result as string;
     };
-    reader.onerror = () => reject(new Error('文件读取失败'));
+    reader.onerror = () => reject(new Error('FileReader 失败'));
     reader.readAsDataURL(file);
   });
 }
@@ -157,31 +183,38 @@ export default function AIGenerator() {
     if (!file) return;
     setError(null);
     try {
-      // 压缩图片：600px宽度，质量0.6，自动递归压缩直到小于2MB
-      const compressedBase64 = await compressImage(file);
+      // 压缩图片（带备用方案，压缩失败则用原图）
+      const { base64: compressedBase64, method } = await compressImage(file);
+      console.log(`[上传] 压缩方式: ${method}`);
 
-      // 通过服务端 API 上传（绕过 RLS 限制）
-      // 注意：compressImage 强制输出 JPEG，所以 contentType 必须设为 image/jpeg
+      // 通过服务端 API 上传（使用 JPEG 格式）
       const response = await fetch('/api/upload-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           bucket: 'tattoo-images',
-          fileName: file.name.replace(/\.[^.]+$/, '.jpg'), // 强制 .jpg 后缀
+          fileName: file.name.replace(/\.[^.]+$/, '.jpg'),
           fileData: compressedBase64,
-          contentType: 'image/jpeg',
+          contentType: method === 'original' ? file.type : 'image/jpeg',
         }),
       });
 
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || '上传失败');
+      const text = await response.text();
+      let result: { success?: boolean; error?: string; publicUrl?: string };
+      try {
+        result = JSON.parse(text);
+      } catch {
+        throw new Error(`服务器响应异常: ${text.substring(0, 100)}`);
       }
 
-      setUploadedImage(result.publicUrl);
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || `上传失败 (${response.status})`);
+      }
+
+      setUploadedImage(result.publicUrl!);
+      console.log('[上传] 成功:', result.publicUrl);
     } catch (err) {
-      console.error('[AIGenerator] Upload failed:', err);
+      console.error('[上传] 失败:', err);
       setError(err instanceof Error ? err.message : '图片上传失败，请重试');
     } finally {
       e.target.value = '';
