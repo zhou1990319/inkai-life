@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Check, X, Sparkles, Crown, Zap, Star } from 'lucide-react';
 import { supabase } from '../supabase/client';
 import type { Database } from '../supabase/types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
@@ -123,6 +124,7 @@ const plans = [
 ];
 
 export default function Pricing({ user }: PricingProps) {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<string>('free');
   const [showEarlyBird, setShowEarlyBird] = useState(true);
@@ -194,7 +196,7 @@ export default function Pricing({ user }: PricingProps) {
           </span>
         </h1>
         <p className="text-stone-400 text-lg max-w-2xl mx-auto">
-          Chinese-style AI tattoo generator. Choose your perfect plan
+          {t('pricing.subtitle')}
         </p>
 
         {/* Comparison Note */}
@@ -305,7 +307,7 @@ export default function Pricing({ user }: PricingProps) {
                       : 'bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-600'
                   }`}
                 >
-                  {isCurrentPlan ? 'Current Plan' : loading ? 'Processing...' : plan.cta}
+                  {isCurrentPlan ? t('pricing.current_plan') : loading ? t('common.loading') + '...' : plan.cta}
                 </button>
 
                 {/* Features */}

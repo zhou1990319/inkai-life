@@ -14,6 +14,7 @@ import { supabase } from '../supabase/client';
 import type { Database } from '../supabase/types';
 import { ImageUploader, VisibilitySelector } from '../components/Community';
 import { PostService, TagService } from '../services/community';
+import { useLanguage } from '../contexts/LanguageContext';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
@@ -37,6 +38,7 @@ const POST_TYPES = [
 ];
 
 export default function Create() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<Profile | null>(null);
   const [title, setTitle] = useState('');
@@ -153,7 +155,7 @@ export default function Create() {
           >
             Cancel
           </button>
-          <h1 className="text-white font-semibold">Create Post</h1>
+          <h1 className="text-white font-semibold">{t('create.title')}</h1>
           <button
             onClick={handleSubmit}
             disabled={submitting || !title.trim() || images.length === 0}
@@ -162,9 +164,9 @@ export default function Create() {
             {submitting ? (
               <>
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                Posting...
+                {t('create.posting')}...
               </>
-            ) : 'Post'}
+            ) : t('create.post')}
           </button>
         </div>
       </div>
@@ -185,7 +187,7 @@ export default function Create() {
         {/* 图片上传 */}
         <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-white font-semibold">Images</h2>
+            <h2 className="text-white font-semibold">{t('create.select_images')}</h2>
             {images.length > 0 && (
               <span className="text-[#6B6B78] text-xs">{images.length}/9</span>
             )}
@@ -200,7 +202,7 @@ export default function Create() {
 
         {/* 标题 */}
         <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-3">
-          <h2 className="text-white font-semibold">Title *</h2>
+          <h2 className="text-white font-semibold">{t('create.title')} *</h2>
           <input
             type="text"
             value={title}
@@ -232,7 +234,7 @@ export default function Create() {
 
         {/* 作品类型 */}
         <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-3">
-          <h2 className="text-white font-semibold">Post Type</h2>
+          <h2 className="text-white font-semibold">{t('create.post_type')}</h2>
           <div className="grid grid-cols-2 gap-2">
             {POST_TYPES.map(type => (
               <button
@@ -260,7 +262,7 @@ export default function Create() {
 
         {/* 风格标签 */}
         <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-3">
-          <h2 className="text-white font-semibold">Style Tags</h2>
+          <h2 className="text-white font-semibold">{t('create.tags')}</h2>
           <div className="flex flex-wrap gap-2">
             {PRESET_STYLES.map(style => (
               <button
@@ -304,7 +306,7 @@ export default function Create() {
             onClick={() => setShowAdvanced(!showAdvanced)}
             className="w-full p-5 flex items-center justify-between text-left"
           >
-            <h2 className="text-white font-semibold">Advanced Options</h2>
+            <h2 className="text-white font-semibold">Options</h2>
             {showAdvanced ? (
               <ChevronUp className="w-4 h-4 text-[#6B6B78]" />
             ) : (

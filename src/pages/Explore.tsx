@@ -17,6 +17,7 @@ import {
   PostService, TagService, SearchService, NotificationService,
   type PostWithAuthor, FeedOptions
 } from '../services/community';
+import { useLanguage } from '../contexts/LanguageContext';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
@@ -30,6 +31,7 @@ const SORT_OPTIONS = [
 const PAGE_SIZE = 20;
 
 export default function Explore() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentUser, setCurrentUser] = useState<Profile | null>(null);
@@ -177,8 +179,8 @@ export default function Explore() {
                 <Users className="w-4 h-4 text-[#9E2B25]" />
               </div>
               <div>
-                <h1 className="text-[17px] font-bold text-white leading-tight">Community</h1>
-                <p className="text-[#6B6B78] text-[11px]">Discover · Share · Connect</p>
+                <h1 className="text-[17px] font-bold text-white leading-tight">{t('explore.title')}</h1>
+                <p className="text-[#6B6B78] text-[11px]">Discover &middot; Share &middot; Connect</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -199,14 +201,14 @@ export default function Explore() {
                   className="flex items-center gap-1.5 px-4 py-2 bg-[#9E2B25] text-white rounded-full text-sm font-medium hover:bg-[#B8342D] transition-colors"
                 >
                   <Plus className="w-4 h-4" />
-                  Post
+                  {t('create.post')}
                 </button>
               ) : (
                 <button
                   onClick={() => navigate('/login')}
                   className="flex items-center gap-1.5 px-4 py-2 bg-[#9E2B25] text-white rounded-full text-sm font-medium hover:bg-[#B8342D] transition-colors"
                 >
-                  Join Us
+                  {t('auth.sign_up_link')}
                 </button>
               )}
             </div>
@@ -217,7 +219,7 @@ export default function Explore() {
             value={searchQuery}
             onChange={setSearchQuery}
             onSearch={handleSearch}
-            placeholder="Search posts, users, or tags..."
+            placeholder={t('explore.search_placeholder')}
           />
 
           {/* 排序切换 */}
@@ -270,10 +272,10 @@ export default function Explore() {
         ) : posts.length === 0 ? (
           <EmptyState
             icon={<Users className="w-8 h-8 text-[#6B6B78]" />}
-            title={searchQuery ? 'No results found' : 'No posts yet'}
-            description={searchQuery ? 'Try different keywords or browse by tags' : 'Be the first to share your tattoo art!'}
+            title={searchQuery ? t('explore.no_results') : t('notifications.no_notifications')}
+            description={searchQuery ? 'Try different keywords or browse by tags' : t('profile.no_posts')}
             action={!searchQuery && currentUser ? {
-              label: 'Share Your Work',
+              label: t('create.post'),
               onClick: () => navigate('/create'),
             } : searchQuery ? {
               label: 'Clear Search',
@@ -309,7 +311,7 @@ export default function Explore() {
                 <div className="w-8 h-8 border-2 border-[#9E2B25] border-t-transparent rounded-full animate-spin" />
               )}
               {!hasMore && posts.length > 0 && (
-                <p className="text-[#6B6B78] text-sm">You've reached the end</p>
+                <p className="text-[#6B6B78] text-sm">{t('explore.load_more')}</p>
               )}
             </div>
           </>

@@ -21,10 +21,12 @@ import {
   PostService, CommentService, ReportService,
   type PostWithAuthor, type CommentWithAuthor
 } from '../services/community';
+import { useLanguage } from '../contexts/LanguageContext';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
 export default function PostDetail() {
+  const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<Profile | null>(null);
@@ -181,7 +183,7 @@ export default function PostDetail() {
             className="flex items-center gap-2 text-[#B0B0B8] hover:text-white transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="text-sm font-medium">Back</span>
+            <span className="text-sm font-medium">{t('post.share')}</span>
           </button>
 
           <div className="flex items-center gap-2">
@@ -212,19 +214,19 @@ export default function PostDetail() {
                       onClick={() => handleReport('spam')}
                       className="w-full px-4 py-2.5 text-left text-sm text-[#B0B0B8] hover:bg-[#1E1E27] hover:text-white transition-colors"
                     >
-                      Report as Spam
+                      {t('post.report')} {t('action.delete').toLowerCase()}
                     </button>
                     <button
                       onClick={() => handleReport('inappropriate')}
                       className="w-full px-4 py-2.5 text-left text-sm text-[#B0B0B8] hover:bg-[#1E1E27] hover:text-white transition-colors"
                     >
-                      Inappropriate Content
+                      {t('post.report')} {t('action.delete').toLowerCase()}
                     </button>
                     <button
                       onClick={() => handleReport('copyright')}
                       className="w-full px-4 py-2.5 text-left text-sm text-[#B0B0B8] hover:bg-[#1E1E27] hover:text-white transition-colors"
                     >
-                      Copyright Issue
+                      Copyright {t('action.delete')}
                     </button>
                   </motion.div>
                 )}
@@ -316,7 +318,7 @@ export default function PostDetail() {
               {/* 浏览数 */}
               <div className="flex items-center gap-1 text-[#6B6B78] text-xs">
                 <Eye className="w-3 h-3" />
-                {post.views_count || 0} views
+                {post.views_count || 0} {t('post.comments').toLowerCase()}
               </div>
             </div>
           </motion.div>
@@ -353,11 +355,11 @@ export default function PostDetail() {
               <div className="flex gap-6 text-sm">
                 <div>
                   <span className="text-white font-semibold">{post.author?.followers_count || 0}</span>
-                  <span className="text-[#6B6B78] ml-1">Followers</span>
+                  <span className="text-[#6B6B78] ml-1">{t('profile.followers')}</span>
                 </div>
                 <div>
                   <span className="text-white font-semibold">{post.author?.following_count || 0}</span>
-                  <span className="text-[#6B6B78] ml-1">Following</span>
+                  <span className="text-[#6B6B78] ml-1">{t('profile.following')}</span>
                 </div>
               </div>
 
@@ -371,7 +373,7 @@ export default function PostDetail() {
             {/* 互动栏 */}
             <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-white font-semibold">This Post</h3>
+                <h3 className="text-white font-semibold">{t('post.share')}</h3>
               </div>
               <div className="flex items-center gap-3">
                 <LikeButton
@@ -396,7 +398,7 @@ export default function PostDetail() {
             {/* 评论区 */}
             <div id="comments" className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-4">
               <h3 className="text-white font-semibold">
-                Comments
+                {t('post.comments')}
                 <span className="text-[#6B6B78] font-normal ml-2 text-sm">({comments.length})</span>
               </h3>
 
@@ -404,7 +406,7 @@ export default function PostDetail() {
               <div className="space-y-4 max-h-80 overflow-y-auto scrollbar-thin">
                 {comments.length === 0 ? (
                   <p className="text-[#6B6B78] text-sm text-center py-8">
-                    No comments yet. Be the first to comment!
+                    {t('profile.no_posts')}. Be the first to {t('post.comments').toLowerCase()}!
                   </p>
                 ) : (
                   comments.map(comment => (
@@ -442,12 +444,12 @@ export default function PostDetail() {
                 </div>
               ) : (
                 <div className="text-center py-4 space-y-2">
-                  <p className="text-[#6B6B78] text-sm">Sign in to leave a comment</p>
+                  <p className="text-[#6B6B78] text-sm">{t('auth.sign_in_to_generate')} {t('post.comments').toLowerCase()}</p>
                   <button
                     onClick={() => navigate('/login')}
                     className="px-6 py-2 bg-[#9E2B25] text-white rounded-full text-sm font-medium hover:bg-[#B8342D] transition-colors"
                   >
-                    Sign In
+                    {t('auth.sign_in')}
                   </button>
                 </div>
               )}

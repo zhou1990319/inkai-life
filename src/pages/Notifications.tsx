@@ -14,6 +14,7 @@ import { supabase } from '../supabase/client';
 import type { Database } from '../supabase/types';
 import { Avatar, EmptyState } from '../components/Community';
 import { NotificationService } from '../services/community';
+import { useLanguage } from '../contexts/LanguageContext';
 
 type Notification = Database['public']['Tables']['notifications']['Row'];
 type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -32,6 +33,7 @@ const NOTIFICATION_CONFIG: Record<NotificationType, {
 };
 
 export default function Notifications() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<Profile | null>(null);
   const [notifications, setNotifications] = useState<Array<Notification & { actor: Profile }>>([]);

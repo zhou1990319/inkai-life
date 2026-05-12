@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Heart, MessageCircle, Sparkles, ArrowRight, Flame, Star } from 'lucide-react';
 import { supabase } from '../supabase/client';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const CATEGORIES = [
   { id: 'ink-wash', name: 'Ink Wash',  icon: '⛰️', desc: 'Traditional landscape' },
@@ -31,6 +32,7 @@ interface Post {
 }
 
 export default function Home() {
+  const { t } = useLanguage();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -79,11 +81,10 @@ export default function Home() {
 
           {/* Tagline */}
           <p className="text-lg md:text-xl text-[#B0B0B8] mb-2 font-light tracking-widest">
-            Where Ancient Art Meets Modern AI
+            {t('home.hero_subtitle')}
           </p>
           <p className="text-[#6B6B78] mb-9 max-w-xl mx-auto text-sm leading-relaxed">
-            Create stunning Chinese traditional tattoo designs with AI.
-            Explore ink wash, dragons, koi fish, and more timeless symbols.
+            {t('home.hero_title')}
           </p>
 
           {/* CTAs */}
@@ -93,13 +94,13 @@ export default function Home() {
               className="px-7 py-3 bg-[#9E2B25] text-white font-bold rounded-full hover:bg-[#B8342D] transition-colors flex items-center gap-2 text-sm shadow-[0_0_20px_rgba(159,43,37,0.4)]"
             >
               <Sparkles size={16} />
-              Create Your Design
+              {t('home.get_started')}
             </Link>
             <Link
               to="/explore"
               className="px-7 py-3 border border-[#2A2A36] text-[#B0B0B8] font-semibold rounded-full hover:border-[#CFAF6E]/40 hover:text-[#CFAF6E] transition-all text-sm"
             >
-              Explore Community
+              {t('home.view_examples')}
             </Link>
           </div>
         </motion.div>
@@ -111,13 +112,13 @@ export default function Home() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <Flame className="text-[#9E2B25]" size={18} />
-              Popular Styles
+              {t('home.feature_community_title')}
             </h2>
             <Link
               to="/explore"
               className="text-[#CFAF6E] hover:text-[#E0C580] flex items-center gap-1 text-xs transition-colors"
             >
-              View All <ArrowRight size={14} />
+              {t('home.view_examples')} <ArrowRight size={14} />
             </Link>
           </div>
           <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
@@ -155,12 +156,12 @@ export default function Home() {
 
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
-                <p className="text-[#CFAF6E] text-xs font-semibold tracking-widest uppercase mb-1">AI Studio</p>
+                <p className="text-[#CFAF6E] text-xs font-semibold tracking-widest uppercase mb-1">{t('ai.title')}</p>
                 <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                  AI-Powered Tattoo Design
+                  {t('home.feature_ai_title')}
                 </h3>
                 <p className="text-[#B0B0B8] text-sm max-w-md">
-                  Describe your vision, choose a style, and let AI create your unique tattoo design in seconds.
+                  {t('home.feature_ai_desc')}
                 </p>
               </div>
               <Link
@@ -168,7 +169,7 @@ export default function Home() {
                 className="px-6 py-3 bg-[#9E2B25] text-white font-bold rounded-full hover:bg-[#B8342D] transition-colors flex items-center gap-2 whitespace-nowrap text-sm shadow-[0_0_16px_rgba(159,43,37,0.35)]"
               >
                 <Sparkles size={16} />
-                Try AI Generator
+                {t('ai.generate')}
               </Link>
             </div>
 
@@ -184,7 +185,7 @@ export default function Home() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <Star className="text-[#CFAF6E]" size={18} />
-              Featured Works
+              {t('home.feature_artist_title')}
             </h2>
           </div>
 
@@ -233,7 +234,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
             <Star className="text-[#CFAF6E]" size={18} />
-            Top Artists
+            {t('home.feature_community_title')}
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {FEATURED_ARTISTS.map((artist, i) => (
@@ -250,7 +251,7 @@ export default function Home() {
                   className="w-14 h-14 rounded-full mx-auto mb-3 border-2 border-[#2A2A36] group-hover:border-[#CFAF6E]/40 transition-colors"
                 />
                 <h3 className="text-white font-semibold text-sm">{artist.name}</h3>
-                <p className="text-[#6B6B78] text-xs mt-0.5">{artist.works} works</p>
+                <p className="text-[#6B6B78] text-xs mt-0.5">{artist.works} {t('profile.posts').toLowerCase()}</p>
                 <div className="flex items-center justify-center gap-1 mt-2 text-[#CFAF6E] text-xs">
                   <Star size={12} fill="currentColor" /> {artist.rating}
                 </div>

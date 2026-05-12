@@ -11,6 +11,7 @@ import {
   Users, MapPin, Globe, Loader2, ChevronDown, X
 } from 'lucide-react';
 import { supabase } from '../supabase/client';
+import { useLanguage } from '../contexts/LanguageContext';
 import type { Database } from '../supabase/types';
 import {
   Avatar, FollowButton, PostCard, EmptyState, SkeletonCard
@@ -26,6 +27,7 @@ type DbProfile = Database['public']['Tables']['profiles']['Row'];
 type TabType = 'posts' | 'saved' | 'followers' | 'following';
 
 export default function ProfilePage() {
+  const { t } = useLanguage();
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<DbProfile | null>(null);
@@ -123,19 +125,19 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center">
         <EmptyState
           icon={<Users className="w-8 h-8 text-[#6B6B78]" />}
-          title="User not found"
-          description="This profile doesn't exist or may have been removed"
-          action={{ label: 'Back to Community', onClick: () => navigate('/explore') }}
+          title={t('common.error')}
+          description={t('common.error')}
+          action={{ label: t('nav.community'), onClick: () => navigate('/explore') }}
         />
       </div>
     );
   }
 
   const TABS: { id: TabType; label: string; icon: React.ElementType; count?: number }[] = [
-    { id: 'posts', label: 'Posts', icon: Grid3X3, count: profile?.followers_count || 0 },
-    { id: 'saved', label: 'Saved', icon: Bookmark },
-    { id: 'followers', label: 'Followers', icon: Users, count: profile?.followers_count || 0 },
-    { id: 'following', label: 'Following', icon: Heart, count: profile?.following_count || 0 },
+    { id: 'posts', label: t('profile.posts'), icon: Grid3X3, count: profile?.posts_count || 0 },
+    { id: 'saved', label: t('profile.saved'), icon: Bookmark },
+    { id: 'followers', label: t('profile.followers'), icon: Users, count: profile?.followers_count || 0 },
+    { id: 'following', label: t('profile.following'), icon: Heart, count: profile?.following_count || 0 },
   ];
 
   return (
@@ -210,14 +212,14 @@ export default function ProfilePage() {
                   className="hover:opacity-80 transition-opacity"
                 >
                   <span className="text-white font-semibold">{profile.followers_count || 0}</span>
-                  <span className="text-[#6B6B78] ml-1">Followers</span>
+                  <span className="text-[#6B6B78] ml-1">{t('profile.followers')}</span>
                 </button>
                 <button
                   onClick={() => setShowFollowModal('following')}
                   className="hover:opacity-80 transition-opacity"
                 >
                   <span className="text-white font-semibold">{profile.following_count || 0}</span>
-                  <span className="text-[#6B6B78] ml-1">Following</span>
+                  <span className="text-[#6B6B78] ml-1">{t('profile.following')}</span>
                 </button>
               </div>
             </div>
@@ -276,10 +278,10 @@ export default function ProfilePage() {
           posts.length === 0 ? (
             <EmptyState
               icon={<Grid3X3 className="w-8 h-8 text-[#6B6B78]" />}
-              title="No posts yet"
-              description={isOwnProfile ? 'Share your first tattoo work!' : 'This user has not posted anything yet'}
+              title={t('profile.no_posts')}
+              description={isOwnProfile ? t('create.post') + '!' : 'This user has not posted anything yet'}
               action={isOwnProfile ? {
-                label: 'Create Post',
+                label: t('create.title'),
                 onClick: () => navigate('/create'),
               } : undefined}
             />
@@ -302,9 +304,9 @@ export default function ProfilePage() {
           isOwnProfile ? (
             savedPosts.length === 0 ? (
               <EmptyState
-                icon={<Bookmark className="w-8 h-8 text-[#6B6B78]" />}
-                title="No saved posts"
-                description="Save posts you love to view them later"
+              icon={<Bookmark className="w-8 h-8 text-[#6B6B78]" />}
+              title={t('profile.saved')}
+              description="Save posts you love to view them later"
               />
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -381,9 +383,9 @@ export default function ProfilePage() {
               {loadingMore ? (
                 <div className="flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Loading...
+                  {t('common.loading')}...
                 </div>
-              ) : 'Load More'}
+              ) : t('explore.load_more')}
             </button>
           </div>
         )}
@@ -409,7 +411,7 @@ export default function ProfilePage() {
             >
               <div className="flex items-center justify-between p-4 border-b border-[#2A2A36]">
                 <h3 className="text-white font-semibold">
-                  {showFollowModal === 'followers' ? 'Followers' : 'Following'}
+                  {showFollowModal === 'followers' ? t('profile.followers') : t('profile.following')}
                 </h3>
                 <button
                   onClick={() => setShowFollowModal(null)}

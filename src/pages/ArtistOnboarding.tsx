@@ -4,6 +4,7 @@ import { Shield, CheckCircle, Clock, AlertCircle, ArrowLeft, Upload, Sparkles, P
 import { supabase } from '../supabase/client';
 import { uploadImage } from '../services/storage';
 import { useNavigate, Link } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const styles = [
   { id: 'ink-wash', name: 'Ink Wash 水墨', icon: '墨' },
@@ -19,6 +20,7 @@ const styles = [
 ];
 
 export default function ArtistOnboarding() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [step, setStep] = useState<'form' | 'success'>('form');
   const [loading, setLoading] = useState(false);

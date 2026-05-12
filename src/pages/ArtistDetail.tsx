@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../supabase/client';
+import { useLanguage } from '../contexts/LanguageContext';
 import {
   Heart, MessageCircle, MapPin, Globe, CheckCircle,
   MessageSquare, X, Send, ShoppingBag, Image,
@@ -55,6 +56,7 @@ interface Conversation {
 }
 
 export default function ArtistDetail() {
+  const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);

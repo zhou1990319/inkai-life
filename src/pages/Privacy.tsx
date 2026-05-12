@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
 import { Shield, Lock, Eye, Database, Cookie } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Privacy() {
+  const { t } = useLanguage();
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 py-20">
       <div className="max-w-4xl mx-auto px-4">

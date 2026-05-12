@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Copy, Check, Sparkles, BookOpen } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface PromptTemplate {
   id: string;
@@ -183,6 +184,7 @@ const PROMPT_TEMPLATES: PromptTemplate[] = [
 ];
 
 export default function Inspire() {
+  const { t } = useLanguage();
   const [activeStyle, setActiveStyle] = useState('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -210,9 +212,9 @@ export default function Inspire() {
               <BookOpen className="w-4.5 h-4.5 text-[#CFAF6E]" />
             </div>
             <div>
-              <h1 className="text-[17px] font-bold text-white leading-tight">Inspire</h1>
+              <h1 className="text-[17px] font-bold text-white leading-tight">{t('inspire.title')}</h1>
               <p className="text-[#6B6B78] text-[11px] tracking-wide">
-                Chinese tattoo prompt library — copy & paste into AI Studio
+                {t('inspire.subtitle')}
               </p>
             </div>
           </div>
@@ -227,7 +229,7 @@ export default function Inspire() {
                   : 'bg-[#18181F] text-[#B0B0B8] border border-[#2A2A36] hover:border-[#CFAF6E]/30 hover:text-white'
               }`}
             >
-              All Styles
+              {t('home.features_title')}
             </button>
             {PROMPT_TEMPLATES.map((t) => (
               <button
@@ -304,7 +306,7 @@ export default function Inspire() {
                               ? 'bg-emerald-500/15 text-emerald-400'
                               : 'bg-[#0B0B0E] text-[#6B6B78] hover:text-[#CFAF6E] hover:bg-[#CFAF6E]/8'
                           }`}
-                          title="Copy prompt"
+                          title={t('inspire.copy_prompt')}
                         >
                           {isCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                         </button>
@@ -324,7 +326,7 @@ export default function Inspire() {
                             : 'bg-[#0B0B0E] text-[#CFAF6E] border border-[#2A2A36] hover:border-[#CFAF6E]/40 hover:bg-[#CFAF6E]/5'
                         }`}
                       >
-                        {isCopied ? '✓ Copied!' : 'Copy Prompt'}
+                        {isCopied ? `${t('inspire.copied')}!` : t('inspire.copy_prompt')}
                       </button>
                     </div>
 
