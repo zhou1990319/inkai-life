@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 会员订阅服务 - Subscription Service
  * 处理会员计划、订阅、生成次数限制等
  * 
@@ -43,6 +43,7 @@ export interface PlanDetails {
   credits: number; // -1 = 无限
   creditsLabel: string;
   features: string[];
+  featuresZh: string[];
   highlight?: boolean; // 推荐标记
   badge?: string; // 角标
   watermark: boolean;
@@ -69,6 +70,12 @@ export const PLANS: Record<PlanType, PlanDetails> = {
       'Standard resolution',
       'With watermark',
     ],
+    featuresZh: [
+      '5次免费设计',
+      '8种纹身风格',
+      '标准分辨率',
+      '带水印',
+    ],
     watermark: true,
     resolution: '512x512',
     priorityQueue: false,
@@ -91,6 +98,13 @@ export const PLANS: Record<PlanType, PlanDetails> = {
       'HD resolution',
       'No watermark',
       'Reference image upload',
+    ],
+    featuresZh: [
+      '30次设计（一次性）',
+      '全部纹身风格',
+      '高清分辨率',
+      '无水印',
+      '参考图上传',
     ],
     badge: 'Best for trying out',
     watermark: false,
@@ -118,6 +132,15 @@ export const PLANS: Record<PlanType, PlanDetails> = {
       'Priority queue',
       'Email support',
     ],
+    featuresZh: [
+      '每月150次设计',
+      '全部纹身风格',
+      '高清分辨率',
+      '无水印',
+      '参考图上传',
+      '优先队列',
+      '邮件支持',
+    ],
     watermark: false,
     resolution: '1024x1024',
     priorityQueue: true,
@@ -143,6 +166,16 @@ export const PLANS: Record<PlanType, PlanDetails> = {
       'Priority queue',
       'Priority email support',
       'Best price guarantee',
+    ],
+    featuresZh: [
+      '每年1800次设计（150/月）',
+      '全部纹身风格',
+      '高清分辨率',
+      '无水印',
+      '参考图上传',
+      '优先队列',
+      '优先邮件支持',
+      '最优价格保证',
     ],
     highlight: true,
     badge: 'SAVE 50%',
@@ -173,6 +206,17 @@ export const PLANS: Record<PlanType, PlanDetails> = {
       'Commercial use license',
       'Priority support',
     ],
+    featuresZh: [
+      '每月500次设计',
+      '全部纹身风格',
+      '超高清分辨率',
+      '无水印',
+      '参考图上传',
+      '最快优先队列',
+      '工作室资料',
+      '商业使用授权',
+      '优先支持',
+    ],
     badge: 'For Artists',
     watermark: false,
     resolution: '2048x2048',
@@ -201,6 +245,18 @@ export const PLANS: Record<PlanType, PlanDetails> = {
       'Commercial use license',
       'VIP support',
       'API access',
+    ],
+    featuresZh: [
+      '每年6000次设计（500/月）',
+      '全部纹身风格',
+      '超高清分辨率',
+      '无水印',
+      '参考图上传',
+      '最快优先队列',
+      '工作室资料',
+      '商业使用授权',
+      'VIP支持',
+      'API访问',
     ],
     badge: 'SAVE 34%',
     watermark: false,
@@ -231,6 +287,19 @@ export const PLANS: Record<PlanType, PlanDetails> = {
       'VIP support',
       'API access',
       'Custom integration support',
+    ],
+    featuresZh: [
+      '无限次设计',
+      '全部纹身风格',
+      '最大分辨率',
+      '无水印',
+      '参考图上传',
+      '最高优先级',
+      '高级工作室资料',
+      '商业使用授权',
+      'VIP支持',
+      'API访问',
+      '自定义集成支持',
     ],
     badge: 'BEST VALUE',
     watermark: false,

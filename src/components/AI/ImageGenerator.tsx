@@ -6,15 +6,13 @@ import { persistGeneratedImage } from '../../services/storage';
 import { analyzeTattooMeaning } from '../../services/aiChat';
 import { useLanguage } from '../../contexts/LanguageContext';
 
-// 海外纹身风格选项 - 2行4列布局
+// 海外纹身风格选项 - 2?列布局
 const TATTOO_STYLES = [
-  // 第一排
-  { id: 'oriental', name: 'Oriental', nameZh: '中式', keywords: 'oriental style, traditional chinese art, ink wash painting' },
+  // 第一?  { id: 'oriental', name: 'Oriental', nameZh: '中式', keywords: 'oriental style, traditional chinese art, ink wash painting' },
   { id: 'japanese', name: 'Japanese', nameZh: '日式', keywords: 'japanese tattoo, irezumi, traditional japanese art, bold outlines' },
   { id: 'american-traditional', name: 'American Traditional', nameZh: '美式传统', keywords: 'american traditional tattoo, bold lines, vibrant colors, classic sailor jerry style' },
-  { id: 'neo-traditional', name: 'Neo-Traditional', nameZh: '新传统', keywords: 'neo-traditional tattoo, bold colors, detailed illustrations, modern interpretation' },
-  // 第二排
-  { id: 'blackwork', name: 'Dark & Blackwork', nameZh: '暗黑黑灰', keywords: 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, gothic style' },
+  { id: 'neo-traditional', name: 'Neo-Traditional', nameZh: '新传?, keywords: 'neo-traditional tattoo, bold colors, detailed illustrations, modern interpretation' },
+  // 第二?  { id: 'blackwork', name: 'Dark & Blackwork', nameZh: '暗黑黑灰', keywords: 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, gothic style' },
   { id: 'watercolor', name: 'Watercolor', nameZh: '水彩', keywords: 'watercolor tattoo style, ink wash effect, flowing colors, artistic brush strokes' },
   { id: 'minimalist', name: 'Minimalist', nameZh: '极简线条', keywords: 'minimalist tattoo, fine line work, delicate designs, single needle technique' },
   { id: 'realism', name: 'Realism', nameZh: '写实', keywords: 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo' },
@@ -32,12 +30,12 @@ const STYLE_KEYWORDS_MAP: Record<string, string> = {
   'realism': 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo, life-like rendering, high detail',
 };
 
-// 身体部位选项 - name: 英文(AI用), nameZh: 中文(UI显示)
+// 身体部位选项 - name: 英文(AI?, nameZh: 中文(UI显示)
 const BODY_PARTS = [
   { id: 'arm', name: 'arm', nameZh: '手臂', icon: '💪' },
   { id: 'back', name: 'back', nameZh: '背部', icon: '👤' },
   { id: 'chest', name: 'chest', nameZh: '胸部', icon: '❤️' },
-  { id: 'wrist', name: 'wrist', nameZh: '手腕', icon: '⌚' },
+  { id: 'wrist', name: 'wrist', nameZh: '手腕', icon: '? },
   { id: 'collarbone', name: 'collarbone', nameZh: '锁骨', icon: '🦴' },
   { id: 'thigh', name: 'thigh', nameZh: '大腿', icon: '🦵' },
   { id: 'calf', name: 'calf', nameZh: '小腿', icon: '🦶' },
@@ -54,7 +52,8 @@ export default function ImageGenerator() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isZh = language === 'zh';
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
@@ -65,8 +64,7 @@ export default function ImageGenerator() {
       const styleKeywords = selectedStyle ? STYLE_KEYWORDS_MAP[selectedStyle] || '' : '';
       const bodyPartName = selectedBodyPart ? BODY_PARTS.find(b => b.id === selectedBodyPart)?.name : '';
       
-      // 构建完整提示词
-      const fullPrompt = [
+      // 构建完整提示?      const fullPrompt = [
         prompt,
         styleKeywords,
         bodyPartName ? `${bodyPartName} placement` : '',
@@ -85,11 +83,11 @@ export default function ImageGenerator() {
         setGeneratedImage(result.image_url);
         analyzeMeaning(fullPrompt);
       } else {
-        setError(result.error || '生成失败，请重试');
+        setError(result.error || (isZh ? '生成失败，请重试' : 'Generation failed, please try again'));
       }
     } catch (err) {
       console.error('Generation failed:', err);
-      setError(err instanceof Error ? err.message : '生成失败，请重试');
+      setError(err instanceof Error ? err.message : (isZh ? '生成失败，请重试' : 'Generation failed, please try again'));
     } finally {
       setIsGenerating(false);
     }
@@ -118,7 +116,7 @@ export default function ImageGenerator() {
     if (!generatedImage) return;
     try {
       await persistGeneratedImage(generatedImage);
-      alert('Saved to your gallery!');
+      alert(isZh ? '已保存到您的作品集！' : 'Saved to your gallery!');
     } catch (error) {
       console.error('Save failed:', error);
     }
@@ -150,7 +148,7 @@ export default function ImageGenerator() {
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="e.g., A majestic dragon soaring through clouds with cherry blossoms..."
+                placeholder={isZh ? '例如：一条雄伟的龙在樱花云中翱翔...' : 'e.g., A majestic dragon soaring through clouds with cherry blossoms...'}
                 className="w-full h-32 bg-slate-950 border border-slate-700 rounded-xl p-4 text-slate-200 placeholder-slate-500 focus:border-amber-500 focus:outline-none resize-none"
               />
             </div>
@@ -196,7 +194,7 @@ export default function ImageGenerator() {
             </div>
 
             <div className="mb-6">
-              <label className="block text-amber-400 font-medium mb-2">Reference Image (Optional)</label>
+              <label className="block text-amber-400 font-medium mb-2">{isZh ? '参考图（可选）' : 'Reference Image (Optional)'}</label>
               <button
                 onClick={() => fileInputRef.current?.click()}
                 className="w-full p-4 border-2 border-dashed border-slate-600 rounded-xl hover:border-amber-500/50 transition-colors flex items-center justify-center gap-2 text-slate-400"
@@ -274,7 +272,7 @@ export default function ImageGenerator() {
                     <div className="bg-slate-800/50 rounded-xl p-4 border border-amber-500/20">
                       <h3 className="text-amber-400 font-medium mb-2 flex items-center gap-2">
                         <Sparkles size={16} />
-                        Cultural Meaning
+                        {isZh ? '文化寓意' : 'Cultural Meaning'}
                       </h3>
                       <p className="text-slate-300 text-sm leading-relaxed">{culturalMeaning}</p>
                     </div>
@@ -289,7 +287,7 @@ export default function ImageGenerator() {
                   className="h-full flex flex-col items-center justify-center text-slate-500 min-h-[400px]"
                 >
                   <ImageIcon size={64} className="mb-4 opacity-50" />
-                  <p>Your tattoo design will appear here</p>
+                  <p>{isZh ? '您的纹身设计将显示在这里' : 'Your tattoo design will appear here'}</p>
                 </motion.div>
               )}
             </AnimatePresence>

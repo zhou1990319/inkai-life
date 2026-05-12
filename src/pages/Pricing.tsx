@@ -183,7 +183,7 @@ export default function Pricing({ user }: PricingProps) {
 
           {/* Features */}
           <div className="space-y-3">
-            {plan.features.map((feature, i) => (
+            {(isZh ? plan.featuresZh : plan.features).map((feature, i) => (
               <div key={i} className="flex items-start gap-3">
                 <Check className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
                 <span className="text-stone-300 text-sm">{feature}</span>
