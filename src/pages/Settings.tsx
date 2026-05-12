@@ -1,0 +1,329 @@
+// ============================================
+// InkAI 用户设置页面 (Settings)
+// 编辑个人资料、账号设置、退出登录
+// ============================================
+
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { User, Mail, Lock, Globe, MapPin, FileText, LogOut, Camera, Save, X, Check } from 'lucide-react';
+import { supabase } from '../supabase/client';
+import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import { uploadImage } from '../services/storage';
+import type { Database } from '../supabase/types';
+import { useLoginPrompt } from '../components/LoginPrompt';
+
+type Profile = Database['public']['Tables']['profiles']['Row'];
+
+export default function Settings() {
+  const { t } = useLanguage();
+  const { user, refreshUser, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { isOpen: loginPromptOpen, closePrompt: closeLoginPrompt } = useLoginPrompt();
+
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  // 表单状态
+  const [displayName, setDisplayName] = useState('');
+  const [bio, setBio] = useState('');
+  const [location, setLocation] = useState('');
+  const [website, setWebsite] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 加载用户资料
+  useEffect(() => {
+    if (!user) {
+      // 未登录，跳转到登录页
+      navigate('/login?redirect=/settings');
+      return;
+    }
+
+    setProfile(user);
+    setDisplayName(user.display_name || user.username || '');
+    setBio(user.bio || '');
+    setLocation(user.location || '');
+    setWebsite(user.website || '');
+    setAvatarUrl(user.avatar_url || '');
+    setLoading(false);
+  }, [user, navigate]);
+
+  // 头像预览
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image must be less than 5MB');
+      return;
+    }
+
+    setAvatarFile(file);
+    const reader = new FileReader();
+    reader.onload = () => setAvatarUrl(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  // 保存资料
+  const handleSave = async () => {
+    if (!user) return;
+    setSaving(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      let newAvatarUrl = avatarUrl;
+
+      // 上传新头像
+      if (avatarFile) {
+        const { url, error: uploadError } = await uploadImage(avatarFile, 'avatars');
+        if (uploadError) throw uploadError;
+        newAvatarUrl = url;
+      }
+
+      // 更新资料
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          display_name: displayName,
+          bio,
+          location,
+          website,
+          avatar_url: newAvatarUrl,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      // 刷新用户数据
+      await refreshUser();
+      setSuccess('Profile updated successfully!');
+    } catch (err: any) {
+      setError(err.message || 'Failed to update profile');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // 退出登录
+  const handleLogout = async () => {
+    if (!confirm('Are you sure you want to sign out?')) return;
+    await signOut();
+    navigate('/');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center">
+        <div className="w-10 h-10 border-2 border-[#9E2B25] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#0B0B0E]">
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-2xl font-bold text-white">{t('profile.settings') || 'Settings'}</h1>
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 text-[#6B6B78] hover:text-white transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Success/Error Messages */}
+        {success && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 p-3 bg-[#22C55E]/10 border border-[#22C55E]/30 rounded-xl text-[#22C55E] text-sm flex items-center gap-2"
+          >
+            <Check className="w-4 h-4" />
+            {success}
+          </motion.div>
+        )}
+
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 p-3 bg-[#9E2B25]/10 border border-[#9E2B25]/30 rounded-xl text-[#FF6B6B] text-sm"
+          >
+            {error}
+          </motion.div>
+        )}
+
+        {/* Avatar Section */}
+        <div className="bg-[#18181F] border border-[#2A2A36] rounded-2xl p-6 mb-4">
+          <h2 className="text-white font-semibold mb-4 flex items-center gap-2">
+            <User className="w-4 h-4 text-[#CFAF6E]" />
+            Profile Picture
+          </h2>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="w-20 h-20 rounded-full bg-[#2A2A36] overflow-hidden">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-[#6B6B78]">
+                    <User className="w-8 h-8" />
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute -bottom-1 -right-1 w-8 h-8 bg-[#9E2B25] rounded-full flex items-center justify-center text-white hover:bg-[#B8342D] transition-colors"
+              >
+                <Camera className="w-4 h-4" />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                className="hidden"
+              />
+            </div>
+            <div>
+              <p className="text-white font-medium">Profile Photo</p>
+              <p className="text-[#6B6B78] text-sm">JPG, PNG or GIF. Max 5MB.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Profile Info Section */}
+        <div className="bg-[#18181F] border border-[#2A2A36] rounded-2xl p-6 mb-4">
+          <h2 className="text-white font-semibold mb-4 flex items-center gap-2">
+            <FileText className="w-4 h-4 text-[#CFAF6E]" />
+            Profile Information
+          </h2>
+
+          <div className="space-y-4">
+            {/* Username (readonly) */}
+            <div>
+              <label className="block text-[#6B6B78] text-sm mb-2">{t('auth.username') || 'Username'}</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={profile?.username || ''}
+                  disabled
+                  className="flex-1 px-4 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-[#6B6B78] cursor-not-allowed"
+                />
+              </div>
+              <p className="text-[#6B6B78] text-xs mt-1">Username cannot be changed</p>
+            </div>
+
+            {/* Display Name */}
+            <div>
+              <label className="block text-[#6B6B78] text-sm mb-2">{t('profile.display_name') || 'Display Name'}</label>
+              <input
+                type="text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="w-full px-4 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-white focus:border-[#CFAF6E] focus:outline-none transition-colors"
+                placeholder="Your display name"
+                maxLength={50}
+              />
+            </div>
+
+            {/* Bio */}
+            <div>
+              <label className="block text-[#6B6B78] text-sm mb-2">Bio</label>
+              <textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                className="w-full px-4 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-white focus:border-[#CFAF6E] focus:outline-none transition-colors resize-none"
+                placeholder="Tell us about yourself..."
+                rows={3}
+                maxLength={300}
+              />
+              <p className="text-[#6B6B78] text-xs mt-1">{bio.length}/300</p>
+            </div>
+
+            {/* Location */}
+            <div>
+              <label className="block text-[#6B6B78] text-sm mb-2 flex items-center gap-1">
+                <MapPin className="w-3 h-3" />
+                Location
+              </label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="w-full px-4 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-white focus:border-[#CFAF6E] focus:outline-none transition-colors"
+                placeholder="City, Country"
+                maxLength={100}
+              />
+            </div>
+
+            {/* Website */}
+            <div>
+              <label className="block text-[#6B6B78] text-sm mb-2 flex items-center gap-1">
+                <Globe className="w-3 h-3" />
+                Website
+              </label>
+              <input
+                type="url"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+                className="w-full px-4 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-white focus:border-[#CFAF6E] focus:outline-none transition-colors"
+                placeholder="https://yourwebsite.com"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Email Section (readonly) */}
+        <div className="bg-[#18181F] border border-[#2A2A36] rounded-2xl p-6 mb-4">
+          <h2 className="text-white font-semibold mb-4 flex items-center gap-2">
+            <Mail className="w-4 h-4 text-[#CFAF6E]" />
+            Email
+          </h2>
+          <input
+            type="email"
+            value={profile?.email || user?.email || ''}
+            disabled
+            className="w-full px-4 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-[#6B6B78] cursor-not-allowed"
+          />
+          <p className="text-[#6B6B78] text-xs mt-2">Contact support to change your email address</p>
+        </div>
+
+        {/* Save Button */}
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="w-full py-3 bg-[#9E2B25] text-white font-bold rounded-xl hover:bg-[#B8342D] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 mb-4"
+        >
+          {saving ? (
+            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          ) : (
+            <>
+              <Save className="w-5 h-5" />
+              Save Changes
+            </>
+          )}
+        </button>
+
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          className="w-full py-3 bg-[#18181F] border border-[#9E2B25]/30 text-[#FF6B6B] font-medium rounded-xl hover:bg-[#9E2B25]/10 transition-all flex items-center justify-center gap-2"
+        >
+          <LogOut className="w-5 h-5" />
+          Sign Out
+        </button>
+      </div>
+    </div>
+  );
+}

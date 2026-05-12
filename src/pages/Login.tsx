@@ -1,89 +1,110 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { supabase } from '../supabase/client';
+import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Login() {
   const { t } = useLanguage();
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/';
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error: signInError } = await signIn(email, password);
 
-    if (error) {
-      setError(error.message);
+    if (signInError) {
+      if (signInError.message?.includes('Invalid login credentials')) {
+        setError('Incorrect email or password. Please try again.');
+      } else if (signInError.message?.includes('Email not confirmed')) {
+        setError('Please verify your email first. Check your inbox for the confirmation link.');
+      } else {
+        setError(signInError.message || 'Sign in failed. Please try again.');
+      }
+      setLoading(false);
     } else {
-      navigate('/');
+      // 登录成功，跳转到来源页面
+      navigate(redirectTo);
     }
-    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-stone-900/50 border border-amber-600/20 rounded-2xl p-8"
+        className="w-full max-w-md bg-[#18181F] border border-[#2A2A36] rounded-2xl p-8"
       >
+        {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-amber-400 mb-2">{t('auth.welcome_back')}</h1>
-          <p className="text-stone-400">{t('auth.sign_in_to_continue')}</p>
+          <Link to="/" className="inline-flex items-center gap-2 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-[#18181F] border border-[#2A2A36] flex items-center justify-center">
+              <span className="text-[#CFAF6E] font-bold text-lg">墨</span>
+            </div>
+            <span className="text-xl font-bold text-white">InkAI<span className="text-[#CFAF6E]">.life</span></span>
+          </Link>
+          <h1 className="text-2xl font-bold text-white mb-2">{t('auth.welcome_back')}</h1>
+          <p className="text-[#6B6B78]">{t('auth.sign_in_to_continue')}</p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 p-3 bg-[#9E2B25]/10 border border-[#9E2B25]/30 rounded-xl text-[#FF6B6B] text-sm"
+          >
             {error}
-          </div>
+          </motion.div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Email */}
           <div>
-            <label className="block text-amber-400 text-sm mb-2">{t('auth.email')}</label>
+            <label className="block text-[#CFAF6E] text-sm font-medium mb-2">{t('auth.email')}</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 w-5 h-5" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B6B78]" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-stone-950 border border-stone-700 rounded-lg py-3 pl-10 pr-4 text-white focus:border-amber-500 focus:outline-none"
-                placeholder={t('auth.enter_email')}
+                className="w-full pl-10 pr-4 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-white placeholder-[#6B6B78] focus:border-[#CFAF6E] focus:outline-none transition-colors"
+                placeholder={t('auth.enter_email') || 'Enter your email'}
                 required
               />
             </div>
           </div>
 
+          {/* Password */}
           <div>
-            <label className="block text-amber-400 text-sm mb-2">{t('auth.password')}</label>
+            <label className="block text-[#CFAF6E] text-sm font-medium mb-2">{t('auth.password')}</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 w-5 h-5" />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B6B78]" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-stone-950 border border-stone-700 rounded-lg py-3 pl-10 pr-12 text-white focus:border-amber-500 focus:outline-none"
-                placeholder={t('auth.enter_password')}
+                className="w-full pl-10 pr-12 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-white placeholder-[#6B6B78] focus:border-[#CFAF6E] focus:outline-none transition-colors"
+                placeholder={t('auth.enter_password') || 'Enter your password'}
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 hover:text-amber-400"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B6B78] hover:text-white transition-colors"
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
           </div>
@@ -91,20 +112,34 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-700 text-stone-950 font-bold rounded-lg hover:from-amber-500 hover:to-amber-600 disabled:opacity-50 transition-all"
+            className="w-full py-3 bg-[#9E2B25] text-white font-bold rounded-xl hover:bg-[#B8342D] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
           >
-            {loading ? t('auth.signing_in') : t('auth.sign_in')}
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <>
+                <LogIn className="w-5 h-5" />
+                {t('auth.sign_in')}
+              </>
+            )}
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-stone-400">
+        <div className="mt-6 text-center space-y-2">
+          <p className="text-[#6B6B78]">
             {t('auth.no_account')}{' '}
-            <Link to="/register" className="text-amber-400 hover:underline">
+            <Link to="/register" className="text-[#CFAF6E] hover:underline font-medium">
               {t('auth.sign_up_link')}
             </Link>
           </p>
         </div>
+
+        {/* 登录后跳转提示 */}
+        {redirectTo !== '/' && (
+          <p className="text-center mt-4 text-[#6B6B78] text-xs">
+            After signing in, you'll be redirected to {redirectTo}
+          </p>
+        )}
       </motion.div>
     </div>
   );

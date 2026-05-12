@@ -26,6 +26,14 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.sign_in': 'Sign In',
     'nav.profile': 'Profile',
     'nav.notifications': 'Notifications',
+    'nav.post': 'Post',
+    'nav.alerts': 'Alerts',
+    'nav.me': 'Me',
+    
+    // Home Page - Popular Styles
+    'home.popular_styles': 'Popular Tattoo Styles',
+    'home.explore_all': 'Explore All',
+    'home.trending': 'Trending',
 
     // AI Generator
     'ai.title': 'AI Tattoo Generator',
@@ -100,6 +108,27 @@ const translations: Record<Language, Record<string, string>> = {
     'auth.sign_in_link': 'Sign in',
     'auth.agree_terms': 'I agree to the',
     'auth.terms_of_service': 'Terms of Service',
+    'auth.sign_up': 'Sign Up',
+    'auth.sign_in_required': 'Sign in required',
+    'auth.sign_in_desc': 'Please sign in to continue',
+    'auth.login_to_post': 'Sign in to share your work',
+    'auth.login_to_post_desc': 'Join our community of tattoo enthusiasts',
+    'auth.login_to_like': 'Sign in to like',
+    'auth.login_to_like_desc': 'Show your appreciation for amazing artwork',
+    'auth.login_to_comment': 'Sign in to comment',
+    'auth.login_to_comment_desc': 'Share your thoughts with the community',
+    'auth.login_to_generate': 'Sign in to create',
+    'auth.login_to_generate_desc': 'Access AI-powered tattoo design tools',
+    'auth.login_to_save': 'Sign in to save',
+    'auth.login_to_save_desc': 'Bookmark your favorite tattoo designs',
+    'auth.login_to_follow': 'Sign in to follow',
+    'auth.login_to_follow_desc': 'Connect with your favorite artists',
+    'auth.confirm_email': 'Check your email',
+    'auth.go_to_signin': 'Go to Sign In',
+    
+    // Profile
+    'profile.settings': 'Settings',
+    'profile.display_name': 'Display Name',
 
     // Styles
     'style.oriental': 'Oriental',

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './supabase/client';
 import type { Database } from './supabase/types';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import LoginPrompt from './components/LoginPrompt';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
@@ -26,37 +28,18 @@ import Privacy from './pages/Privacy';
 import Disclaimer from './pages/Disclaimer';
 import Pricing from './pages/Pricing';
 import Notifications from './pages/Notifications';
+import Settings from './pages/Settings';
 
-function App() {
-  const [user, setUser] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+// 内容包装器，处理登录提示
+function AppContent() {
+  const { user, loading } = useAuth();
+  const [loginPrompt, setLoginPrompt] = useState(false);
 
+  // 监听需要登录的事件
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-        setUser(data);
-      }
-      setLoading(false);
-    };
-
-    getUser();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        supabase.from('profiles').select('*').eq('id', session.user.id).single()
-          .then(({ data }) => setUser(data));
-      } else {
-        setUser(null);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    const handleRequireLogin = () => setLoginPrompt(true);
+    window.addEventListener('requireLogin', handleRequireLogin);
+    return () => window.removeEventListener('requireLogin', handleRequireLogin);
   }, []);
 
   if (loading) {
@@ -72,70 +55,84 @@ function App() {
   }
 
   return (
-    <LanguageProvider>
-      <HashRouter>
-        <div className="min-h-screen bg-[#0B0B0E] text-white">
-          <Header user={user} />
-        <main className="pb-20 min-h-screen">
-          <AnimatePresence mode="wait">
-            <Routes>
-              {/* 首页 */}
-              <Route path="/" element={<Home />} />
+    <>
+      <Header user={user} />
+      <main className="pb-20 min-h-screen">
+        <AnimatePresence mode="wait">
+          <Routes>
+            {/* 首页 */}
+            <Route path="/" element={<Home />} />
 
-              {/* 社区 */}
-              <Route path="/explore" element={<Explore />} />
+            {/* 社区 */}
+            <Route path="/explore" element={<Explore />} />
 
-              {/* 帖子详情 */}
-              <Route path="/post/:id" element={<PostDetail />} />
+            {/* 帖子详情 */}
+            <Route path="/post/:id" element={<PostDetail />} />
 
-              {/* 用户主页 */}
-              <Route path="/profile/:username?" element={<Profile />} />
+            {/* 用户主页 */}
+            <Route path="/profile/:username?" element={<Profile />} />
 
-              {/* 发布帖子（需登录） */}
-              <Route
-                path="/create"
-                element={user ? <Create /> : <Navigate to="/login" />}
-              />
+            {/* 发布帖子（需登录） */}
+            <Route
+              path="/create"
+              element={user ? <Create /> : <Navigate to="/login?redirect=/create" />}
+            />
 
-              {/* 灵感模板库 */}
-              <Route path="/inspire" element={<Inspire />} />
+            {/* 灵感模板库 */}
+            <Route path="/inspire" element={<Inspire />} />
 
-              {/* 通知中心（需登录） */}
-              <Route
-                path="/notifications"
-                element={user ? <Notifications /> : <Navigate to="/login" />}
-              />
+            {/* 通知中心（需登录） */}
+            <Route
+              path="/notifications"
+              element={user ? <Notifications /> : <Navigate to="/login?redirect=/notifications" />}
+            />
 
-              {/* AI 工作室（需登录） */}
-              <Route path="/ai-studio" element={<AIGenerator user={user} />} />
+            {/* AI 工作室（需登录） */}
+            <Route path="/ai-studio" element={<AIGenerator user={user} />} />
 
-              {/* 艺术家主页 */}
-              <Route path="/artist/:id" element={<ArtistDetail />} />
+            {/* 艺术家主页 */}
+            <Route path="/artist/:id" element={<ArtistDetail />} />
 
-              {/* 艺术家申请（需登录） */}
-              <Route
-                path="/artist-apply"
-                element={user ? <ArtistOnboarding /> : <Navigate to="/login" />}
-              />
+            {/* 艺术家申请（需登录） */}
+            <Route
+              path="/artist-apply"
+              element={user ? <ArtistOnboarding /> : <Navigate to="/login?redirect=/artist-apply" />}
+            />
 
-              {/* 定价 */}
-              <Route path="/pricing" element={<Pricing user={user} />} />
+            {/* 定价 */}
+            <Route path="/pricing" element={<Pricing user={user} />} />
 
-              {/* 认证 */}
-              <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
-              <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
+            {/* 认证 */}
+            <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
+            <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
 
               {/* 法律 */}
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/disclaimer" element={<Disclaimer />} />
-            </Routes>
-          </AnimatePresence>
-        </main>
-        <Footer />
-        <BottomNav user={user} />
-      </div>
-      </HashRouter>
+
+              {/* 设置 */}
+              <Route path="/settings" element={<Settings />} />
+          </Routes>
+        </AnimatePresence>
+      </main>
+      <Footer />
+      <BottomNav user={user} />
+      <LoginPrompt isOpen={loginPrompt} onClose={() => setLoginPrompt(false)} />
+    </>
+  );
+}
+
+function App() {
+  return (
+    <LanguageProvider>
+      <AuthProvider>
+        <HashRouter>
+          <div className="min-h-screen bg-[#0B0B0E] text-white">
+            <AppContent />
+          </div>
+        </HashRouter>
+      </AuthProvider>
     </LanguageProvider>
   );
 }

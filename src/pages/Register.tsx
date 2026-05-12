@@ -1,121 +1,256 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, Mail, Lock, Sparkles } from 'lucide-react';
-import { supabase } from '../supabase/client';
+import { User, Mail, Lock, Sparkles, Eye, EyeOff, Check, X } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Register() {
   const { t } = useLanguage();
+  const { signUp } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/';
+
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const [success, setSuccess] = useState(false);
+
+  // 密码强度检查
+  const passwordChecks = [
+    { test: password.length >= 8, label: '8+ characters' },
+    { test: /[A-Z]/.test(password), label: 'Uppercase letter' },
+    { test: /[a-z]/.test(password), label: 'Lowercase letter' },
+    { test: /[0-9]/.test(password), label: 'Number' },
+  ];
+  const strengthScore = passwordChecks.filter(c => c.test).length;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { username, display_name: username }
-        }
-      });
+    // 基本验证
+    if (username.length < 3) {
+      setError('Username must be at least 3 characters');
+      setLoading(false);
+      return;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      setError('Username can only contain letters, numbers, and underscores');
+      setLoading(false);
+      return;
+    }
+    if (strengthScore < 3) {
+      setError('Password is too weak. Please include uppercase, lowercase, and numbers.');
+      setLoading(false);
+      return;
+    }
 
-      if (error) throw error;
-      navigate('/');
+    try {
+      const { error: signUpError, needsConfirmation } = await signUp(email, password, username);
+      
+      if (signUpError) throw signUpError;
+      
+      if (needsConfirmation) {
+        // 需要邮箱验证
+        setSuccess(true);
+      } else {
+        // 注册成功，直接跳转
+        navigate(redirectTo);
+      }
     } catch (err: any) {
-      setError(err.message);
+      if (err.message?.includes('already registered')) {
+        setError('This email is already registered. Try signing in.');
+      } else {
+        setError(err.message || 'Registration failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  if (success) {
+    return (
+      <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-md bg-[#18181F] border border-[#2A2A36] rounded-2xl p-8 text-center"
+        >
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#9E2B25]/20 flex items-center justify-center">
+            <Mail className="w-8 h-8 text-[#9E2B25]" />
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-3">{t('auth.confirm_email') || 'Check your email'}</h1>
+          <p className="text-[#B0B0B8] mb-6">
+            We've sent a confirmation link to <span className="text-[#CFAF6E]">{email}</span>. 
+            Please click the link to activate your account.
+          </p>
+          <button
+            onClick={() => navigate('/login')}
+            className="w-full py-3 bg-[#9E2B25] text-white font-bold rounded-xl hover:bg-[#B8342D] transition-colors"
+          >
+            {t('auth.go_to_signin') || 'Go to Sign In'}
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-slate-900/50 border border-amber-500/20 rounded-2xl p-8"
+        className="w-full max-w-md bg-[#18181F] border border-[#2A2A36] rounded-2xl p-8"
       >
+        {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center">
-            <Sparkles className="w-8 h-8 text-white" />
-          </div>
+          <Link to="/" className="inline-flex items-center gap-2 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-[#18181F] border border-[#2A2A36] flex items-center justify-center">
+              <span className="text-[#CFAF6E] font-bold text-lg">墨</span>
+            </div>
+            <span className="text-xl font-bold text-white">InkAI<span className="text-[#CFAF6E]">.life</span></span>
+          </Link>
           <h1 className="text-2xl font-bold text-white mb-2">{t('auth.create_account')}</h1>
-          <p className="text-slate-400">{t('auth.join_community')}</p>
+          <p className="text-[#6B6B78]">{t('auth.join_community')}</p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 p-3 bg-[#9E2B25]/10 border border-[#9E2B25]/30 rounded-xl text-[#FF6B6B] text-sm"
+          >
             {error}
-          </div>
+          </motion.div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Username */}
           <div>
-            <label className="block text-amber-400 text-sm font-medium mb-2">{t('auth.username')}</label>
+            <label className="block text-[#CFAF6E] text-sm font-medium mb-2">{t('auth.username')}</label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B6B78]" />
               <input
                 type="text"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none"
-                placeholder={t('auth.choose_username')}
+                onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                className="w-full pl-10 pr-4 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-white placeholder-[#6B6B78] focus:border-[#CFAF6E] focus:outline-none transition-colors"
+                placeholder={t('auth.choose_username') || 'Choose a username'}
                 required
+                minLength={3}
+                pattern="[a-zA-Z0-9_]+"
               />
             </div>
+            <p className="text-[#6B6B78] text-xs mt-1">Letters, numbers, and underscores only</p>
           </div>
 
+          {/* Email */}
           <div>
-            <label className="block text-amber-400 text-sm font-medium mb-2">{t('auth.email')}</label>
+            <label className="block text-[#CFAF6E] text-sm font-medium mb-2">{t('auth.email')}</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B6B78]" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none"
-                placeholder={t('auth.enter_email')}
+                className="w-full pl-10 pr-4 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-white placeholder-[#6B6B78] focus:border-[#CFAF6E] focus:outline-none transition-colors"
+                placeholder={t('auth.enter_email') || 'Enter your email'}
                 required
               />
             </div>
           </div>
 
+          {/* Password */}
           <div>
-            <label className="block text-amber-400 text-sm font-medium mb-2">{t('auth.password')}</label>
+            <label className="block text-[#CFAF6E] text-sm font-medium mb-2">{t('auth.password')}</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B6B78]" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none"
-                placeholder={t('auth.create_password')}
+                className="w-full pl-10 pr-12 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-white placeholder-[#6B6B78] focus:border-[#CFAF6E] focus:outline-none transition-colors"
+                placeholder={t('auth.create_password') || 'Create a password'}
                 required
+                minLength={8}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B6B78] hover:text-white transition-colors"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
             </div>
+            
+            {/* Password strength */}
+            {password && (
+              <div className="mt-2">
+                <div className="flex gap-1 mb-2">
+                  {[1, 2, 3, 4].map((level) => (
+                    <div
+                      key={level}
+                      className={`h-1 flex-1 rounded-full transition-colors ${
+                        strengthScore >= level
+                          ? strengthScore <= 2 ? 'bg-[#9E2B25]' 
+                          : strengthScore === 3 ? 'bg-[#D97706]' 
+                          : 'bg-[#22C55E]'
+                          : 'bg-[#2A2A36]'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <div className="space-y-1">
+                  {passwordChecks.map((check, i) => (
+                    <div key={i} className="flex items-center gap-2 text-xs">
+                      {check.test ? (
+                        <Check className="w-3 h-3 text-[#22C55E]" />
+                      ) : (
+                        <X className="w-3 h-3 text-[#6B6B78]" />
+                      )}
+                      <span className={check.test ? 'text-[#22C55E]' : 'text-[#6B6B78]'}>
+                        {check.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* Terms */}
+          <p className="text-[#6B6B78] text-xs text-center">
+            By signing up, you agree to our{' '}
+            <Link to="/terms" className="text-[#CFAF6E] hover:underline">Terms</Link>
+            {' '}and{' '}
+            <Link to="/privacy" className="text-[#CFAF6E] hover:underline">Privacy Policy</Link>
+          </p>
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold rounded-lg hover:from-amber-400 hover:to-amber-500 disabled:opacity-50 transition-all"
+            disabled={loading || strengthScore < 3}
+            className="w-full py-3 bg-[#9E2B25] text-white font-bold rounded-xl hover:bg-[#B8342D] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
           >
-            {loading ? t('auth.creating') : t('auth.create_account')}
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <>
+                <Sparkles className="w-5 h-5" />
+                {t('auth.create_account')}
+              </>
+            )}
           </button>
         </form>
 
-        <p className="text-center mt-6 text-slate-400">
+        <p className="text-center mt-6 text-[#6B6B78]">
           {t('auth.has_account')}{' '}
-          <Link to="/login" className="text-amber-400 hover:underline">
+          <Link to="/login" className="text-[#CFAF6E] hover:underline font-medium">
             {t('auth.sign_in_link')}
           </Link>
         </p>

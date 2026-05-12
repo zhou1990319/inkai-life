@@ -5,14 +5,21 @@ import { Heart, MessageCircle, Sparkles, ArrowRight, Flame, Star } from 'lucide-
 import { supabase } from '../supabase/client';
 import { useLanguage } from '../contexts/LanguageContext';
 
-const CATEGORIES = [
-  { id: 'ink-wash', name: 'Ink Wash',  icon: '⛰️', desc: 'Traditional landscape' },
-  { id: 'dragon',   name: 'Dragon',    icon: '🐉', desc: 'Power & prosperity' },
-  { id: 'phoenix',  name: 'Phoenix',   icon: '🔥', desc: 'Rebirth & grace' },
-  { id: 'koi',      name: 'Koi Fish',  icon: '🐟', desc: 'Luck & perseverance' },
-  { id: 'lotus',    name: 'Lotus',     icon: '🪷', desc: 'Purity & enlightenment' },
-  { id: 'tiger',    name: 'Tiger',     icon: '🐅', desc: 'Courage & strength' },
+// 纹身风格配置 - 点击跳转到社区筛选
+const TATTOO_STYLES = [
+  { id: 'chinese',            name: 'Chinese 中式',     icon: '🏯', tag: 'ChineseTattoo',     color: '#9E2B25' },
+  { id: 'japanese',           name: 'Japanese 日式',     icon: '⛩️', tag: 'JapaneseTattoo',   color: '#DC2626' },
+  { id: 'american-traditional',name: 'Traditional',     icon: '🦅', tag: 'Traditional',      color: '#EA580C' },
+  { id: 'neo-traditional',    name: 'Neo-Traditional',  icon: '🎨', tag: 'NeoTraditional',   color: '#D97706' },
+  { id: 'dark-blackwork',      name: 'Blackwork 暗黑',   icon: '🖤', tag: 'BlackAndGrey',     color: '#4B5563' },
+  { id: 'watercolor',          name: 'Watercolor 水彩',  icon: '💧', tag: 'WatercolorTattoo', color: '#0891B2' },
+  { id: 'minimalist',          name: 'Minimalist 极简',   icon: '✒️', tag: 'FineLineTattoo',  color: '#6B7280' },
+  { id: 'realism',             name: 'Realism 写实',      icon: '📸', tag: 'RealisticTattoo', color: '#7C3AED' },
+  { id: 'tribal',             name: 'Tribal 部落',       icon: '🔥', tag: 'GeometricTattoo', color: '#B45309' },
 ];
+
+// 推荐热门风格（海外用户最受欢迎的）
+const TRENDING_STYLES = ['JapaneseTattoo', 'Traditional', 'BlackAndGrey', 'FineLineTattoo'];
 
 const FEATURED_ARTISTS = [
   { id: '1', name: 'Master Chen',  avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=chen',   works: 128, rating: 4.9 },
@@ -106,35 +113,52 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* ── Categories ── */}
+      {/* ── Popular Styles ── */}
       <section className="py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <Flame className="text-[#9E2B25]" size={18} />
-              {t('home.feature_community_title')}
+              {t('home.popular_styles') || 'Popular Tattoo Styles'}
             </h2>
             <Link
               to="/explore"
               className="text-[#CFAF6E] hover:text-[#E0C580] flex items-center gap-1 text-xs transition-colors"
             >
-              {t('home.view_examples')} <ArrowRight size={14} />
+              {t('home.explore_all')} <ArrowRight size={14} />
             </Link>
           </div>
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-            {CATEGORIES.map((cat, i) => (
+          
+          {/* 风格网格 - 3行3列 */}
+          <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2">
+            {TATTOO_STYLES.map((style, i) => (
               <motion.div
-                key={cat.id}
+                key={style.id}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                className="group cursor-pointer"
+                transition={{ delay: i * 0.04 }}
               >
-                <div className="bg-[#18181F] border border-[#2A2A36] rounded-2xl p-4 text-center hover:border-[#9E2B25]/40 transition-all group-hover:bg-[#1E1E27]">
-                  <span className="text-2xl mb-2 block">{cat.icon}</span>
-                  <p className="text-white font-medium text-xs">{cat.name}</p>
-                  <p className="text-[#6B6B78] text-[10px] mt-0.5">{cat.desc}</p>
-                </div>
+                <Link
+                  to={`/explore?tag=${style.tag}`}
+                  className="block group"
+                >
+                  <div className={`
+                    bg-[#18181F] border border-[#2A2A36] rounded-xl p-3 text-center 
+                    hover:border-[${style.color}]/50 hover:bg-[#1E1E27] hover:scale-105
+                    transition-all duration-200 relative overflow-hidden
+                  `}>
+                    {/* Trending indicator */}
+                    {TRENDING_STYLES.includes(style.tag) && (
+                      <div className="absolute top-1 right-1">
+                        <span className="text-[8px] px-1 py-0.5 bg-[#9E2B25] text-white rounded-full">
+                          HOT
+                        </span>
+                      </div>
+                    )}
+                    <span className="text-2xl mb-1.5 block">{style.icon}</span>
+                    <p className="text-white font-medium text-[11px] leading-tight">{style.name}</p>
+                  </div>
+                </Link>
               </motion.div>
             ))}
           </div>
