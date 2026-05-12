@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, CheckCircle, Clock, AlertCircle, ArrowLeft, Upload, Sparkles } from 'lucide-react';
+import { Shield, CheckCircle, Clock, AlertCircle, ArrowLeft, Upload, Sparkles, Plus, Trash2, ExternalLink, Save, ShoppingBag } from 'lucide-react';
 import { supabase } from '../supabase/client';
 import { uploadImage } from '../services/storage';
 import { useNavigate, Link } from 'react-router-dom';
@@ -36,6 +36,12 @@ export default function ArtistOnboarding() {
   const [instagram, setInstagram] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  // Product management state
+  const [activeTab, setActiveTab] = useState<'apply' | 'products'>('apply');
+  const [products, setProducts] = useState<any[]>([]);
+  const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', product_link: '', image_url: '' });
+  const [savingProduct, setSavingProduct] = useState(false);
+
   useEffect(() => {
     checkUserAndApplication();
   }, []);
@@ -55,7 +61,9 @@ export default function ArtistOnboarding() {
     setUser(profile);
 
     if (profile?.is_artist) {
-      navigate('/profile');
+      // Verified artist - show product management
+      setUser(profile);
+      fetchProducts(session.user.id);
       return;
     }
 
@@ -66,6 +74,66 @@ export default function ArtistOnboarding() {
       .eq('user_id', session.user.id)
       .single();
     setExistingApplication(application);
+  };
+
+  // Fetch artist's products
+  const fetchProducts = async (artistId: string) => {
+    const { data } = await supabase
+      .from('artist_products')
+      .select('*')
+      .eq('artist_id', artistId)
+      .order('created_at', { ascending: false });
+    if (data) setProducts(data);
+  };
+
+  // Upload product image
+  const handleProductImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const { publicUrl } = await uploadImage(file, 'artist-products');
+    setNewProduct(prev => ({ ...prev, image_url: publicUrl }));
+  };
+
+  // Save new product
+  const handleSaveProduct = async () => {
+    if (!newProduct.name.trim()) {
+      setError('Product name is required');
+      return;
+    }
+    if (!user?.id) return;
+
+    setSavingProduct(true);
+    setError(null);
+
+    try {
+      const { error: insertError } = await supabase
+        .from('artist_products')
+        .insert({
+          artist_id: user.id,
+          name: newProduct.name.trim(),
+          description: newProduct.description.trim() || null,
+          price: newProduct.price.trim() || null,
+          product_link: newProduct.product_link.trim() || null,
+          image_url: newProduct.image_url || null,
+        });
+
+      if (insertError) throw insertError;
+
+      setNewProduct({ name: '', description: '', price: '', product_link: '', image_url: '' });
+      fetchProducts(user.id);
+    } catch (err: any) {
+      setError(err.message || 'Failed to save product');
+    } finally {
+      setSavingProduct(false);
+    }
+  };
+
+  // Delete product
+  const handleDeleteProduct = async (productId: string) => {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+
+    await supabase.from('artist_products').delete().eq('id', productId);
+    if (user?.id) fetchProducts(user.id);
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -237,6 +305,224 @@ export default function ArtistOnboarding() {
               Back to Home
             </Link>
           </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  // Verified Artist - Product Management Dashboard
+  if (user?.is_artist) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 pt-20 pb-24">
+        <div className="max-w-3xl mx-auto px-4">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-stone-400 hover:text-amber-500 mb-4 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </Link>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-red-600 flex items-center justify-center">
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Artist Dashboard</h1>
+                <p className="text-stone-400">Manage your profile and products</p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Tabs */}
+          <div className="flex gap-1 bg-stone-900/50 rounded-xl p-1 mb-6">
+            <button
+              onClick={() => setActiveTab('apply')}
+              className={`flex-1 py-3 rounded-lg transition-all ${
+                activeTab === 'apply' ? 'bg-amber-500 text-stone-950 font-medium' : 'text-stone-400'
+              }`}
+            >
+              Profile
+            </button>
+            <button
+              onClick={() => setActiveTab('products')}
+              className={`flex-1 py-3 rounded-lg transition-all flex items-center justify-center gap-2 ${
+                activeTab === 'products' ? 'bg-amber-500 text-stone-950 font-medium' : 'text-stone-400'
+              }`}
+            >
+              <ShoppingBag className="w-4 h-4" />
+              Products ({products.length})
+            </button>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div className="mb-4 p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-400 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5" />
+              {error}
+            </div>
+          )}
+
+          {/* Profile Tab */}
+          {activeTab === 'apply' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-stone-900/80 border border-stone-800 rounded-2xl p-6"
+            >
+              <div className="flex items-center gap-4 mb-6">
+                <CheckCircle className="w-8 h-8 text-amber-500" />
+                <div>
+                  <h2 className="text-xl font-bold text-white">Verified Artist</h2>
+                  <p className="text-stone-400 text-sm">Your profile is visible to all users</p>
+                </div>
+              </div>
+              <p className="text-stone-300">
+                Your artist profile is active. Users can view your works, purchase your products, and send you messages.
+              </p>
+              <Link
+                to={`/artist/${user.id}`}
+                className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-amber-500 text-stone-950 font-medium rounded-full hover:bg-amber-400 transition-colors"
+              >
+                View Public Profile
+              </Link>
+            </motion.div>
+          )}
+
+          {/* Products Tab */}
+          {activeTab === 'products' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
+              {/* Add Product Form */}
+              <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-6">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <Plus className="w-5 h-5 text-amber-500" />
+                  Add New Product
+                </h3>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-stone-400 text-sm mb-1">Product Name *</label>
+                      <input
+                        type="text"
+                        value={newProduct.name}
+                        onChange={(e) => setNewProduct(prev => ({ ...prev, name: e.target.value }))}
+                        placeholder="e.g., Custom Flash Design"
+                        className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-3 text-white placeholder-stone-500 focus:border-amber-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-stone-400 text-sm mb-1">Price</label>
+                      <input
+                        type="text"
+                        value={newProduct.price}
+                        onChange={(e) => setNewProduct(prev => ({ ...prev, price: e.target.value }))}
+                        placeholder="e.g., $200 - $500"
+                        className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-3 text-white placeholder-stone-500 focus:border-amber-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-stone-400 text-sm mb-1">Description</label>
+                    <textarea
+                      value={newProduct.description}
+                      onChange={(e) => setNewProduct(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Describe your product..."
+                      rows={2}
+                      className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-3 text-white placeholder-stone-500 focus:border-amber-500 focus:outline-none resize-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-stone-400 text-sm mb-1">Product Link</label>
+                    <input
+                      type="url"
+                      value={newProduct.product_link}
+                      onChange={(e) => setNewProduct(prev => ({ ...prev, product_link: e.target.value }))}
+                      placeholder="https://..."
+                      className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-3 text-white placeholder-stone-500 focus:border-amber-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-stone-400 text-sm mb-1">Product Image</label>
+                    <div className="flex items-center gap-4">
+                      {newProduct.image_url ? (
+                        <div className="relative w-24 h-24 rounded-xl overflow-hidden">
+                          <img src={newProduct.image_url} alt="Product" className="w-full h-full object-cover" />
+                          <button
+                            onClick={() => setNewProduct(prev => ({ ...prev, image_url: '' }))}
+                            className="absolute top-1 right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center"
+                          >
+                            <Trash2 className="w-3 h-3 text-white" />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="w-24 h-24 border-2 border-dashed border-stone-700 rounded-xl cursor-pointer hover:border-amber-500/50 flex items-center justify-center">
+                          <Upload className="w-6 h-6 text-stone-500" />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleProductImageUpload}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleSaveProduct}
+                    disabled={savingProduct}
+                    className="flex items-center gap-2 px-6 py-3 bg-amber-500 text-stone-950 font-medium rounded-full hover:bg-amber-400 disabled:opacity-50 transition-colors"
+                  >
+                    <Save className="w-4 h-4" />
+                    {savingProduct ? 'Saving...' : 'Save Product'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Product List */}
+              <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-6">
+                <h3 className="text-lg font-semibold text-white mb-4">Your Products</h3>
+                {products.length === 0 ? (
+                  <p className="text-stone-500 text-center py-8">No products yet. Add your first product above!</p>
+                ) : (
+                  <div className="space-y-4">
+                    {products.map(product => (
+                      <div key={product.id} className="flex items-center gap-4 p-4 bg-stone-800/50 rounded-xl">
+                        {product.image_url && (
+                          <img src={product.image_url} alt={product.name} className="w-16 h-16 rounded-lg object-cover" />
+                        )}
+                        <div className="flex-1">
+                          <h4 className="text-white font-medium">{product.name}</h4>
+                          {product.price && <p className="text-amber-500 text-sm">{product.price}</p>}
+                          {product.product_link && (
+                            <a href={product.product_link} target="_blank" rel="noopener noreferrer"
+                               className="text-stone-400 text-xs hover:text-amber-500 flex items-center gap-1 mt-1">
+                              <ExternalLink className="w-3 h-3" />
+                              {product.product_link.slice(0, 40)}...
+                            </a>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handleDeleteProduct(product.id)}
+                          className="p-2 text-stone-400 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
         </div>
       </div>
     );
