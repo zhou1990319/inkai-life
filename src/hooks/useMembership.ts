@@ -1,19 +1,35 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabase/client';
 import type { Database } from '../supabase/types';
+import { PLANS } from '../services/subscription';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
-export type PlanType = 'free' | 'monthly' | 'yearly' | 'lifetime';
+// Unified PlanType - consistent with subscription.ts
+export type PlanType = 'free' | 'starter' | 'basic_monthly' | 'basic_yearly' | 'pro_monthly' | 'pro_yearly' | 'unlimited';
 
-// 会员权益配置
-export const PLAN_BENEFITS = {
+// Plan benefits config - synced with subscription.ts PLANS
+export const PLAN_BENEFITS: Record<PlanType, {
+  dailyGenerations: number | null;
+  monthlyGenerations: number | null;
+  totalGenerations: number | null;
+  maxResolution: string;
+  watermark: boolean;
+  stylesLimit: number;
+  premiumStyles: boolean;
+  commercialUse: boolean;
+  adFree: boolean;
+  priorityQueue: boolean;
+  cloudStorage: number;
+  isUnlimited: boolean;
+}> = {
   free: {
     dailyGenerations: 10,
-    monthlyGenerations: null, // 按天计算
-    maxResolution: '1024px',
+    monthlyGenerations: null,
+    totalGenerations: null,
+    maxResolution: '512',
     watermark: true,
-    stylesLimit: 20,
+    stylesLimit: 8,
     premiumStyles: false,
     commercialUse: false,
     adFree: false,
@@ -21,12 +37,27 @@ export const PLAN_BENEFITS = {
     cloudStorage: 30,
     isUnlimited: false,
   },
-  monthly: {
+  starter: {
     dailyGenerations: null,
-    monthlyGenerations: 100,
-    maxResolution: '2048px',
+    monthlyGenerations: null,
+    totalGenerations: 30,
+    maxResolution: '1024',
     watermark: false,
-    stylesLimit: 50,
+    stylesLimit: 999,
+    premiumStyles: false,
+    commercialUse: false,
+    adFree: false,
+    priorityQueue: false,
+    cloudStorage: 100,
+    isUnlimited: false,
+  },
+  basic_monthly: {
+    dailyGenerations: null,
+    monthlyGenerations: 150,
+    totalGenerations: null,
+    maxResolution: '1024',
+    watermark: false,
+    stylesLimit: 999,
     premiumStyles: true,
     commercialUse: false,
     adFree: true,
@@ -34,10 +65,25 @@ export const PLAN_BENEFITS = {
     cloudStorage: 200,
     isUnlimited: false,
   },
-  yearly: {
+  basic_yearly: {
     dailyGenerations: null,
-    monthlyGenerations: null,
-    maxResolution: '4096px',
+    monthlyGenerations: 150,
+    totalGenerations: null,
+    maxResolution: '1024',
+    watermark: false,
+    stylesLimit: 999,
+    premiumStyles: true,
+    commercialUse: false,
+    adFree: true,
+    priorityQueue: true,
+    cloudStorage: 999999,
+    isUnlimited: false,
+  },
+  pro_monthly: {
+    dailyGenerations: null,
+    monthlyGenerations: 500,
+    totalGenerations: null,
+    maxResolution: '2048',
     watermark: false,
     stylesLimit: 999,
     premiumStyles: true,
@@ -45,12 +91,27 @@ export const PLAN_BENEFITS = {
     adFree: true,
     priorityQueue: true,
     cloudStorage: 999999,
-    isUnlimited: true,
+    isUnlimited: false,
   },
-  lifetime: {
+  pro_yearly: {
+    dailyGenerations: null,
+    monthlyGenerations: 500,
+    totalGenerations: null,
+    maxResolution: '2048',
+    watermark: false,
+    stylesLimit: 999,
+    premiumStyles: true,
+    commercialUse: true,
+    adFree: true,
+    priorityQueue: true,
+    cloudStorage: 999999,
+    isUnlimited: false,
+  },
+  unlimited: {
     dailyGenerations: null,
     monthlyGenerations: null,
-    maxResolution: '4096px',
+    totalGenerations: null,
+    maxResolution: '2048',
     watermark: false,
     stylesLimit: 999999,
     premiumStyles: true,
@@ -59,7 +120,6 @@ export const PLAN_BENEFITS = {
     priorityQueue: true,
     cloudStorage: 999999,
     isUnlimited: true,
-    lifetimeAccess: true,
   },
 };
 
@@ -67,14 +127,13 @@ export function useMembership(user: Profile | null) {
   const [loading, setLoading] = useState(false);
   const [todayCount, setTodayCount] = useState(0);
   const [monthCount, setMonthCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const [canGenerate, setCanGenerate] = useState(true);
   const [message, setMessage] = useState('');
 
-  // 获取用户当前方案
-  const currentPlan: PlanType = user?.current_plan as PlanType || 'free';
+  const currentPlan: PlanType = (user?.current_plan as PlanType) || 'free';
   const benefits = PLAN_BENEFITS[currentPlan] || PLAN_BENEFITS.free;
 
-  // 检查生成次数
   const checkGenerationLimit = useCallback(async () => {
     if (!user) {
       setCanGenerate(true);
@@ -82,57 +141,68 @@ export function useMembership(user: Profile | null) {
     }
 
     try {
+      setLoading(true);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
-      // 获取今日生成次数
       const { count: todayGen } = await supabase
         .from('generation_logs')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
         .gte('created_at', today.toISOString());
 
-      // 获取本月生成次数
       const { count: monthGen } = await supabase
         .from('generation_logs')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
         .gte('created_at', monthStart.toISOString());
 
+      const { count: totalGen } = await supabase
+        .from('generation_logs')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
       setTodayCount(todayGen || 0);
       setMonthCount(monthGen || 0);
+      setTotalCount(totalGen || 0);
 
-      // 判断是否可以生成
       if (benefits.isUnlimited) {
         setCanGenerate(true);
         setMessage('');
+      } else if (benefits.totalGenerations) {
+        if ((totalGen || 0) >= benefits.totalGenerations) {
+          setCanGenerate(false);
+          setMessage(`Starter pack used up (${totalGen}/${benefits.totalGenerations}). Upgrade for more designs!`);
+        } else {
+          setCanGenerate(true);
+          setMessage(`${benefits.totalGenerations - (totalGen || 0)} designs remaining`);
+        }
       } else if (benefits.monthlyGenerations) {
-        // 月卡用户
         if ((monthGen || 0) >= benefits.monthlyGenerations) {
           setCanGenerate(false);
-          setMessage(`本月生成次数已用完（${monthGen}/${benefits.monthlyGenerations}），升级年卡享无限生成！`);
+          setMessage(`Monthly limit reached (${monthGen}/${benefits.monthlyGenerations}). Upgrade your plan!`);
         } else {
           setCanGenerate(true);
-          setMessage(`本月剩余 ${benefits.monthlyGenerations - (monthGen || 0)} 次生成`);
+          setMessage(`${benefits.monthlyGenerations - (monthGen || 0)} designs remaining this month`);
         }
-      } else {
-        // 免费用户 - 按天计算
+      } else if (benefits.dailyGenerations) {
         if ((todayGen || 0) >= benefits.dailyGenerations) {
           setCanGenerate(false);
-          setMessage(`今日生成次数已用完（${todayGen}/${benefits.dailyGenerations}），明天刷新或升级月卡！`);
+          setMessage(`Daily limit reached (${todayGen}/${benefits.dailyGenerations}). Upgrade for more!`);
         } else {
           setCanGenerate(true);
-          setMessage(`今日剩余 ${benefits.dailyGenerations - (todayGen || 0)} 次生成`);
+          setMessage(`${benefits.dailyGenerations - (todayGen || 0)} designs remaining today`);
         }
       }
     } catch (error) {
-      console.error('检查生成限制失败:', error);
-      setCanGenerate(true); // 出错时默认允许
+      console.error('Check generation limit failed:', error);
+      setCanGenerate(true);
+    } finally {
+      setLoading(false);
     }
   }, [user, benefits]);
 
-  // 记录生成
   const recordGeneration = useCallback(async (imageUrl: string, resolution: string) => {
     if (!user) return;
 
@@ -145,14 +215,12 @@ export function useMembership(user: Profile | null) {
         credits_used: 1,
       });
 
-      // 刷新计数
       checkGenerationLimit();
     } catch (error) {
-      console.error('记录生成失败:', error);
+      console.error('Record generation failed:', error);
     }
   }, [user, benefits.watermark, checkGenerationLimit]);
 
-  // 获取水印设置
   const getWatermarkText = useCallback(() => {
     if (benefits.watermark) {
       return 'inkai.life';
@@ -160,10 +228,9 @@ export function useMembership(user: Profile | null) {
     return null;
   }, [benefits.watermark]);
 
-  // 获取分辨率设置
   const getResolution = useCallback((requested: string): string => {
-    const requestedPx = parseInt(requested);
-    const maxPx = parseInt(benefits.maxResolution);
+    const requestedPx = parseInt(requested) || 1024;
+    const maxPx = parseInt(benefits.maxResolution) || 512;
 
     if (requestedPx <= maxPx) {
       return requested;
@@ -181,6 +248,7 @@ export function useMembership(user: Profile | null) {
     loading,
     todayCount,
     monthCount,
+    totalCount,
     canGenerate,
     message,
     recordGeneration,
@@ -190,13 +258,7 @@ export function useMembership(user: Profile | null) {
   };
 }
 
-// 升级提示组件使用的权益描述
 export function getPlanDescription(plan: PlanType): string {
-  const descriptions: Record<PlanType, string> = {
-    free: '免费体验',
-    monthly: '月卡会员',
-    yearly: '年卡会员',
-    lifetime: '终身VIP',
-  };
-  return descriptions[plan];
+  const planDetail = PLANS[plan];
+  return planDetail ? planDetail.nameEn : 'Free';
 }

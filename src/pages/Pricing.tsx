@@ -1,13 +1,14 @@
-// Pricing.tsx 修复版本 - 添加多语言支持
-// 关键修改：将所有硬编码英文替换为 t() 翻译函数
-// 安全修复：移除直接写数据库的支付漏洞，改为演示模式弹窗
+﻿// Pricing.tsx - Unified with subscription.ts PLANS
+// All plan data sourced from subscription.ts for consistency
+// Security: Payment shows "coming soon" modal until Stripe is integrated
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Check, X, Sparkles, Crown, Zap, Star } from 'lucide-react';
+import { Check, X, Sparkles, Crown, Zap, Star, Package } from 'lucide-react';
 import { supabase } from '../supabase/client';
 import type { Database } from '../supabase/types';
 import { useLanguage } from '../contexts/LanguageContext';
+import { PLANS, PLAN_CATEGORIES, formatPrice, getMonthlyEquivalent, type PlanType } from '../services/subscription';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
@@ -15,131 +16,32 @@ interface PricingProps {
   user: Profile | null;
 }
 
+const PLAN_ICONS: Record<PlanType, typeof Star> = {
+  free: Star,
+  starter: Package,
+  basic_monthly: Sparkles,
+  basic_yearly: Zap,
+  pro_monthly: Crown,
+  pro_yearly: Crown,
+  unlimited: Zap,
+};
+
+const PLAN_COLORS: Record<PlanType, string> = {
+  free: 'from-stone-800 to-stone-900',
+  starter: 'from-emerald-600 to-emerald-700',
+  basic_monthly: 'from-amber-600 to-amber-700',
+  basic_yearly: 'from-amber-500 to-orange-600',
+  pro_monthly: 'from-purple-600 to-purple-700',
+  pro_yearly: 'from-purple-500 to-indigo-600',
+  unlimited: 'from-yellow-400 to-amber-500',
+};
+
 export default function Pricing({ user }: PricingProps) {
-  const { t, language } = useLanguage(); // 获取当前语言
+  const { language } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<string>('free');
-  const [showEarlyBird, setShowEarlyBird] = useState(true);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-
-  // 根据语言获取计划配置
-  const getPlans = () => {
-    const isZh = language === 'zh';
-
-    return [
-      {
-        id: 'free',
-        name: isZh ? '入门版' : 'Inker',
-        icon: Star,
-        color: 'from-stone-800 to-stone-900',
-        price: 0,
-        period: isZh ? '永久免费' : 'Free Forever',
-        description: isZh ? '开始使用AI纹身设计' : 'Get started with AI tattoo designs',
-        features: [
-          { text: isZh ? '每天10次AI生成' : '10 AI generations per day', included: true },
-          { text: isZh ? '1024px标准高清下载' : '1024px standard HD download', included: true },
-          { text: isZh ? '20个基础中式模板' : '20 basic Chinese-style templates', included: true },
-          { text: isZh ? '轻度水印' : 'Light watermark', included: true, note: isZh ? "适合给纹身师参考" : "Perfect for artist reference" },
-          { text: isZh ? '有限展示广告' : 'Limited display ads', included: true },
-          { text: isZh ? '云端存储30个设计' : 'Cloud storage for 30 designs', included: true },
-          { text: isZh ? '龙凤墨韵风格' : 'Dragon Phoenix ink style', included: false },
-          { text: isZh ? '无水印下载' : 'No watermark downloads', included: false },
-          { text: isZh ? '商业授权' : 'Commercial license', included: false },
-          { text: isZh ? '无限生成' : 'Unlimited generations', included: false },
-        ],
-        cta: isZh ? '免费开始' : 'Start Free',
-        popular: false,
-      },
-      {
-        id: 'monthly',
-        name: isZh ? '锦鲤月卡' : 'Koi Monthly',
-        icon: Sparkles,
-        color: 'from-amber-600 to-amber-700',
-        price: 9.99,  // 更新为新定价
-        period: isZh ? '/月' : '/month',
-        description: isZh ? '适合认真的纹身爱好者' : 'For serious tattoo enthusiasts',
-        features: [
-          { text: isZh ? '每月150次AI生成' : '150 AI generations per month', included: true },
-          { text: isZh ? '2048px超高清下载' : '2048px ultra HD download', included: true },
-          { text: isZh ? '50个专属中式模板' : '50 exclusive Chinese-style templates', included: true },
-          { text: isZh ? '完全无水印' : 'Fully watermark-free', included: true },
-          { text: isZh ? '基础墨韵风格解锁' : 'Basic ink style unlock', included: true },
-          { text: isZh ? '云端存储200个设计' : 'Cloud storage for 200 designs', included: true },
-          { text: isZh ? '优先生成队列' : 'Priority generation queue', included: true },
-          { text: isZh ? '无广告体验' : 'Ad-free experience', included: true },
-          { text: isZh ? '商业授权' : 'Commercial license', included: false },
-          { text: isZh ? '无限生成' : 'Unlimited generations', included: false },
-        ],
-        cta: isZh ? '立即升级' : 'Upgrade Now',
-        popular: true,
-        badge: isZh ? '最受欢迎' : 'Most Popular',
-      },
-      {
-        id: 'yearly',
-        name: isZh ? '龙王年卡' : 'Dragon King',
-        icon: Zap,
-        color: 'from-amber-500 to-orange-600',
-        price: 59,  // 更新为新定价
-        period: isZh ? '/年' : '/year',
-        description: isZh ? '纹身爱好者的最佳选择' : 'Best value for tattoo lovers',
-        yearlyPrice: '$59/year',
-        monthlyEquivalent: isZh ? '≈ ¥4.92/月 (省50%)' : '≈ $4.92/month (Save 50%)',
-        features: [
-          { text: isZh ? '每年1800次AI生成 (150/月)' : '1,800 AI generations per year (150/mo)', included: true },
-          { text: isZh ? '2048px超高清下载' : '2048px ultra HD download', included: true },
-          { text: isZh ? '全部120个中式模板' : 'All 120 Chinese-style templates', included: true },
-          { text: isZh ? '龙凤/麒麟/朱雀/青龙风格' : 'Dragon Phoenix / Unicorn / Vermilion / Azure styles', included: true },
-          { text: isZh ? '完全无水印' : 'Fully watermark-free', included: true },
-          { text: isZh ? '个人商业授权' : 'Personal commercial license', included: true },
-          { text: isZh ? '闪电般快速生成' : 'Lightning fast generation', included: true },
-          { text: isZh ? '无限云端存储' : 'Unlimited cloud storage', included: true },
-          { text: isZh ? '无广告体验' : 'Ad-free experience', included: true },
-          { text: isZh ? '优先客服支持' : 'Priority customer support', included: true },
-        ],
-        cta: isZh ? '早鸟价购买' : 'Early Bird Price',
-        popular: false,
-        badge: isZh ? '最佳性价比' : 'Best Value',
-        earlyBird: {
-          price: 59,
-          originalPrice: 118,
-          label: isZh ? '早鸟特惠' : 'Early Bird Deal',
-          remaining: 1000,
-        },
-      },
-      {
-        id: 'lifetime',
-        name: isZh ? '传奇终身版' : 'Legend VIP',
-        icon: Crown,
-        color: 'from-yellow-400 to-amber-500',
-        price: 599,  // 更新为新定价
-        period: isZh ? '终身' : 'Lifetime',
-        description: isZh ? '为硬核纹身收藏家打造' : 'For hardcore tattoo collectors',
-        features: [
-          { text: isZh ? '终身无限AI生成' : 'Lifetime unlimited AI generations', included: true },
-          { text: isZh ? '2048px + PNG透明背景' : '2048px + PNG transparent background', included: true },
-          { text: isZh ? '全部模板 + 未来新增免费' : 'All templates + future additions FREE', included: true },
-          { text: isZh ? '自定义专属风格' : 'Custom exclusive style', included: true },
-          { text: isZh ? '完整商业授权' : 'Full commercial license', included: true },
-          { text: isZh ? '纹身工作室商业授权' : 'Tattoo studio commercial license', included: true },
-          { text: isZh ? 'VIP最快生成速度' : 'VIP fastest generation speed', included: true },
-          { text: isZh ? '无限存储 + 作品集展示' : 'Unlimited storage + portfolio showcase', included: true },
-          { text: isZh ? 'VIP专属徽章' : 'VIP exclusive badge', included: true },
-          { text: isZh ? '赠送好友1年订阅' : 'Gift 1-year subscription to a friend', included: true },
-        ],
-        cta: isZh ? '锁定终身价' : 'Lock Lifetime Price',
-        popular: false,
-        badge: isZh ? '终身最佳' : 'Lifetime Best',
-        earlyBird: {
-          price: 399,  // 早鸟价
-          originalPrice: 599,
-          label: isZh ? '早鸟限时' : 'Early Bird Limited',
-          remaining: 200,
-        },
-      },
-    ];
-  };
-
-  const plans = getPlans();
+  const isZh = language === 'zh';
 
   useEffect(() => {
     if (user?.current_plan) {
@@ -147,13 +49,12 @@ export default function Pricing({ user }: PricingProps) {
     }
   }, [user]);
 
-  const handleSubscribe = async (planId: string, isEarlyBird: boolean = false) => {
+  const handleSubscribe = async (planId: string) => {
     if (!user) {
       window.location.hash = '#/login';
       return;
     }
 
-    // 免费计划保持原逻辑，直接激活
     if (planId === 'free') {
       setLoading(true);
       try {
@@ -166,23 +67,133 @@ export default function Pricing({ user }: PricingProps) {
           .eq('id', user.id);
 
         if (error) throw error;
-
         setCurrentPlan('free');
       } catch (error) {
         console.error('Free plan activation failed:', error);
-        alert(language === 'zh' ? '激活失败，请重试' : 'Activation failed, please try again');
+        alert(isZh ? '激活失败，请重试' : 'Activation failed, please try again');
       } finally {
         setLoading(false);
       }
       return;
     }
 
-    // 付费计划：显示"支付功能即将上线"弹窗（演示模式）
-    // TODO: 集成 Stripe Checkout 后替换为实际支付流程
+    // Paid plans: show coming soon modal
+    // TODO: Replace with Stripe Checkout when integrated
     setShowPaymentModal(true);
   };
 
-  const isZh = language === 'zh';
+  const getPeriodLabel = (plan: PlanType): string => {
+    const details = PLANS[plan];
+    switch (details.billing) {
+      case 'free': return isZh ? '永久免费' : 'Free Forever';
+      case 'one_time': return isZh ? '一次性' : 'One-time';
+      case 'monthly': return isZh ? '/月' : '/month';
+      case 'yearly': return isZh ? '/年' : '/year';
+      default: return '';
+    }
+  };
+
+  const getDescription = (plan: PlanType): string => {
+    const details = PLANS[plan];
+    return isZh ? details.name : details.nameEn;
+  };
+
+  const getCTA = (plan: PlanType): string => {
+    if (plan === 'free') return isZh ? '免费开始' : 'Start Free';
+    return isZh ? '立即升级' : 'Upgrade Now';
+  };
+
+  const renderPlanCard = (planId: PlanType, index: number) => {
+    const plan = PLANS[planId];
+    const Icon = PLAN_ICONS[planId];
+    const color = PLAN_COLORS[planId];
+    const isCurrentPlan = currentPlan === planId || (planId === 'free' && !user);
+    const isHighlight = plan.highlight || planId === 'basic_monthly';
+
+    return (
+      <motion.div
+        key={planId}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.1 }}
+        className={`relative rounded-2xl overflow-hidden ${
+          isHighlight
+            ? 'bg-stone-900/80 border-2 border-amber-600/50'
+            : 'bg-stone-900/50 border border-stone-700/50'
+        }`}
+      >
+        {/* Badge */}
+        {plan.badge && (
+          <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold ${
+            isHighlight
+              ? 'bg-amber-600 text-stone-950'
+              : 'bg-gradient-to-r from-amber-500 to-orange-600 text-white'
+          }`}>
+            {plan.badge}
+          </div>
+        )}
+
+        <div className="p-6">
+          {/* Plan Header */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center`}>
+              <Icon className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-white">{isZh ? plan.name : plan.nameEn}</h3>
+              <p className="text-stone-400 text-sm">{getDescription(planId)}</p>
+            </div>
+          </div>
+
+          {/* Price */}
+          <div className="mb-6">
+            <div className="flex items-baseline gap-1">
+              <span className="text-stone-500">$</span>
+              <span className={`text-4xl font-bold ${plan.price === 0 ? 'text-stone-400' : 'text-white'}`}>
+                {plan.price === 0 ? 'Free' : plan.price}
+              </span>
+              <span className="text-stone-500">{getPeriodLabel(planId)}</span>
+            </div>
+            {plan.billing === 'yearly' && (
+              <p className="text-stone-500 text-sm mt-1">
+                {isZh ? '≈ ' : '≈ '}{getMonthlyEquivalent(plan.price)}/mo
+              </p>
+            )}
+          </div>
+
+          {/* CTA Button */}
+          <button
+            onClick={() => handleSubscribe(planId)}
+            disabled={loading || isCurrentPlan}
+            className={`w-full py-3 rounded-xl font-bold transition-all mb-6 ${
+              isCurrentPlan
+                ? 'bg-stone-800 text-stone-500 cursor-not-allowed'
+                : isHighlight
+                ? 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-stone-950 shadow-lg shadow-amber-600/25'
+                : 'bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-600'
+            }`}
+          >
+            {isCurrentPlan
+              ? (isZh ? '当前方案' : 'Current Plan')
+              : loading
+                ? (isZh ? '加载中...' : 'Loading...')
+                : getCTA(planId)
+            }
+          </button>
+
+          {/* Features */}
+          <div className="space-y-3">
+            {plan.features.map((feature, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <Check className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                <span className="text-stone-300 text-sm">{feature}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 py-12 px-4">
@@ -198,153 +209,37 @@ export default function Pricing({ user }: PricingProps) {
           </span>
         </h1>
         <p className="text-stone-400 text-lg max-w-2xl mx-auto">
-          {isZh ? '选择最适合您的方案' : 'Choose the plan that works best for you'}
+          {isZh ? '选择最适合您的方案，用AI释放你的创意' : 'Choose the plan that works best for you. Unleash your creativity with AI'}
         </p>
-
-        {/* Comparison Note */}
         <div className="mt-6 inline-flex items-center gap-2 bg-stone-900/50 rounded-full px-4 py-2">
           <span className="text-amber-400 text-sm font-medium">
-            {isZh ? '与竞品对比' : 'vs Competitors'}
+            {isZh ? '对比竞品' : 'vs Competitors'}
           </span>
           <span className="text-stone-500 text-sm">|</span>
           <span className="text-green-400 text-sm">
-            {isZh ? '月付便宜20% | 年付便宜50%' : 'Monthly 20% cheaper | Yearly 50% cheaper'}
+            {isZh ? '月付便宜20% | 年付省50%' : 'Monthly 20% cheaper | Yearly save 50%'}
           </span>
         </div>
       </motion.div>
 
-      {/* Pricing Cards */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {plans.map((plan, index) => {
-          const Icon = plan.icon;
-          const isCurrentPlan = currentPlan === plan.id || (plan.id === 'free' && !user);
-          const showPrice = plan.id === 'yearly' && showEarlyBird && plan.earlyBird
-            ? plan.earlyBird.price
-            : plan.price;
-          const originalPrice = plan.earlyBird?.price && showEarlyBird
-            ? plan.earlyBird.originalPrice
-            : null;
+      {/* Individual Plans */}
+      <div className="max-w-7xl mx-auto mb-12">
+        <h2 className="text-2xl font-bold text-white mb-6">
+          {isZh ? PLAN_CATEGORIES.individual.titleZh : PLAN_CATEGORIES.individual.title}
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {PLAN_CATEGORIES.individual.plans.map((planId, i) => renderPlanCard(planId, i))}
+        </div>
+      </div>
 
-          return (
-            <motion.div
-              key={plan.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className={`relative rounded-2xl overflow-hidden ${
-                plan.popular
-                  ? 'bg-stone-900/80 border-2 border-amber-600/50'
-                  : 'bg-stone-900/50 border border-stone-700/50'
-              }`}
-            >
-              {/* Popular Badge */}
-              {plan.badge && (
-                <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold ${
-                  plan.id === 'monthly'
-                    ? 'bg-amber-600 text-stone-950'
-                    : plan.id === 'yearly'
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white'
-                    : 'bg-gradient-to-r from-yellow-400 to-amber-500 text-stone-950'
-                }`}>
-                  {plan.badge}
-                </div>
-              )}
-
-              {/* Early Bird Banner */}
-              {plan.earlyBird && showEarlyBird && (
-                <div className="bg-amber-600/20 border-b border-amber-600/30 px-4 py-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-amber-400 font-medium">
-                      🎉 {plan.earlyBird.label}
-                    </span>
-                    <span className="text-stone-400">
-                      {plan.earlyBird.remaining} {isZh ? '个名额剩余' : 'spots left'}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              <div className="p-6">
-                {/* Plan Header */}
-                <div className="flex items-center gap-3 mb-4">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${plan.color} flex items-center justify-center`}>
-                    <Icon className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-white">{plan.name}</h3>
-                    <p className="text-stone-400 text-sm">{plan.description}</p>
-                  </div>
-                </div>
-
-                {/* Price */}
-                <div className="mb-6">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-stone-500">$</span>
-                    <span className={`text-4xl font-bold ${plan.price === 0 ? 'text-stone-400' : 'text-white'}`}>
-                      {showPrice}
-                    </span>
-                    <span className="text-stone-500">{plan.period}</span>
-                  </div>
-                  {originalPrice && (
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-stone-600 line-through text-sm">${originalPrice}</span>
-                      <span className="bg-amber-600/20 text-amber-400 text-xs px-2 py-0.5 rounded">
-                        {isZh ? '省' : 'Save'} ${originalPrice - showPrice}
-                      </span>
-                    </div>
-                  )}
-                  {plan.monthlyEquivalent && (
-                    <p className="text-stone-500 text-sm mt-1">{plan.monthlyEquivalent}</p>
-                  )}
-                </div>
-
-                {/* CTA Button */}
-                <button
-                  onClick={() => handleSubscribe(
-                    plan.id,
-                    plan.earlyBird && showEarlyBird
-                  )}
-                  disabled={loading || isCurrentPlan}
-                  className={`w-full py-3 rounded-xl font-bold transition-all mb-6 ${
-                    isCurrentPlan
-                      ? 'bg-stone-800 text-stone-500 cursor-not-allowed'
-                      : plan.popular
-                      ? 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-stone-950 shadow-lg shadow-amber-600/25'
-                      : 'bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-600'
-                  }`}
-                >
-                  {isCurrentPlan
-                    ? (isZh ? '当前方案' : 'Current Plan')
-                    : loading
-                      ? (isZh ? '加载中...' : 'Loading...')
-                      : plan.cta
-                  }
-                </button>
-
-                {/* Features */}
-                <div className="space-y-3">
-                  {plan.features.map((feature, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      {feature.included ? (
-                        <Check className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
-                      ) : (
-                        <X className="w-5 h-5 text-stone-600 flex-shrink-0 mt-0.5" />
-                      )}
-                      <div className="flex-1">
-                        <span className={feature.included ? 'text-stone-300' : 'text-stone-600'}>
-                          {feature.text}
-                        </span>
-                        {feature.note && (
-                          <p className="text-stone-600 text-xs mt-0.5">{feature.note}</p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          );
-        })}
+      {/* Studio Plans */}
+      <div className="max-w-7xl mx-auto mb-20">
+        <h2 className="text-2xl font-bold text-white mb-6">
+          {isZh ? PLAN_CATEGORIES.studio.titleZh : PLAN_CATEGORIES.studio.title}
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {PLAN_CATEGORIES.studio.plans.map((planId, i) => renderPlanCard(planId, i + 4))}
+        </div>
       </div>
 
       {/* Payment Coming Soon Modal */}
@@ -404,22 +299,22 @@ export default function Pricing({ user }: PricingProps) {
                 : 'Cancel anytime in account settings. Your benefits continue until the end of your billing period.',
             },
             {
-              q: isZh ? '早鸟名额用完了怎么办？' : 'What if early bird spots run out?',
-              a: isZh
-                ? '名额满后价格将恢复原价。立即抢购！'
-                : 'Prices return to regular rates once spots are filled. Grab yours now!',
-            },
-            {
               q: isZh ? '可以商业使用设计吗？' : 'Can I use designs commercially?',
               a: isZh
-                ? '年付及以上方案包含个人商业授权。终身VIP包含完整商业权利（包括纹身工作室使用）。'
-                : 'Yearly+ plans include personal commercial license. Lifetime VIP includes full commercial rights (including tattoo studio use).',
+                ? 'Pro 及以上方案包含商业授权。'
+                : 'Pro and above plans include commercial use license.',
             },
             {
               q: isZh ? '免费用户有限制吗？' : 'Are there limits for free users?',
               a: isZh
-                ? '免费用户每天可生成10次 - 非常适合体验中式纹身设计。'
-                : 'Free users get 10 generations per day - perfect for trying out Chinese-style tattoo designs.',
+                ? '免费用户每天可生成10次，非常适合体验 AI 纹身设计。'
+                : 'Free users get 10 generations per day - perfect for trying out AI tattoo designs.',
+            },
+            {
+              q: isZh ? '支持哪些支付方式？' : 'What payment methods are supported?',
+              a: isZh
+                ? '支持信用卡、PayPal、Apple Pay、Google Pay。'
+                : 'Credit card, PayPal, Apple Pay, and Google Pay are supported.',
             },
           ].map((faq, i) => (
             <div key={i} className="bg-stone-900/50 rounded-xl p-5 border border-stone-700/50">

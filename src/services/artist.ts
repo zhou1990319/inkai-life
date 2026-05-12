@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 艺术家服务 - Artist Service
  * 处理艺术家申请、作品展示、预约等
  */
@@ -69,11 +69,11 @@ export const TATTOO_STYLES = [
 
 // 价格区间
 export const PRICE_RANGES = [
-  { id: 'small', label: '小图 ¥200-500' },
-  { id: 'medium', label: '中图 ¥500-1500' },
-  { id: 'large', label: '大图 ¥1500-3000' },
-  { id: 'sleeve', label: '花臂/花腿 ¥3000+' },
-  { id: 'custom', label: '面议' },
+  { id: 'small', label: 'Small $50-$100', labelZh: '小图 $50-$100' },
+  { id: 'medium', label: 'Medium $100-$300', labelZh: '中图 $100-$300' },
+  { id: 'large', label: 'Large $300-$500', labelZh: '大图 $300-$500' },
+  { id: 'sleeve', label: 'Sleeve $500+', labelZh: '花臂/花腿 $500+' },
+  { id: 'custom', label: 'Custom Quote', labelZh: '面议' },
 ];
 
 /**

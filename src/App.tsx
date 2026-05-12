@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './supabase/client';
 import type { Database } from './supabase/types';
@@ -32,12 +32,10 @@ import PaymentCancel from './pages/PaymentCancel';
 import Notifications from './pages/Notifications';
 import Settings from './pages/Settings';
 
-// 内容包装器，处理登录提示
 function AppContent() {
   const { user, loading } = useAuth();
   const [loginPrompt, setLoginPrompt] = useState(false);
 
-  // 监听需要登录的事件
   useEffect(() => {
     const handleRequireLogin = () => setLoginPrompt(true);
     window.addEventListener('requireLogin', handleRequireLogin);
@@ -62,65 +60,37 @@ function AppContent() {
       <main className="pb-20 min-h-screen">
         <AnimatePresence mode="wait">
           <Routes>
-            {/* 首页 */}
             <Route path="/" element={<Home />} />
-
-            {/* 社区 */}
             <Route path="/explore" element={<Explore />} />
-
-            {/* 帖子详情 */}
             <Route path="/post/:id" element={<PostDetail />} />
-
-            {/* 用户主页 */}
             <Route path="/profile/:username?" element={<Profile />} />
-
-            {/* 发布帖子（需登录） */}
             <Route
               path="/create"
               element={user ? <Create /> : <Navigate to="/login?redirect=/create" />}
             />
-
-            {/* 灵感模板库 */}
             <Route path="/inspire" element={<Inspire />} />
-
-            {/* 通知中心（需登录） */}
             <Route
               path="/notifications"
               element={user ? <Notifications /> : <Navigate to="/login?redirect=/notifications" />}
             />
-
-            {/* AI 工作室（需登录） */}
             <Route path="/ai-studio" element={user ? <AIGenerator user={user} /> : <Navigate to="/login?redirect=/ai-studio" />} />
-
-            {/* 艺术家主页 */}
             <Route path="/artist/:id" element={<ArtistDetail />} />
-
-            {/* 艺术家申请（需登录） */}
             <Route
               path="/artist-apply"
               element={user ? <ArtistOnboarding /> : <Navigate to="/login?redirect=/artist-apply" />}
             />
-
-            {/* 定价 */}
             <Route path="/pricing" element={<Pricing user={user} />} />
-
-            {/* 支付回调 */}
             <Route path="/payment/success" element={<PaymentSuccess />} />
             <Route path="/payment/cancel" element={<PaymentCancel />} />
-
-            {/* 认证 */}
             <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
             <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
-
-              {/* 法律 */}
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/disclaimer" element={<Disclaimer />} />
-
-              {/* 设置 */}
-              <Route path="/settings" element={<Settings />} />
-
-            {/* 404 */}
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/disclaimer" element={<Disclaimer />} />
+            <Route
+              path="/settings"
+              element={user ? <Settings /> : <Navigate to="/login?redirect=/settings" />}
+            />
             <Route path="*" element={
               <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center">
                 <div className="text-center">

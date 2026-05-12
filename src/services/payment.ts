@@ -1,8 +1,18 @@
-/**
- * Stripe 支付服务 - Payment Service
- * 处理支付、订阅管理、Webhook 等
+﻿/**
+ * Stripe Payment Service
+ * Handles payment, subscription management, webhooks
+ * 
+ * NOTE: Stripe Price IDs are placeholders.
+ * Replace with actual IDs from Stripe Dashboard after creating products.
+ * 
+ * Backend API endpoints needed:
+ * - POST /api/create-checkout-session
+ * - POST /api/create-portal-session
+ * - GET  /api/verify-payment
+ * - POST /api/cancel-subscription
+ * - POST /api/webhook (Stripe webhook handler)
  */
-import { PlanType, PLANS } from './subscription';
+import { PlanType, PLANS, formatPrice } from './subscription';
 
 export interface PaymentIntent {
   id: string;
@@ -22,17 +32,19 @@ export interface PaymentResult {
   error?: string;
 }
 
-// Stripe 价格 ID（需要在 Stripe Dashboard 创建）
-const STRIPE_PRICES: Record<PlanType, string> = {
-  free: '', // 免费版无需支付
-  monthly: 'price_monthly_29', // 替换为实际的 Stripe Price ID
-  yearly: 'price_yearly_199',
-  lifetime: 'price_lifetime_599',
+// Stripe Price IDs - PLACEHOLDERS, replace with actual IDs from Stripe Dashboard
+const STRIPE_PRICES: Partial<Record<PlanType, string>> = {
+  // free: '', // Free plan - no payment needed
+  starter: 'price_starter_499',           // TODO: Replace
+  basic_monthly: 'price_basic_monthly_999', // TODO: Replace
+  basic_yearly: 'price_basic_yearly_59',    // TODO: Replace
+  pro_monthly: 'price_pro_monthly_29',      // TODO: Replace
+  pro_yearly: 'price_pro_yearly_229',       // TODO: Replace
+  unlimited: 'price_unlimited_79',          // TODO: Replace
 };
 
 /**
- * 创建 Stripe Checkout Session
- * 前端调用此函数，后端代理到 Stripe API
+ * Create Stripe Checkout Session
  */
 export async function createCheckoutSession(
   userId: string,
@@ -47,7 +59,16 @@ export async function createCheckoutSession(
       throw new Error('Free plan does not require payment');
     }
 
-    // 调用后端 API 创建 Checkout Session
+    const priceId = STRIPE_PRICES[planType];
+    if (!priceId) {
+      console.warn(`[Payment] No Stripe Price ID configured for plan: ${planType}`);
+      return null;
+    }
+
+    // Use hash-compatible URLs for HashRouter
+    const successUrl = `${window.location.origin}/#/payment/success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${window.location.origin}/#/payment/cancel`;
+
     const response = await fetch('/api/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -55,10 +76,10 @@ export async function createCheckoutSession(
         userId,
         email,
         planType,
-        priceId: STRIPE_PRICES[planType],
+        priceId,
         promoCode,
-        successUrl: `${window.location.origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl: `${window.location.origin}/payment/cancel`,
+        successUrl,
+        cancelUrl,
       }),
     });
 
@@ -79,18 +100,16 @@ export async function createCheckoutSession(
 }
 
 /**
- * 创建 Stripe Customer Portal Session
- * 用于用户管理订阅（取消、更新支付方式等）
+ * Create Stripe Customer Portal Session
  */
 export async function createPortalSession(userId: string): Promise<string | null> {
   try {
+    const returnUrl = `${window.location.origin}/#/settings`;
+
     const response = await fetch('/api/create-portal-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId,
-        returnUrl: `${window.location.origin}/profile`,
-      }),
+      body: JSON.stringify({ userId, returnUrl }),
     });
 
     if (!response.ok) {
@@ -106,7 +125,7 @@ export async function createPortalSession(userId: string): Promise<string | null
 }
 
 /**
- * 验证支付状态
+ * Verify payment status
  */
 export async function verifyPayment(sessionId: string): Promise<PaymentResult> {
   try {
@@ -130,7 +149,7 @@ export async function verifyPayment(sessionId: string): Promise<PaymentResult> {
 }
 
 /**
- * 取消订阅
+ * Cancel subscription
  */
 export async function cancelSubscription(userId: string): Promise<{ success: boolean; error?: string }> {
   try {
@@ -154,7 +173,7 @@ export async function cancelSubscription(userId: string): Promise<{ success: boo
 }
 
 /**
- * 计算折扣价格
+ * Calculate discount price
  */
 export function calculateDiscount(
   originalPrice: number,
@@ -168,13 +187,5 @@ export function calculateDiscount(
   return originalPrice;
 }
 
-/**
- * 格式化价格显示
- */
-export function formatPrice(price: number, currency: string = 'CNY'): string {
-  return new Intl.NumberFormat('zh-CN', {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 0,
-  }).format(price);
-}
+// Re-export formatPrice from subscription.ts for convenience
+export { formatPrice };

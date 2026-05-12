@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // InkAI 社区可复用组件库
 // 暗黑国风配色 + 统一交互规范
 // ============================================
@@ -13,6 +13,7 @@ import {
   Eye, ThumbsUp, BookmarkCheck
 } from 'lucide-react';
 import { LikeService, SaveService, FollowService } from '../../services/community';
+import { uploadImage } from '../../services/storage';
 import { useLanguage } from '../../contexts/LanguageContext';
 import type { Profile, PostWithAuthor } from '../../services/community';
 

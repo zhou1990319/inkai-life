@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Shield, CheckCircle, Clock, AlertCircle, ArrowLeft, Upload, Sparkles, Plus, Trash2, ExternalLink, Save, ShoppingBag } from 'lucide-react';
 import { supabase } from '../supabase/client';
@@ -781,11 +781,11 @@ export default function ArtistOnboarding() {
               className="w-full bg-stone-800 border border-stone-700 rounded-xl px-4 py-3 text-white focus:border-amber-500 focus:outline-none"
             >
               <option value="">{isZh ? '请选择...' : 'Select...'}</option>
-              <option value="under-500">{isZh ? '¥500以下' : 'Under $500'}</option>
-              <option value="500-1000">{isZh ? '¥500 - ¥1,000' : '$500 - $1,000'}</option>
-              <option value="1000-2000">{isZh ? '¥1,000 - ¥2,000' : '$1,000 - $2,000'}</option>
-              <option value="2000-5000">{isZh ? '¥2,000 - ¥5,000' : '$2,000 - $5,000'}</option>
-              <option value="over-5000">{isZh ? '¥5,000以上' : 'Over $5,000'}</option>
+              <option value="under-100">{isZh ? '$50以下' : 'Under $50'}</option>
+              <option value="100-300">{isZh ? '$50 - $300' : '$50 - $300'}</option>
+              <option value="300-500">{isZh ? '$300 - $500' : '$300 - $500'}</option>
+              <option value="500-1000">{isZh ? '$500 - $1,000' : '$500 - $1,000'}</option>
+              <option value="over-1000">{isZh ? '$1,000以上' : 'Over $1,000'}</option>
             </select>
           </div>
 
