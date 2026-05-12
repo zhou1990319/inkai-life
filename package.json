@@ -8,6 +8,7 @@
     "start": "node server/index.js"
   },
   "dependencies": {
+    "@emotion/is-prop-valid": "^1.4.0",
     "@supabase/supabase-js": "^2.98.0",
     "date-fns": "^2.30.0",
     "express": "^4.21.2",

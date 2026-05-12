@@ -138,8 +138,6 @@ export default function LoginPrompt({
 }
 
 // Hook for managing login prompt
-import { useState } from 'react';
-
 export function useLoginPrompt() {
   const [isOpen, setIsOpen] = useState(false);
   const [action, setAction] = useState<'post' | 'like' | 'comment' | 'generate' | 'save' | 'follow' | 'default'>('default');
