@@ -17,7 +17,7 @@
       - key: SUPABASE_URL
         value: https://zgolsxdwilktnxbzxfcw.supabase.co
       - key: SUPABASE_ANON_KEY
-        value: sb_publishable_VuoZts73EHjAOcYjtqBADw_QJ_IcuzNt
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpnb2xzeGR3aWxrdG54Ynp4ZmN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4NjA4MDAsImV4cCI6MjA2NDQzNjgwMH0.mElMQZtTtFindGoxfYU4uJhs81xnre8qRTidKKBaEs
       - key: ARK_API_KEY
         value: ark-6b3fbf0f-2778-4bf6-a09f-c06b08d6b69d-796cd
       - key: KEEP_ALIVE_URL
