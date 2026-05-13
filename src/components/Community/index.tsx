@@ -30,8 +30,8 @@ interface AvatarProps {
 
 export function Avatar({ user, username, size = 'md', showBadge }: AvatarProps) {
   const sizeClasses = {
-    xs: 'w-6 h-6',
-    sm: 'w-8 h-8',
+    xs: 'w-5 h-5',
+    sm: 'w-7 h-7',
     md: 'w-10 h-10',
     lg: 'w-14 h-14',
     xl: 'w-20 h-20',
@@ -49,7 +49,7 @@ export function Avatar({ user, username, size = 'md', showBadge }: AvatarProps) 
           src={avatarUrl}
           alt={name}
           loading="lazy"
-          className={`${sizeClasses[size]} rounded-full object-cover border-2 border-gray-200 transition-colors hover:border-amber-200`}
+          className={`${sizeClasses[size]} rounded-full object-cover border border-white/20`}
           onError={(e) => { (e.target as HTMLImageElement).src = fallbackUrl; }}
         />
       ) : (
@@ -57,11 +57,11 @@ export function Avatar({ user, username, size = 'md', showBadge }: AvatarProps) 
           src={fallbackUrl}
           alt={name}
           loading="lazy"
-          className={`${sizeClasses[size]} rounded-full border-2 border-gray-200`}
+          className={`${sizeClasses[size]} rounded-full border border-white/20`}
         />
       )}
       {showBadge && user?.is_artist && (
-        <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-amber-600 rounded-full border-2 border-gray-200 " />
+        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white" />
       )}
     </div>
   );
@@ -70,19 +70,10 @@ export function Avatar({ user, username, size = 'md', showBadge }: AvatarProps) 
 // ============================================
 // SkeletonCard 骨架屏
 // ============================================
-export function SkeletonCard({ aspectRatio = '1/1' }: { aspectRatio?: string }) {
+export function SkeletonCard({ aspectRatio = '3/4' }: { aspectRatio?: string }) {
   return (
-    <div className="bg-gray-50 rounded-xl border border-amber-100 overflow-hidden">
-      <div className="bg-gray-100 animate-pulse" style={{ aspectRatio }} />
-      <div className="p-4 space-y-3">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-gray-100 animate-pulse" />
-          <div className="flex-1 space-y-1">
-            <div className="h-3 w-20 bg-gray-100 rounded animate-pulse" />
-            <div className="h-2 w-12 bg-gray-100 rounded animate-pulse" />
-          </div>
-        </div>
-      </div>
+    <div className="bg-gray-100 overflow-hidden" style={{ aspectRatio }}>
+      <div className="w-full h-full bg-gray-200 animate-pulse" />
     </div>
   );
 }
@@ -110,8 +101,8 @@ export function TagBadge({ tag, count, active, onClick, size = 'sm' }: TagBadgeP
         ${baseClasses} rounded-full font-medium transition-all duration-200
         flex items-center gap-2 whitespace-nowrap
         ${active
-          ? 'bg-black text-white border border-black '
-          : 'bg-gray-50 text-gray-400 border border-amber-100 hover:border-amber-200 hover:text-amber-600'
+          ? 'bg-black text-white border border-black'
+          : 'bg-gray-50 text-gray-600 border border-gray-200 hover:border-gray-400 hover:text-gray-900'
         }
       `}
     >
@@ -136,6 +127,7 @@ interface LikeButtonProps {
   size?: 'sm' | 'md';
   showCount?: boolean;
   onToggle?: (liked: boolean) => void;
+  compact?: boolean;
 }
 
 export function LikeButton({
@@ -146,6 +138,7 @@ export function LikeButton({
   size = 'md',
   showCount = true,
   onToggle,
+  compact = false,
 }: LikeButtonProps) {
   const [liked, setLiked] = useState(initialLiked);
   const [count, setCount] = useState(initialCount);
@@ -171,13 +164,28 @@ export function LikeButton({
     }
   };
 
+  if (compact) {
+    return (
+      <button
+        onClick={handleToggle}
+        disabled={!userId}
+        className={`flex items-center gap-1 text-xs transition-colors disabled:cursor-not-allowed ${
+          liked ? 'text-white' : 'text-white/80 hover:text-white'
+        }`}
+      >
+        <Heart className={`w-3.5 h-3.5 ${liked ? 'fill-current' : ''}`} />
+        {showCount && <span>{count > 999 ? `${(count / 1000).toFixed(1)}k` : count}</span>}
+      </button>
+    );
+  }
+
   const sizeClasses = size === 'sm' ? 'gap-1 text-xs' : 'gap-1.5 text-sm';
 
   return (
     <button
       onClick={handleToggle}
       disabled={!userId}
-      className={`flex items-center ${sizeClasses} transition-colors duration-200 disabled:cursor-not-allowed ${liked ? 'text-red-600' : 'text-gray-400 hover:text-red-600'}`}
+      className={`flex items-center ${sizeClasses} transition-colors duration-200 disabled:cursor-not-allowed ${liked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'}`}
     >
       <motion.div
         animate={liked ? { scale: [1, 1.3, 1] } : {}}
@@ -225,7 +233,7 @@ export function SaveButton({ postId, userId, initialSaved = false, size = 'md' }
     <button
       onClick={handleToggle}
       disabled={!userId}
-      className={`transition-colors duration-200 disabled:cursor-not-allowed ${saved ? 'text-amber-600' : 'text-gray-400 hover:text-amber-600'}`}
+      className={`transition-colors duration-200 disabled:cursor-not-allowed ${saved ? 'text-amber-500' : 'text-gray-400 hover:text-amber-500'}`}
     >
       <motion.div
         animate={saved ? { scale: [1, 1.2, 1] } : {}}
@@ -297,20 +305,20 @@ export function FollowButton({
         flex items-center gap-2 rounded-full font-medium transition-all duration-200
         disabled:cursor-not-allowed disabled:opacity-50
         ${following
-          ? 'bg-gray-50 text-gray-400 border border-gray-200 hover:border-red-200 hover:text-red-600 px-4 py-1.5 text-xs'
-          : 'bg-black text-white hover:bg-gray-800 px-4 py-1.5 text-xs '
+          ? 'bg-gray-100 text-gray-600 border border-gray-200 hover:border-red-200 hover:text-red-500 px-3 py-1 text-xs'
+          : 'bg-black text-white hover:bg-gray-800 px-3 py-1 text-xs'
         }
-        ${size === 'md' ? 'px-5 py-2 text-sm' : 'px-4 py-1.5 text-xs'}
+        ${size === 'md' ? 'px-4 py-1.5 text-sm' : 'px-3 py-1 text-xs'}
       `}
     >
       {following ? (
         <>
-          <UserCheck className="w-3.5 h-3.5" />
+          <UserCheck className="w-3 h-3" />
           {isZh ? '已关注' : 'Following'}
         </>
       ) : (
         <>
-          <UserPlus className="w-3.5 h-3.5" />
+          <UserPlus className="w-3 h-3" />
           {isZh ? '关注' : 'Follow'}
         </>
       )}
@@ -319,19 +327,21 @@ export function FollowButton({
 }
 
 // ============================================
-// PostCard 帖子卡片
+// PostCard 帖子卡片 - 支持紧凑模式
 // ============================================
 interface PostCardProps {
   post: PostWithAuthor;
   currentUserId?: string;
   onImageClick?: (post: PostWithAuthor) => void;
+  compact?: boolean;
 }
 
-export function PostCard({ post, currentUserId, onImageClick }: PostCardProps) {
+export function PostCard({ post, currentUserId, onImageClick, compact = false }: PostCardProps) {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const isZh = language === 'zh';
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
   const imageUrls = post.image_urls?.length ? post.image_urls : [post.image_url].filter(Boolean);
 
   const handleNextImage = (e: React.MouseEvent) => {
@@ -355,11 +365,103 @@ export function PostCard({ post, currentUserId, onImageClick }: PostCardProps) {
   const displayName = post.author?.display_name || post.author?.username || 'Unknown';
   const username = post.author?.username || '';
 
+  // 紧凑模式 - 用于 Explore 页面网格
+  if (compact) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="relative group cursor-pointer overflow-hidden bg-gray-100"
+        style={{ aspectRatio: '3/4' }}
+        onClick={handleCardClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {/* 图片 */}
+        <img
+          src={imageUrls[currentImageIndex]}
+          alt={post.title || 'Tattoo design'}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
+        />
+
+        {/* 渐变遮罩 - 默认隐藏，悬停显示 */}
+        <div className={`
+          absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent
+          transition-opacity duration-300
+          ${isHovered ? 'opacity-100' : 'opacity-0 md:opacity-0'}
+        `} />
+
+        {/* 多图指示器 */}
+        {imageUrls.length > 1 && (
+          <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-black/60 text-white text-[10px] rounded backdrop-blur-sm">
+            {currentImageIndex + 1}/{imageUrls.length}
+          </div>
+        )}
+
+        {/* AI生成标识 */}
+        {post.is_ai_generated && (
+          <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-black/80 text-white text-[10px] rounded backdrop-blur-sm">
+            AI
+          </div>
+        )}
+
+        {/* 底部信息 - 默认隐藏，悬停显示，移动端始终显示 */}
+        <div className={`
+          absolute bottom-0 left-0 right-0 p-3
+          transition-all duration-300
+          ${isHovered ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0 md:translate-y-2 md:opacity-0'}
+          sm:group-hover:translate-y-0 sm:group-hover:opacity-100
+        `}>
+          {/* 作者信息 + 点赞 */}
+          <div className="flex items-center justify-between">
+            <Link
+              to={`/profile/${username}`}
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-2 group/user"
+            >
+              <Avatar user={post.author} size="xs" />
+              <span className="text-xs text-white font-medium truncate max-w-[80px]">
+                {displayName}
+              </span>
+            </Link>
+
+            <LikeButton
+              postId={post.id}
+              userId={currentUserId}
+              initialLiked={false}
+              initialCount={post.likes_count || 0}
+              size="sm"
+              compact
+            />
+          </div>
+        </div>
+
+        {/* 移动端始终显示底部信息 */}
+        <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent sm:hidden">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <Avatar user={post.author} size="xs" />
+              <span className="text-[10px] text-white truncate max-w-[60px]">
+                {displayName}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 text-white/90 text-[10px]">
+              <Heart className="w-3 h-3" />
+              <span>{post.likes_count || 0}</span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // 完整模式 - 用于详情页或其他场景
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gray-50 rounded-xl border border-amber-100 overflow-hidden hover:border-amber-200 transition-all duration-300 group cursor-pointer hover:"
+      className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-gray-300 transition-all duration-300 group cursor-pointer"
     >
       {/* 作品图片区域 */}
       <div
@@ -377,31 +479,27 @@ export function PostCard({ post, currentUserId, onImageClick }: PostCardProps) {
         {/* 多图指示器 */}
         {imageUrls.length > 1 && (
           <>
-            <div className="absolute top-3 right-3 px-2.5 py-1 bg-black/70 text-white text-xs rounded-full backdrop-blur-sm border border-gray-200">
+            <div className="absolute top-3 right-3 px-2 py-1 bg-black/70 text-white text-xs rounded-full backdrop-blur-sm">
               {currentImageIndex + 1}/{imageUrls.length}
             </div>
-            {imageUrls.length > 1 && (
-              <>
-                <button
-                  onClick={handlePrevImage}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 border border-gray-200"
-                >
-                  <ChevronDown className="w-4 h-4 text-white rotate-90" />
-                </button>
-                <button
-                  onClick={handleNextImage}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 border border-gray-200"
-                >
-                  <ChevronDown className="w-4 h-4 text-white -rotate-90" />
-                </button>
-              </>
-            )}
+            <button
+              onClick={handlePrevImage}
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
+            >
+              <ChevronDown className="w-4 h-4 text-white rotate-90" />
+            </button>
+            <button
+              onClick={handleNextImage}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
+            >
+              <ChevronDown className="w-4 h-4 text-white -rotate-90" />
+            </button>
           </>
         )}
 
         {/* AI生成标识 */}
         {post.is_ai_generated && (
-          <div className="absolute top-3 left-3 px-2.5 py-1 bg-black/80 text-white text-[10px] rounded-full backdrop-blur-sm border border-red-200">
+          <div className="absolute top-3 left-3 px-2 py-1 bg-black/80 text-white text-[10px] rounded-full backdrop-blur-sm">
             {isZh ? 'AI 生成' : 'AI Generated'}
           </div>
         )}
@@ -417,7 +515,7 @@ export function PostCard({ post, currentUserId, onImageClick }: PostCardProps) {
         >
           <Avatar user={post.author} size="sm" showBadge />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white truncate group-hover/user:text-amber-600 transition-colors">
+            <p className="text-sm font-medium text-gray-900 truncate group-hover/user:text-black transition-colors">
               {displayName}
             </p>
           </div>
@@ -425,18 +523,18 @@ export function PostCard({ post, currentUserId, onImageClick }: PostCardProps) {
 
         {/* 标题 */}
         {post.title && (
-          <p className="text-sm font-medium text-white/85 line-clamp-2">{post.title}</p>
+          <p className="text-sm font-medium text-gray-800 line-clamp-2">{post.title}</p>
         )}
 
         {/* 标签 */}
         {post.style && post.style.length > 0 && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5">
             {post.style.slice(0, 3).map(tag => (
               <Link
                 key={tag}
                 to={`/explore?tag=${encodeURIComponent(tag)}`}
                 onClick={(e) => e.stopPropagation()}
-                className="px-2.5 py-1 bg-black/70 text-amber-600 text-[10px] rounded-full border border-amber-200 hover:border-amber-200/50 transition-colors"
+                className="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] rounded-full hover:bg-gray-200 transition-colors"
               >
                 #{tag}
               </Link>
@@ -457,7 +555,7 @@ export function PostCard({ post, currentUserId, onImageClick }: PostCardProps) {
             <Link
               to={`/post/${post.id}#comments`}
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1.5 text-gray-400 hover:text-white transition-colors text-xs"
+              className="flex items-center gap-1.5 text-gray-500 hover:text-gray-700 transition-colors text-xs"
             >
               <MessageCircle className="w-4 h-4" />
               <span>{post.comments_count || 0}</span>
@@ -500,10 +598,7 @@ export function CommentItem({ comment, currentUserId, onReply }: CommentItemProp
   const [showReplies, setShowReplies] = useState(false);
   const { language } = useLanguage();
   const isZh = language === 'zh';
-  const [replyContent, setReplyContent] = useState('');
-  const [submitting, setSubmitting] = useState(false);
   const [liked, setLiked] = useState(false);
-  const replyRef = useRef<HTMLInputElement>(null);
 
   const timeAgo = (date: string) => {
     const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
@@ -523,27 +618,24 @@ export function CommentItem({ comment, currentUserId, onReply }: CommentItemProp
         <Avatar user={comment.author} size="sm" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-medium text-white">
+            <span className="text-sm font-medium text-gray-900">
               {comment.author.display_name || comment.author.username}
             </span>
             <span className="text-xs text-gray-400">{timeAgo(comment.created_at)}</span>
           </div>
-          <p className="text-sm text-gray-500 leading-relaxed">{comment.content}</p>
+          <p className="text-sm text-gray-600 leading-relaxed">{comment.content}</p>
           <div className="flex items-center gap-4 mt-2">
             <button
               onClick={() => setLiked(!liked)}
-              className={`flex items-center gap-1.5 text-xs transition-colors ${liked ? 'text-red-600' : 'text-gray-400 hover:text-red-600'}`}
+              className={`flex items-center gap-1.5 text-xs transition-colors ${liked ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}
             >
               <Heart className={`w-3.5 h-3.5 ${liked ? 'fill-current' : ''}`} />
               {comment.likes_count > 0 && <span>{comment.likes_count}</span>}
             </button>
             {currentUserId && (
               <button
-                onClick={() => {
-                  onReply?.(comment.id);
-                  replyRef.current?.focus();
-                }}
-                className="text-xs text-gray-400 hover:text-amber-600 transition-colors"
+                onClick={() => onReply?.(comment.id)}
+                className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
               >
                 {isZh ? '回复' : 'Reply'}
               </button>
@@ -557,9 +649,9 @@ export function CommentItem({ comment, currentUserId, onReply }: CommentItemProp
         <div className="ml-11 space-y-3">
           <button
             onClick={() => setShowReplies(!showReplies)}
-            className="text-xs text-amber-600 hover:text-amber-500 transition-colors"
+            className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
           >
-            {showReplies ? (isZh ? '收起' : 'Hide') : (isZh ? '查看 ' + comment.replies.length + ' 条回复' : `View ${comment.replies.length} ${comment.replies.length === 1 ? 'reply' : 'replies'}`)}
+            {showReplies ? (isZh ? '收起' : 'Hide') : (isZh ? `查看 ${comment.replies.length} 条回复` : `View ${comment.replies.length} ${comment.replies.length === 1 ? 'reply' : 'replies'}`)}
           </button>
           <AnimatePresence>
             {showReplies && (
@@ -574,12 +666,12 @@ export function CommentItem({ comment, currentUserId, onReply }: CommentItemProp
                     <Avatar user={reply.author} size="xs" />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-xs font-medium text-white">
+                        <span className="text-xs font-medium text-gray-900">
                           {reply.author.display_name || reply.author.username}
                         </span>
                         <span className="text-[10px] text-gray-400">{timeAgo(reply.created_at)}</span>
                       </div>
-                      <p className="text-xs text-gray-500">{reply.content}</p>
+                      <p className="text-xs text-gray-600">{reply.content}</p>
                     </div>
                   </div>
                 ))}
@@ -630,7 +722,7 @@ export function CommentInput({ userId, placeholder, onSubmit, autoFocus }: Comme
           placeholder={_placeholder}
           autoFocus={autoFocus}
           rows={1}
-          className="w-full bg-gray-100/80 border border-gray-200 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-400 resize-none focus:border-amber-200/50 focus:outline-none transition-colors"
+          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 resize-none focus:border-black focus:outline-none transition-colors"
           onInput={(e) => {
             const target = e.target as HTMLTextAreaElement;
             target.style.height = 'auto';
@@ -641,7 +733,7 @@ export function CommentInput({ userId, placeholder, onSubmit, autoFocus }: Comme
       <button
         onClick={handleSubmit}
         disabled={!content.trim() || submitting}
-        className="flex-shrink-0 p-3 rounded-xl bg-black text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors "
+        className="flex-shrink-0 p-3 rounded-xl bg-black text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {submitting ? (
           <Loader2 className="w-5 h-5 animate-spin" />
@@ -673,7 +765,7 @@ export function ImageUploader({ images, onChange, maxImages = 9, userId }: Image
   const handleFiles = async (files: FileList | null) => {
     if (!files || !userId) return;
     if (images.length + files.length > maxImages) {
-      alert(isZh ? '最多允许 ' + maxImages + ' 张图片' : `Maximum ${maxImages} images allowed`);
+      alert(isZh ? `最多允许 ${maxImages} 张图片` : `Maximum ${maxImages} images allowed`);
       return;
     }
 
@@ -684,7 +776,7 @@ export function ImageUploader({ images, onChange, maxImages = 9, userId }: Image
       for (const file of Array.from(files)) {
         if (!file.type.startsWith('image/')) continue;
         if (file.size > 10 * 1024 * 1024) {
-          alert(isZh ? '文件 ' + file.name + ' 太大（最大 10MB）' : `File ${file.name} is too large (max 10MB)`);
+          alert(isZh ? `文件 ${file.name} 太大（最大 10MB）` : `File ${file.name} is too large (max 10MB)`);
           continue;
         }
         const { publicUrl: url } = await uploadImage(file, 'tattoo-images', `posts/${userId}`);
@@ -710,12 +802,12 @@ export function ImageUploader({ images, onChange, maxImages = 9, userId }: Image
               <img src={url} alt={`Upload ${index + 1}`} loading="lazy" className="w-full h-full object-cover" />
               <button
                 onClick={() => removeImage(index)}
-                className="absolute top-1.5 right-1.5 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-black/90 transition-colors border border-gray-200"
+                className="absolute top-1.5 right-1.5 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-black/90 transition-colors"
               >
                 <X className="w-3 h-3 text-white" />
               </button>
               {index === 0 && (
-                <span className="absolute bottom-1.5 left-1.5 px-2 py-0.5 bg-black/70 text-white text-[10px] rounded backdrop-blur-sm border border-gray-200">
+                <span className="absolute bottom-1.5 left-1.5 px-2 py-0.5 bg-black/70 text-white text-[10px] rounded backdrop-blur-sm">
                   {isZh ? '封面' : 'Cover'}
                 </span>
               )}
@@ -733,7 +825,7 @@ export function ImageUploader({ images, onChange, maxImages = 9, userId }: Image
           onClick={() => inputRef.current?.click()}
           className={`
             border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all
-            ${dragOver ? 'border-amber-200 bg-amber-50' : 'border-gray-200 hover:border-amber-200'}
+            ${dragOver ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-gray-400'}
             ${uploading ? 'opacity-50 cursor-wait' : ''}
           `}
         >
@@ -747,13 +839,13 @@ export function ImageUploader({ images, onChange, maxImages = 9, userId }: Image
           />
           {uploading ? (
             <div className="flex flex-col items-center gap-2">
-              <Loader2 className="w-9 h-9 text-amber-600 animate-spin" />
-              <p className="text-sm text-gray-400">{isZh ? '上传中...' : 'Uploading...'}</p>
+              <Loader2 className="w-8 h-8 text-gray-600 animate-spin" />
+              <p className="text-sm text-gray-500">{isZh ? '上传中...' : 'Uploading...'}</p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
-              <ImageIcon className="w-9 h-9 text-gray-400" />
-              <p className="text-sm text-gray-400">
+              <ImageIcon className="w-8 h-8 text-gray-400" />
+              <p className="text-sm text-gray-500">
                 {isZh ? '点击或拖拽上传图片' : 'Click or drag to upload images'}
               </p>
               <p className="text-xs text-gray-400">
@@ -778,7 +870,7 @@ export function NotificationBadge({ count }: NotificationBadgeProps) {
   if (count <= 0) return null;
 
   return (
-    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center px-1 bg-black text-white text-[10px] font-bold rounded-full ">
+    <span className="absolute -top-1 -right-1 min-w-[16px] h-4 flex items-center justify-center px-1 bg-red-500 text-white text-[10px] font-bold rounded-full">
       {count > 99 ? '99+' : count}
     </span>
   );
@@ -799,20 +891,20 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
       {icon && (
-        <div className="w-18 h-18 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center mb-5" style={{ width: '72px', height: '72px' }}>
+        <div className="w-16 h-16 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center mb-4">
           {icon}
         </div>
       )}
-      <h3 className="text-lg font-medium text-white mb-2">{title}</h3>
+      <h3 className="text-lg font-medium text-gray-900 mb-2">{title}</h3>
       {description && (
-        <p className="text-sm text-gray-400 max-w-sm mb-7">{description}</p>
+        <p className="text-sm text-gray-500 max-w-sm mb-6">{description}</p>
       )}
       {action && (
         <button
           onClick={action.onClick}
-          className="px-7 py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-colors "
+          className="px-6 py-2.5 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-colors"
         >
           {action.label}
         </button>
@@ -848,14 +940,14 @@ export function VisibilitySelector({ value, onChange }: VisibilitySelectorProps)
           className={`
             w-full flex items-center gap-3 p-4 rounded-xl border transition-all text-left
             ${value === option.value
-              ? 'border-amber-200/40 bg-amber-50'
-              : 'border-amber-100 hover:border-amber-200/25 bg-gray-50'
+              ? 'border-black bg-gray-50'
+              : 'border-gray-200 hover:border-gray-300 bg-white'
             }
           `}
         >
-          <option.icon className={`w-5 h-5 ${value === option.value ? 'text-amber-600' : 'text-gray-400'}`} />
+          <option.icon className={`w-5 h-5 ${value === option.value ? 'text-black' : 'text-gray-400'}`} />
           <div>
-            <p className={`text-sm font-medium ${value === option.value ? 'text-white' : 'text-gray-400'}`}>
+            <p className={`text-sm font-medium ${value === option.value ? 'text-gray-900' : 'text-gray-600'}`}>
               {option.label}
             </p>
             <p className="text-xs text-gray-400">{option.desc}</p>
@@ -867,7 +959,7 @@ export function VisibilitySelector({ value, onChange }: VisibilitySelectorProps)
 }
 
 // ============================================
-// SearchBar 搜索栏
+// SearchBar 搜索栏 (保留以兼容其他组件)
 // ============================================
 interface SearchBarProps {
   value: string;
@@ -889,7 +981,7 @@ export function SearchBar({ value, onChange, onSearch, placeholder }: SearchBarP
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && onSearch(value)}
         placeholder={_placeholder}
-        className="w-full bg-gray-50 border border-amber-100 rounded-full pl-11 pr-5 py-3 text-sm text-white placeholder-gray-400 focus:border-amber-200/40 focus:outline-none transition-colors"
+        className="w-full bg-gray-50 border border-gray-200 rounded-full pl-11 pr-5 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-black focus:outline-none transition-colors"
       />
     </div>
   );

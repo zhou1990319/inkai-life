@@ -1,70 +1,51 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Bell, User, Crown, Globe } from 'lucide-react';
+import { Menu, X, Globe } from 'lucide-react';
 import { supabase } from '../../supabase/client';
 import type { Profile } from '../../supabase/types';
 import { useLanguage, LANGUAGES, type Language } from '../../contexts/LanguageContext';
 
 export default function Header({ user }: { user: Profile | null }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isArtist, setIsArtist] = useState(false);
-  const [currentPlan, setCurrentPlan] = useState('free');
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const location = useLocation();
   const { language, setLanguage, currentLanguage, t } = useLanguage();
 
+  // 简化的导航项
   const navItems = [
     { path: '/', labelKey: 'nav.home' },
     { path: '/explore', labelKey: 'nav.community' },
-    { path: '/inspire', labelKey: 'nav.inspire' },
-    { path: '/blog', labelKey: 'nav.blog' },
     { path: '/pricing', labelKey: 'nav.pricing' },
   ];
 
+  // 点击外部关闭语言菜单
   useEffect(() => {
-    const checkUserStatus = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('is_artist, current_plan')
-          .eq('id', session.user.id)
-          .single();
-        setIsArtist(data?.is_artist || false);
-        setCurrentPlan(data?.current_plan || 'free');
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.lang-menu')) {
+        setIsLangOpen(false);
       }
     };
-    checkUserStatus();
-  }, [location, user]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 bg-white transition-all duration-300 ${
-      isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
-    }`}>
-      <div className="max-w-[1200px] mx-auto px-6">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-black flex items-center justify-center">
-              <span className="text-white font-bold text-xl">墨</span>
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between h-14">
+          {/* Logo - 更紧凑 */}
+          <Link to="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-black flex items-center justify-center">
+              <span className="text-white font-bold text-sm">墨</span>
             </div>
-            <span className="text-2xl font-semibold tracking-tight text-black">
+            <span className="text-lg font-semibold tracking-tight text-black">
               InkAI
             </span>
           </Link>
 
-          {/* 桌面端导航 */}
-          <nav className="hidden md:flex items-center space-x-8">
+          {/* Desktop Navigation - 极简 */}
+          <nav className="hidden md:flex items-center gap-6">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
@@ -83,20 +64,20 @@ export default function Header({ user }: { user: Profile | null }) {
             })}
           </nav>
 
-          {/* 右侧操作区 */}
-          <div className="hidden md:flex items-center space-x-6">
-            {/* 语言切换 */}
-            <div className="relative">
+          {/* Right Actions */}
+          <div className="hidden md:flex items-center gap-4">
+            {/* Language Switcher */}
+            <div className="relative lang-menu">
               <button
                 onClick={() => setIsLangOpen(!isLangOpen)}
-                className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors text-sm"
+                className="flex items-center gap-1.5 text-gray-500 hover:text-black transition-colors text-sm"
               >
                 <Globe className="w-4 h-4" />
-                <span>{currentLanguage.flag}</span>
+                <span className="text-base">{currentLanguage.flag}</span>
               </button>
 
               {isLangOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 shadow-lg z-50">
+                <div className="absolute right-0 top-full mt-2 w-36 bg-white border border-gray-200 shadow-lg z-50 py-1">
                   {LANGUAGES.map((lang) => (
                     <button
                       key={lang.id}
@@ -104,11 +85,11 @@ export default function Header({ user }: { user: Profile | null }) {
                         setLanguage(lang.id as Language);
                         setIsLangOpen(false);
                       }}
-                      className={`w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-gray-50 transition-colors text-sm ${
+                      className={`w-full px-3 py-2 text-left flex items-center gap-2 hover:bg-gray-50 transition-colors text-sm ${
                         language === lang.id ? 'text-black font-medium' : 'text-gray-500'
                       }`}
                     >
-                      <span>{lang.flag}</span>
+                      <span className="text-base">{lang.flag}</span>
                       <span>{lang.nativeName}</span>
                     </button>
                   ))}
@@ -116,72 +97,44 @@ export default function Header({ user }: { user: Profile | null }) {
               )}
             </div>
 
-            {isLangOpen && (
-              <div className="fixed inset-0 z-40" onClick={() => setIsLangOpen(false)} />
-            )}
-
-            {/* 会员按钮 */}
-            {currentPlan === 'free' && (
-              <Link
-                to="/pricing"
-                className="flex items-center gap-2 px-4 py-2 bg-black text-white text-sm font-medium hover:shadow-[0_0_0_2px_#D4AF37] transition-all"
-              >
-                <Crown className="w-4 h-4" />
-                <span>{t('nav.upgrade')}</span>
-              </Link>
-            )}
-
-            {/* 通知/登录 */}
+            {/* Login / User */}
             {user ? (
               <Link
-                to="/notifications"
-                className="relative p-2 text-gray-500 hover:text-black transition-colors"
+                to={`/profile/${user.username}`}
+                className="w-8 h-8 bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
               >
-                <Bell className="w-5 h-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center px-1 bg-black text-white text-[10px] font-bold">
-                    {unreadCount > 99 ? '99+' : unreadCount}
+                {user.avatar_url ? (
+                  <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-xs font-medium text-gray-600">
+                    {user.username?.charAt(0).toUpperCase()}
                   </span>
                 )}
               </Link>
             ) : (
               <Link
                 to="/login"
-                className="px-5 py-2 bg-black text-white text-sm font-medium hover:shadow-[0_0_0_2px_#D4AF37] transition-all"
+                className="px-4 py-1.5 bg-black text-white text-sm font-medium hover:bg-gray-800 transition-colors"
               >
                 {t('nav.sign_in')}
               </Link>
             )}
-            
-            {/* 用户头像 */}
-            {user && (
-              <Link
-                to={`/profile/${user.username}`}
-                className="w-10 h-10 bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
-              >
-                {user.avatar_url ? (
-                  <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-5 h-5 text-gray-500" />
-                )}
-              </Link>
-            )}
           </div>
 
-          {/* 移动端菜单按钮 */}
+          {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden p-2 text-gray-500 hover:text-black transition-colors"
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
-      {/* 移动端菜单 - 仅显示语言切换和额外操作 */}
+      {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200">
-          <nav className="px-6 py-4 space-y-1">
+        <div className="md:hidden bg-white border-t border-gray-100">
+          <nav className="px-4 py-3 space-y-1">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
@@ -189,7 +142,7 @@ export default function Header({ user }: { user: Profile | null }) {
                   key={item.path}
                   to={item.path}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`block py-3 text-sm font-medium transition-colors ${
+                  className={`block py-2 text-sm font-medium transition-colors ${
                     isActive ? 'text-black' : 'text-gray-500 hover:text-black'
                   }`}
                 >
@@ -198,10 +151,10 @@ export default function Header({ user }: { user: Profile | null }) {
               );
             })}
 
-            {/* 语言切换 - 网格布局 */}
-            <div className="pt-4 border-t border-gray-200 mt-4">
-              <div className="text-xs text-gray-400 mb-3">Language</div>
-              <div className="grid grid-cols-4 gap-2">
+            {/* Mobile Language Switcher */}
+            <div className="pt-3 border-t border-gray-100 mt-3">
+              <div className="text-xs text-gray-400 mb-2">Language</div>
+              <div className="flex flex-wrap gap-2">
                 {LANGUAGES.map((lang) => (
                   <button
                     key={lang.id}
@@ -209,39 +162,31 @@ export default function Header({ user }: { user: Profile | null }) {
                       setLanguage(lang.id as Language);
                       setIsMenuOpen(false);
                     }}
-                    className={`px-2 py-2 text-xs text-center transition-colors rounded ${
+                    className={`px-3 py-1.5 text-sm transition-colors ${
                       language === lang.id
                         ? 'bg-black text-white'
                         : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
                     }`}
                   >
-                    {lang.flag}
+                    <span className="mr-1">{lang.flag}</span>
+                    {lang.nativeName}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* 操作按钮 */}
-            <div className="pt-4 border-t border-gray-200 mt-4 space-y-2">
-              {currentPlan === 'free' && (
-                <Link
-                  to="/pricing"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block w-full py-3 text-center bg-black text-white text-sm font-medium"
-                >
-                  {t('nav.upgrade')}
-                </Link>
-              )}
-              {!user && (
+            {/* Mobile Auth */}
+            {!user && (
+              <div className="pt-3 border-t border-gray-100 mt-3">
                 <Link
                   to="/login"
                   onClick={() => setIsMenuOpen(false)}
-                  className="block w-full py-3 text-center border border-black text-black text-sm font-medium"
+                  className="block w-full py-2.5 text-center bg-black text-white text-sm font-medium"
                 >
                   {t('nav.sign_in')}
                 </Link>
-              )}
-            </div>
+              </div>
+            )}
           </nav>
         </div>
       )}

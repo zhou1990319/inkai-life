@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Sparkles, Palette, Users, ArrowRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Check, ArrowRight, Sparkles } from 'lucide-react';
 import { supabase } from '../supabase/client';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Post {
   id: string;
@@ -12,36 +13,37 @@ interface Post {
   user: { username: string; avatar_url: string };
 }
 
-const getFeatures = (t: (key: string) => string) => [
-  {
-    icon: Sparkles,
-    title: t('home.feature_ai_title'),
-    desc: t('home.feature_ai_desc'),
-  },
-  {
-    icon: Palette,
-    title: t('home.feature_styles_title'),
-    desc: t('home.feature_styles_desc'),
-  },
-  {
-    icon: Users,
-    title: t('home.feature_community_title'),
-    desc: t('home.feature_community_desc'),
-  },
+const SAMPLE_WORKS = [
+  { id: '1', url: 'https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?w=600', title: 'Dragon Design', style: '中式' },
+  { id: '2', url: 'https://images.unsplash.com/photo-1590246815117-7f5c071e7c2c?w=600', title: 'Floral Pattern', style: '日式' },
+  { id: '3', url: 'https://images.unsplash.com/photo-1562962230-16e4623d36e6?w=600', title: 'Geometric Art', style: '极简' },
+  { id: '4', url: 'https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?w=600', title: 'Typography Art', style: '美式' },
+  { id: '5', url: 'https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?w=600', title: 'Traditional Style', style: '黑灰' },
+  { id: '6', url: 'https://images.unsplash.com/photo-1590246815117-7f5c071e7c2c?w=600', title: 'Modern Abstract', style: '水彩' },
+  { id: '7', url: 'https://images.unsplash.com/photo-1562962230-16e4623d36e6?w=600', title: 'Minimalist Line', style: '极简' },
+  { id: '8', url: 'https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?w=600', title: 'Oriental Art', style: '中式' },
 ];
 
-const SAMPLE_WORKS = [
-  { id: '1', url: 'https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?w=600', title: 'Dragon Design' },
-  { id: '2', url: 'https://images.unsplash.com/photo-1590246815117-7f5c071e7c2c?w=600', title: 'Floral Pattern' },
-  { id: '3', url: 'https://images.unsplash.com/photo-1562962230-16e4623d36e6?w=600', title: 'Geometric Art' },
-  { id: '4', url: 'https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?w=600', title: 'Typography Art' },
-  { id: '5', url: 'https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?w=600', title: 'Traditional Style' },
-  { id: '6', url: 'https://images.unsplash.com/photo-1590246815117-7f5c071e7c2c?w=600', title: 'Modern Abstract' },
+const STYLE_TAGS = [
+  { id: 'all', label: '全部' },
+  { id: 'chinese', label: '中式' },
+  { id: 'japanese', label: '日式' },
+  { id: 'american', label: '美式' },
+  { id: 'blackgray', label: '黑灰' },
+  { id: 'watercolor', label: '水彩' },
+  { id: 'minimalist', label: '极简' },
+  { id: 'geometric', label: '几何' },
+  { id: 'lettering', label: '花体' },
 ];
 
 export default function Home() {
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState<Post[]>([]);
+  const [prompt, setPrompt] = useState('');
+  const [selectedStyle, setSelectedStyle] = useState('all');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     fetchPosts();
@@ -53,165 +55,163 @@ export default function Home() {
       .select('*, user:profiles(username, avatar_url)')
       .eq('is_public', true)
       .order('created_at', { ascending: false })
-      .limit(6);
+      .limit(8);
     if (data) setPosts(data as Post[]);
   }
 
+  const handleGenerate = () => {
+    if (!prompt.trim()) return;
+    
+    if (!user) {
+      navigate('/login?redirect=/ai-studio');
+      return;
+    }
+    
+    setIsGenerating(true);
+    navigate('/ai-studio', { state: { initialPrompt: prompt, style: selectedStyle } });
+  };
+
+  const displayWorks = posts.length > 0 
+    ? posts.map(p => ({ id: p.id, url: p.image_url, title: p.title, style: p.style?.[0] || 'Custom' }))
+    : SAMPLE_WORKS;
+
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="pt-32 pb-24 px-6">
-        <div className="max-w-[1200px] mx-auto text-center">
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-semibold text-black mb-8 tracking-tight">
-            InkAI
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-500 mb-6 max-w-2xl mx-auto">
-            {t('home.hero_subtitle')}
-          </p>
-          <p className="text-gray-400 mb-12 max-w-xl mx-auto">
-            {t('home.hero_description')}
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Link
-              to="/ai-studio"
-              className="px-10 py-4 bg-black text-white font-medium hover:bg-gray-800 transition-all"
-            >
-              {t('home.get_started')}
-            </Link>
-            <Link
-              to="/explore"
-              className="px-10 py-4 border border-gray-200 text-black font-medium hover:border-black transition-all"
-            >
-              {t('home.view_examples')}
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Social Proof Section */}
-      <section className="py-16 px-6 border-y border-gray-100">
+      {/* Hero Section - Compact Single Screen */}
+      <section className="pt-20 pb-4 px-4 sm:px-6">
         <div className="max-w-[1200px] mx-auto">
-          <div className="grid grid-cols-3 gap-8 text-center">
-            <div>
-              <p className="text-3xl md:text-4xl font-bold text-black">{t('home.social_users')}</p>
-              <p className="text-gray-500 text-sm mt-2">{t('home.social_users_label')}</p>
-            </div>
-            <div>
-              <p className="text-3xl md:text-4xl font-bold text-black">{t('home.social_artworks')}</p>
-              <p className="text-gray-500 text-sm mt-2">{t('home.social_artworks_label')}</p>
-            </div>
-            <div>
-              <p className="text-3xl md:text-4xl font-bold text-black">{t('home.social_artists')}</p>
-              <p className="text-gray-500 text-sm mt-2">{t('home.social_artists_label')}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-32 px-6 bg-gray-50">
-        <div className="max-w-[1200px] mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-semibold text-black mb-4">
-              {t('home.features_title')}
-            </h2>
+          {/* Title */}
+          <div className="text-center mb-4">
+            <h1 className="text-4xl sm:text-5xl lg:text-[56px] font-semibold text-black tracking-tight leading-tight">
+              AI Tattoo Design Generator
+            </h1>
+            <p className="text-base sm:text-lg text-gray-500 mt-2 max-w-xl mx-auto">
+              Create unique tattoos in seconds
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-12">
-            {getFeatures(t).map((feature, index) => (
-              <div key={index} className="text-center">
-                <div className="w-16 h-16 mx-auto mb-6 bg-black flex items-center justify-center">
-                  <feature.icon className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold text-black mb-3">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-500 leading-relaxed">
-                  {feature.desc}
-                </p>
+          {/* Input + CTA */}
+          <div className="max-w-2xl mx-auto mb-4">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
+                  placeholder="Describe your tattoo idea..."
+                  className="w-full px-4 py-3 sm:py-3.5 bg-gray-50 border border-gray-200 text-black placeholder-gray-400 focus:outline-none focus:border-black transition-colors text-sm sm:text-base"
+                />
               </div>
+              <button
+                onClick={handleGenerate}
+                disabled={isGenerating || !prompt.trim()}
+                className="px-6 sm:px-8 py-3 sm:py-3.5 bg-black text-white font-medium hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
+              >
+                {isGenerating ? (
+                  <span className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 animate-pulse" />
+                    Generating...
+                  </span>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    Generate
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Trust Points - Horizontal */}
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm text-gray-500 mb-4">
+            <span className="flex items-center gap-1.5">
+              <Check className="w-4 h-4 text-black" />
+              Free to start
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Check className="w-4 h-4 text-black" />
+              No signup required
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Check className="w-4 h-4 text-black" />
+              10+ styles
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* Style Tags - Horizontal Scroll */}
+      <section className="border-y border-gray-100">
+        <div className="max-w-[1200px] mx-auto">
+          <div className="flex overflow-x-auto scrollbar-hide py-3 px-4 sm:px-6 gap-2 snap-x">
+            {STYLE_TAGS.map((tag) => (
+              <button
+                key={tag.id}
+                onClick={() => setSelectedStyle(tag.id)}
+                className={`flex-shrink-0 px-4 py-1.5 text-sm font-medium transition-all snap-start ${
+                  selectedStyle === tag.id
+                    ? 'bg-black text-white'
+                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                {tag.label}
+              </button>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Works Section */}
-      <section className="py-32 px-6">
+      {/* Featured Works - Compact Grid */}
+      <section className="py-4 px-4 sm:px-6">
         <div className="max-w-[1200px] mx-auto">
-          <div className="flex items-center justify-between mb-16">
-            <div>
-              <h2 className="text-4xl md:text-5xl font-semibold text-black mb-2">
-                {t('home.featured_works')}
-              </h2>
-              <p className="text-gray-500">{t('home.featured_works_subtitle')}</p>
-            </div>
-            <Link
-              to="/explore"
-              className="hidden md:flex items-center gap-2 text-black hover:text-gray-600 transition-colors"
-            >
-              {t('home.view_all')} <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          {/* Works Grid */}
-          <div className="grid md:grid-cols-2 gap-8">
-            {(posts.length > 0 ? posts : SAMPLE_WORKS.map(w => ({
-              id: w.id,
-              title: w.title,
-              image_url: w.url,
-              style: [],
-              user: { username: 'artist', avatar_url: '' }
-            }))).map((post, index) => (
+          {/* Works Grid - 2 cols mobile, 3 tablet, 4 desktop */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+            {displayWorks.slice(0, 8).map((work) => (
               <Link
-                key={post.id}
-                to={`/post/${post.id}`}
-                className="group block"
+                key={work.id}
+                to={`/post/${work.id}`}
+                className="group relative aspect-square overflow-hidden bg-gray-100"
               >
-                <div className="aspect-[4/3] overflow-hidden bg-gray-100 mb-4">
-                  <img
-                    src={post.image_url}
-                    alt={post.title}
-                    loading="lazy"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
+                <img
+                  src={work.url}
+                  alt={work.title}
+                  loading="lazy"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                {/* Hover Overlay */}
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white p-2">
+                  <p className="text-sm font-medium text-center">{work.title}</p>
+                  {work.style && (
+                    <span className="text-xs text-gray-300 mt-1">{work.style}</span>
+                  )}
                 </div>
-                <h3 className="text-lg font-medium text-black group-hover:text-gray-600 transition-colors">
-                  {post.title}
-                </h3>
               </Link>
             ))}
           </div>
 
-          <div className="mt-12 text-center md:hidden">
+          {/* View More Link */}
+          <div className="mt-4 text-center">
             <Link
               to="/explore"
-              className="inline-flex items-center gap-2 text-black hover:text-gray-600 transition-colors"
+              className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-black transition-colors"
             >
-              {t('home.view_all')} <ArrowRight className="w-4 h-4" />
+              View More <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-32 px-6 bg-black">
-        <div className="max-w-[1200px] mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-semibold text-white mb-6">
-            {t('home.cta_title')}
-          </h2>
-          <p className="text-gray-400 mb-12 max-w-xl mx-auto">
-            {t('home.cta_description')}
-          </p>
-          <Link
-            to="/register"
-            className="inline-block px-12 py-4 bg-white text-black font-medium hover:bg-gray-100 transition-all"
-          >
-            {t('home.free_signup')}
-          </Link>
-        </div>
-      </section>
+      {/* CSS for hiding scrollbar */}
+      <style>{`
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 }
