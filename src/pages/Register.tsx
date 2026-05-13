@@ -19,7 +19,6 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
 
   // 密码强度检查
   const passwordChecks = [
@@ -53,17 +52,12 @@ export default function Register() {
     }
 
     try {
-      const { error: signUpError, needsConfirmation } = await signUp(email, password, username);
+      const { error: signUpError } = await signUp(email, password, username);
       
       if (signUpError) throw signUpError;
       
-      if (needsConfirmation) {
-        // 需要邮箱验证
-        setSuccess(true);
-      } else {
-        // 注册成功，直接跳转
-        navigate(redirectTo);
-      }
+      // 注册成功（自动登录），直接跳转
+      navigate(redirectTo);
     } catch (err: any) {
       if (err.message?.includes('already registered')) {
         setError(isZh ? '该邮箱已注册，请直接登录。' : 'This email is already registered. Try signing in.');
@@ -74,32 +68,6 @@ export default function Register() {
       setLoading(false);
     }
   };
-
-  if (success) {
-    return (
-      <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center px-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md bg-[#18181F] border border-[#2A2A36] rounded-2xl p-8 text-center"
-        >
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#9E2B25]/20 flex items-center justify-center">
-            <Mail className="w-8 h-8 text-[#9E2B25]" />
-          </div>
-          <h1 className="text-2xl font-bold text-white mb-3">{t('auth.confirm_email') || 'Check your email'}</h1>
-          <p className="text-[#B0B0B8] mb-6">
-            {isZh ? `我们已向 <span className="text-[#CFAF6E]">${email}</span> 发送了确认链接。请点击链接激活您的账户。` : `We've sent a confirmation link to <span className="text-[#CFAF6E]">${email}</span>. Please click the link to activate your account.`}
-          </p>
-          <button
-            onClick={() => navigate('/login')}
-            className="w-full py-3 bg-[#9E2B25] text-white font-bold rounded-xl hover:bg-[#B8342D] transition-colors"
-          >
-            {t('auth.go_to_signin') || 'Go to Sign In'}
-          </button>
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center px-4">

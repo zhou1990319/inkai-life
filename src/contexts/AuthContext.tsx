@@ -7,7 +7,7 @@ interface AuthContextType {
   session: any | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, username: string) => Promise<{ error: any; needsConfirmation?: boolean }>;
+  signUp: (email: string, password: string, username: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -86,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
-  // 注册
+  // 注册（注册后立即登录，无需邮箱验证）
   const signUp = async (email: string, password: string, username: string) => {
     // 先检查用户名是否已存在
     const { data: existingUser } = await supabase
@@ -110,8 +110,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
 
-    // 如果注册成功且有用户，额外创建profile（以防触发器失败）
+    // 如果注册成功且有用户，尝试立即登录（无需邮箱验证）
     if (data.user && !error) {
+      // 自动登录（使用同一套凭据）
+      await supabase.auth.signInWithPassword({ email, password });
+      
       const profile = await loadProfile(data.user.id);
       if (!profile) {
         // 手动创建profile（包含完整字段）
@@ -146,10 +149,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    return { 
-      error, 
-      needsConfirmation: data?.user && !data.session 
-    };
+    // 不再需要确认，直接返回成功
+    return { error };
   };
 
   // 登出
