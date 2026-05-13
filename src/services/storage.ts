@@ -1,4 +1,4 @@
-import { supabase } from '../supabase/client';
+﻿import { supabase } from '../supabase/client';
 
 // ========== 浏览器兼容的工具函数 ==========
 
@@ -28,17 +28,21 @@ async function fileToUint8Array(file: File): Promise<Uint8Array> {
  * 上传图片到 Supabase Storage
  * @param file 文件对象（来自 input[type=file]）
  * @param bucket Storage bucket 名称
+ * @param folder 文件夹路径（可选，默认 'uploads'）
  */
 export async function uploadImage(
   file: File,
-  bucket: string = 'tattoo-images'
+  bucket: string = 'tattoo-images',
+  folder: string = 'uploads'
 ): Promise<{
   publicUrl: string;
   storagePath: string;
 }> {
   const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
   const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  const storagePath = `uploads/${fileName}`;
+  // 移除开头的斜杠，确保路径格式正确
+  const cleanFolder = folder.replace(/^\/+/, '');
+  const storagePath = `${cleanFolder}/${fileName}`;
 
   // 使用浏览器兼容的方式获取文件数据
   const uint8Array = await fileToUint8Array(file);
