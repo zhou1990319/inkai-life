@@ -19,6 +19,7 @@ export default function Header({ user }: { user: Profile | null }) {
     { path: '/', labelKey: 'nav.home' },
     { path: '/explore', labelKey: 'nav.community' },
     { path: '/inspire', labelKey: 'nav.inspire' },
+    { path: '/blog', labelKey: 'nav.blog' },
     { path: '/pricing', labelKey: 'nav.pricing' },
   ];
 

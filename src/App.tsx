@@ -32,6 +32,7 @@ import PaymentCancel from './pages/PaymentCancel';
 import Notifications from './pages/Notifications';
 import Settings from './pages/Settings';
 import AuthCallback from './pages/AuthCallback';
+import Blog from './pages/Blog';
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -70,6 +71,7 @@ function AppContent() {
               element={user ? <Create /> : <Navigate to="/login?redirect=/create" />}
             />
             <Route path="/inspire" element={<Inspire />} />
+            <Route path="/blog" element={<Blog />} />
             <Route
               path="/notifications"
               element={user ? <Notifications /> : <Navigate to="/login?redirect=/notifications" />}
