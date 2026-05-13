@@ -31,7 +31,6 @@ import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentCancel from './pages/PaymentCancel';
 import Notifications from './pages/Notifications';
 import Settings from './pages/Settings';
-import AuthCallback from './pages/AuthCallback';
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -85,7 +84,6 @@ function AppContent() {
             <Route path="/payment/cancel" element={<PaymentCancel />} />
             <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
             <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/disclaimer" element={<Disclaimer />} />

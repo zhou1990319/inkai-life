@@ -1,6 +1,7 @@
 ﻿// ============================================
 // InkAI 社区可复用组件库
-// 暗黑国风配色 + 统一交互规范
+// 新中式暗黑国风配色 + 统一交互规范
+// 未来东方美学
 // ============================================
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -47,18 +48,18 @@ export function Avatar({ user, username, size = 'md', showBadge }: AvatarProps) 
         <img
           src={avatarUrl}
           alt={name}
-          className={`${sizeClasses[size]} rounded-full object-cover border-2 border-[#2A2A36] transition-colors hover:border-[#CFAF6E]/40`}
+          className={`${sizeClasses[size]} rounded-full object-cover border-2 border-xuan-black-100 transition-colors hover:border-liujin-gold/40`}
           onError={(e) => { (e.target as HTMLImageElement).src = fallbackUrl; }}
         />
       ) : (
         <img
           src={fallbackUrl}
           alt={name}
-          className={`${sizeClasses[size]} rounded-full border-2 border-[#2A2A36]`}
+          className={`${sizeClasses[size]} rounded-full border-2 border-xuan-black-100`}
         />
       )}
       {showBadge && user?.is_artist && (
-        <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-[#CFAF6E] rounded-full border-2 border-[#0B0B0E]" />
+        <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-liujin-gold rounded-full border-2 border-xuan-black shadow-gold-glow-sm" />
       )}
     </div>
   );
@@ -69,14 +70,14 @@ export function Avatar({ user, username, size = 'md', showBadge }: AvatarProps) 
 // ============================================
 export function SkeletonCard({ aspectRatio = '1/1' }: { aspectRatio?: string }) {
   return (
-    <div className="bg-[#18181F] rounded-xl border border-[#2A2A36] overflow-hidden">
-      <div className="bg-[#1E1E27] animate-pulse" style={{ aspectRatio }} />
-      <div className="p-3 space-y-2">
+    <div className="bg-xuan-black-50/40 rounded-xl border border-liujin-gold/15 overflow-hidden">
+      <div className="bg-xuan-black-100 animate-pulse" style={{ aspectRatio }} />
+      <div className="p-4 space-y-3">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-[#1E1E27] animate-pulse" />
+          <div className="w-8 h-8 rounded-full bg-xuan-black-100 animate-pulse" />
           <div className="flex-1 space-y-1">
-            <div className="h-3 w-20 bg-[#1E1E27] rounded animate-pulse" />
-            <div className="h-2 w-12 bg-[#1E1E27] rounded animate-pulse" />
+            <div className="h-3 w-20 bg-xuan-black-100 rounded animate-pulse" />
+            <div className="h-2 w-12 bg-xuan-black-100 rounded animate-pulse" />
           </div>
         </div>
       </div>
@@ -97,24 +98,24 @@ interface TagBadgeProps {
 
 export function TagBadge({ tag, count, active, onClick, size = 'sm' }: TagBadgeProps) {
   const baseClasses = size === 'sm'
-    ? 'px-2.5 py-1 text-xs'
-    : 'px-3 py-1.5 text-sm';
+    ? 'px-3 py-1.5 text-xs'
+    : 'px-4 py-2 text-sm';
 
   return (
     <button
       onClick={onClick}
       className={`
         ${baseClasses} rounded-full font-medium transition-all duration-200
-        flex items-center gap-1.5 whitespace-nowrap
+        flex items-center gap-2 whitespace-nowrap
         ${active
-          ? 'bg-[#9E2B25] text-white border border-[#9E2B25]'
-          : 'bg-[#18181F] text-[#B0B0B8] border border-[#2A2A36] hover:border-[#CFAF6E]/40 hover:text-[#CFAF6E]'
+          ? 'bg-zhusha-red text-white border border-zhusha-red shadow-red-glow-sm'
+          : 'bg-xuan-black-50/50 text-rice-paper/60 border border-liujin-gold/15 hover:border-liujin-gold/40 hover:text-liujin-gold'
         }
       `}
     >
       #{tag}
       {count !== undefined && (
-        <span className={`text-[10px] ${active ? 'text-white/70' : 'text-[#6B6B78]'}`}>
+        <span className={`text-[10px] ${active ? 'text-white/70' : 'text-ink-gray-50'}`}>
           {count > 999 ? `${(count / 1000).toFixed(1)}k` : count}
         </span>
       )}
@@ -174,7 +175,7 @@ export function LikeButton({
     <button
       onClick={handleToggle}
       disabled={!userId}
-      className={`flex items-center ${sizeClasses} transition-colors duration-200 disabled:cursor-not-allowed ${liked ? 'text-[#9E2B25]' : 'text-[#6B6B78] hover:text-[#9E2B25]'}`}
+      className={`flex items-center ${sizeClasses} transition-colors duration-200 disabled:cursor-not-allowed ${liked ? 'text-zhusha-red' : 'text-ink-gray-50 hover:text-zhusha-red'}`}
     >
       <motion.div
         animate={liked ? { scale: [1, 1.3, 1] } : {}}
@@ -222,7 +223,7 @@ export function SaveButton({ postId, userId, initialSaved = false, size = 'md' }
     <button
       onClick={handleToggle}
       disabled={!userId}
-      className={`transition-colors duration-200 disabled:cursor-not-allowed ${saved ? 'text-[#CFAF6E]' : 'text-[#6B6B78] hover:text-[#CFAF6E]'}`}
+      className={`transition-colors duration-200 disabled:cursor-not-allowed ${saved ? 'text-liujin-gold' : 'text-ink-gray-50 hover:text-liujin-gold'}`}
     >
       <motion.div
         animate={saved ? { scale: [1, 1.2, 1] } : {}}
@@ -291,23 +292,23 @@ export function FollowButton({
       onClick={handleToggle}
       disabled={!currentUserId || loading}
       className={`
-        flex items-center gap-1.5 rounded-full font-medium transition-all duration-200
+        flex items-center gap-2 rounded-full font-medium transition-all duration-200
         disabled:cursor-not-allowed disabled:opacity-50
         ${following
-          ? 'bg-[#18181F] text-[#B0B0B8] border border-[#2A2A36] hover:border-[#9E2B25]/50 hover:text-[#9E2B25] px-3 py-1 text-xs'
-          : 'bg-[#9E2B25] text-white hover:bg-[#B8342D] px-3 py-1 text-xs'
+          ? 'bg-xuan-black-50/50 text-rice-paper/60 border border-liujin-gold/20 hover:border-zhusha-red/50 hover:text-zhusha-red px-4 py-1.5 text-xs'
+          : 'bg-zhusha-red text-white hover:bg-zhusha-red-light px-4 py-1.5 text-xs shadow-red-glow-sm'
         }
-        ${size === 'md' ? 'px-4 py-1.5 text-sm' : 'px-3 py-1 text-xs'}
+        ${size === 'md' ? 'px-5 py-2 text-sm' : 'px-4 py-1.5 text-xs'}
       `}
     >
       {following ? (
         <>
-          <UserCheck className="w-3 h-3" />
+          <UserCheck className="w-3.5 h-3.5" />
           {isZh ? '已关注' : 'Following'}
         </>
       ) : (
         <>
-          <UserPlus className="w-3 h-3" />
+          <UserPlus className="w-3.5 h-3.5" />
           {isZh ? '关注' : 'Follow'}
         </>
       )}
@@ -356,11 +357,11 @@ export function PostCard({ post, currentUserId, onImageClick }: PostCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[#18181F] rounded-xl border border-[#2A2A36] overflow-hidden hover:border-[#9E2B25]/40 transition-all duration-300 group cursor-pointer"
+      className="bg-xuan-black-50/40 rounded-xl border border-liujin-gold/15 overflow-hidden hover:border-liujin-gold/40 transition-all duration-300 group cursor-pointer hover:shadow-gold-glow-sm"
     >
       {/* 作品图片区域 */}
       <div
-        className="relative bg-[#1E1E27] overflow-hidden"
+        className="relative bg-xuan-black-100 overflow-hidden"
         style={{ aspectRatio: '1/1' }}
         onClick={handleCardClick}
       >
@@ -374,20 +375,20 @@ export function PostCard({ post, currentUserId, onImageClick }: PostCardProps) {
         {/* 多图指示器 */}
         {imageUrls.length > 1 && (
           <>
-            <div className="absolute top-2 right-2 px-2 py-0.5 bg-black/60 text-white text-xs rounded-full backdrop-blur-sm">
+            <div className="absolute top-3 right-3 px-2.5 py-1 bg-xuan-black/70 text-white text-xs rounded-full backdrop-blur-sm border border-liujin-gold/20">
               {currentImageIndex + 1}/{imageUrls.length}
             </div>
             {imageUrls.length > 1 && (
               <>
                 <button
                   onClick={handlePrevImage}
-                  className="absolute left-1 top-1/2 -translate-y-1/2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-xuan-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-xuan-black/80 border border-liujin-gold/20"
                 >
                   <ChevronDown className="w-4 h-4 text-white rotate-90" />
                 </button>
                 <button
                   onClick={handleNextImage}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-xuan-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-xuan-black/80 border border-liujin-gold/20"
                 >
                   <ChevronDown className="w-4 h-4 text-white -rotate-90" />
                 </button>
@@ -398,23 +399,23 @@ export function PostCard({ post, currentUserId, onImageClick }: PostCardProps) {
 
         {/* AI生成标识 */}
         {post.is_ai_generated && (
-          <div className="absolute top-2 left-2 px-2 py-0.5 bg-[#9E2B25]/80 text-white text-[10px] rounded-full backdrop-blur-sm">
+          <div className="absolute top-3 left-3 px-2.5 py-1 bg-zhusha-red/80 text-white text-[10px] rounded-full backdrop-blur-sm border border-zhusha-red/50">
             {isZh ? 'AI 生成' : 'AI Generated'}
           </div>
         )}
       </div>
 
       {/* 帖子信息 */}
-      <div className="p-3 space-y-3">
+      <div className="p-4 space-y-3">
         {/* 作者信息 */}
         <Link
           to={`/profile/${username}`}
           onClick={(e) => e.stopPropagation()}
-          className="flex items-center gap-2 group/user"
+          className="flex items-center gap-2.5 group/user"
         >
           <Avatar user={post.author} size="sm" showBadge />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white truncate group-hover/user:text-[#CFAF6E] transition-colors">
+            <p className="text-sm font-medium text-white truncate group-hover/user:text-liujin-gold transition-colors">
               {displayName}
             </p>
           </div>
@@ -422,18 +423,18 @@ export function PostCard({ post, currentUserId, onImageClick }: PostCardProps) {
 
         {/* 标题 */}
         {post.title && (
-          <p className="text-sm font-medium text-white/90 line-clamp-2">{post.title}</p>
+          <p className="text-sm font-medium text-white/85 line-clamp-2">{post.title}</p>
         )}
 
         {/* 标签 */}
         {post.style && post.style.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {post.style.slice(0, 3).map(tag => (
               <Link
                 key={tag}
                 to={`/explore?tag=${encodeURIComponent(tag)}`}
                 onClick={(e) => e.stopPropagation()}
-                className="px-2 py-0.5 bg-[#0B0B0E]/80 text-[#CFAF6E] text-[10px] rounded-full border border-[#CFAF6E]/25 hover:border-[#CFAF6E]/50 transition-colors"
+                className="px-2.5 py-1 bg-xuan-black/70 text-liujin-gold text-[10px] rounded-full border border-liujin-gold/25 hover:border-liujin-gold/50 transition-colors"
               >
                 #{tag}
               </Link>
@@ -442,7 +443,7 @@ export function PostCard({ post, currentUserId, onImageClick }: PostCardProps) {
         )}
 
         {/* 互动栏 */}
-        <div className="flex items-center justify-between pt-1 border-t border-[#2A2A36]/50">
+        <div className="flex items-center justify-between pt-2 border-t border-liujin-gold/10">
           <div className="flex items-center gap-4">
             <LikeButton
               postId={post.id}
@@ -454,7 +455,7 @@ export function PostCard({ post, currentUserId, onImageClick }: PostCardProps) {
             <Link
               to={`/post/${post.id}#comments`}
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1 text-[#6B6B78] hover:text-white transition-colors text-xs"
+              className="flex items-center gap-1.5 text-ink-gray-50 hover:text-white transition-colors text-xs"
             >
               <MessageCircle className="w-4 h-4" />
               <span>{post.comments_count || 0}</span>
@@ -523,15 +524,15 @@ export function CommentItem({ comment, currentUserId, onReply }: CommentItemProp
             <span className="text-sm font-medium text-white">
               {comment.author.display_name || comment.author.username}
             </span>
-            <span className="text-xs text-[#6B6B78]">{timeAgo(comment.created_at)}</span>
+            <span className="text-xs text-ink-gray-50">{timeAgo(comment.created_at)}</span>
           </div>
-          <p className="text-sm text-[#B0B0B8] leading-relaxed">{comment.content}</p>
+          <p className="text-sm text-rice-paper/70 leading-relaxed">{comment.content}</p>
           <div className="flex items-center gap-4 mt-2">
             <button
               onClick={() => setLiked(!liked)}
-              className={`flex items-center gap-1 text-xs transition-colors ${liked ? 'text-[#9E2B25]' : 'text-[#6B6B78] hover:text-[#9E2B25]'}`}
+              className={`flex items-center gap-1.5 text-xs transition-colors ${liked ? 'text-zhusha-red' : 'text-ink-gray-50 hover:text-zhusha-red'}`}
             >
-              <Heart className={`w-3 h-3 ${liked ? 'fill-current' : ''}`} />
+              <Heart className={`w-3.5 h-3.5 ${liked ? 'fill-current' : ''}`} />
               {comment.likes_count > 0 && <span>{comment.likes_count}</span>}
             </button>
             {currentUserId && (
@@ -540,7 +541,7 @@ export function CommentItem({ comment, currentUserId, onReply }: CommentItemProp
                   onReply?.(comment.id);
                   replyRef.current?.focus();
                 }}
-                className="text-xs text-[#6B6B78] hover:text-[#CFAF6E] transition-colors"
+                className="text-xs text-ink-gray-50 hover:text-liujin-gold transition-colors"
               >
                 {isZh ? '回复' : 'Reply'}
               </button>
@@ -551,10 +552,10 @@ export function CommentItem({ comment, currentUserId, onReply }: CommentItemProp
 
       {/* 回复列表 */}
       {comment.replies && comment.replies.length > 0 && (
-        <div className="ml-10 space-y-3">
+        <div className="ml-11 space-y-3">
           <button
             onClick={() => setShowReplies(!showReplies)}
-            className="text-xs text-[#CFAF6E] hover:text-[#E0C580] transition-colors"
+            className="text-xs text-liujin-gold hover:text-liujin-gold-light transition-colors"
           >
             {showReplies ? (isZh ? '收起' : 'Hide') : (isZh ? '查看 ' + comment.replies.length + ' 条回复' : `View ${comment.replies.length} ${comment.replies.length === 1 ? 'reply' : 'replies'}`)}
           </button>
@@ -574,9 +575,9 @@ export function CommentItem({ comment, currentUserId, onReply }: CommentItemProp
                         <span className="text-xs font-medium text-white">
                           {reply.author.display_name || reply.author.username}
                         </span>
-                        <span className="text-[10px] text-[#6B6B78]">{timeAgo(reply.created_at)}</span>
+                        <span className="text-[10px] text-ink-gray-50">{timeAgo(reply.created_at)}</span>
                       </div>
-                      <p className="text-xs text-[#B0B0B8]">{reply.content}</p>
+                      <p className="text-xs text-rice-paper/70">{reply.content}</p>
                     </div>
                   </div>
                 ))}
@@ -627,7 +628,7 @@ export function CommentInput({ userId, placeholder, onSubmit, autoFocus }: Comme
           placeholder={_placeholder}
           autoFocus={autoFocus}
           rows={1}
-          className="w-full bg-[#1E1E27] border border-[#2A2A36] rounded-xl px-4 py-3 text-sm text-white placeholder-[#6B6B78] resize-none focus:border-[#CFAF6E]/50 focus:outline-none transition-colors"
+          className="w-full bg-xuan-black-100/80 border border-liujin-gold/20 rounded-xl px-4 py-3 text-sm text-white placeholder-ink-gray-50 resize-none focus:border-liujin-gold/50 focus:outline-none transition-colors"
           onInput={(e) => {
             const target = e.target as HTMLTextAreaElement;
             target.style.height = 'auto';
@@ -638,7 +639,7 @@ export function CommentInput({ userId, placeholder, onSubmit, autoFocus }: Comme
       <button
         onClick={handleSubmit}
         disabled={!content.trim() || submitting}
-        className="flex-shrink-0 p-3 rounded-xl bg-[#9E2B25] text-white hover:bg-[#B8342D] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="flex-shrink-0 p-3 rounded-xl bg-zhusha-red text-white hover:bg-zhusha-red-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-red-glow-sm"
       >
         {submitting ? (
           <Loader2 className="w-5 h-5 animate-spin" />
@@ -703,16 +704,16 @@ export function ImageUploader({ images, onChange, maxImages = 9, userId }: Image
       {images.length > 0 && (
         <div className="grid grid-cols-3 gap-2">
           {images.map((url, index) => (
-            <div key={index} className="relative aspect-square bg-[#1E1E27] rounded-xl overflow-hidden border border-[#2A2A36]">
+            <div key={index} className="relative aspect-square bg-xuan-black-100 rounded-xl overflow-hidden border border-liujin-gold/20">
               <img src={url} alt={`Upload ${index + 1}`} className="w-full h-full object-cover" />
               <button
                 onClick={() => removeImage(index)}
-                className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center hover:bg-black/80 transition-colors"
+                className="absolute top-1.5 right-1.5 w-5 h-5 bg-xuan-black/70 rounded-full flex items-center justify-center hover:bg-xuan-black/90 transition-colors border border-liujin-gold/20"
               >
                 <X className="w-3 h-3 text-white" />
               </button>
               {index === 0 && (
-                <span className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/60 text-white text-[10px] rounded backdrop-blur-sm">
+                <span className="absolute bottom-1.5 left-1.5 px-2 py-0.5 bg-xuan-black/70 text-white text-[10px] rounded backdrop-blur-sm border border-liujin-gold/20">
                   {isZh ? '封面' : 'Cover'}
                 </span>
               )}
@@ -730,7 +731,7 @@ export function ImageUploader({ images, onChange, maxImages = 9, userId }: Image
           onClick={() => inputRef.current?.click()}
           className={`
             border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all
-            ${dragOver ? 'border-[#CFAF6E] bg-[#CFAF6E]/5' : 'border-[#2A2A36] hover:border-[#CFAF6E]/40'}
+            ${dragOver ? 'border-liujin-gold bg-liujin-gold/5' : 'border-liujin-gold/20 hover:border-liujin-gold/40'}
             ${uploading ? 'opacity-50 cursor-wait' : ''}
           `}
         >
@@ -744,16 +745,16 @@ export function ImageUploader({ images, onChange, maxImages = 9, userId }: Image
           />
           {uploading ? (
             <div className="flex flex-col items-center gap-2">
-              <Loader2 className="w-8 h-8 text-[#CFAF6E] animate-spin" />
-              <p className="text-sm text-[#6B6B78]">{isZh ? '上传中...' : 'Uploading...'}</p>
+              <Loader2 className="w-9 h-9 text-liujin-gold animate-spin" />
+              <p className="text-sm text-ink-gray-50">{isZh ? '上传中...' : 'Uploading...'}</p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
-              <ImageIcon className="w-8 h-8 text-[#6B6B78]" />
-              <p className="text-sm text-[#B0B0B8]">
+              <ImageIcon className="w-9 h-9 text-ink-gray-50" />
+              <p className="text-sm text-rice-paper/60">
                 {isZh ? '点击或拖拽上传图片' : 'Click or drag to upload images'}
               </p>
-              <p className="text-xs text-[#6B6B78]">
+              <p className="text-xs text-ink-gray-50">
                 {images.length}/{maxImages} {isZh ? '张图片 · 每张最大 10MB' : 'images · Max 10MB each'}
               </p>
             </div>
@@ -775,7 +776,7 @@ export function NotificationBadge({ count }: NotificationBadgeProps) {
   if (count <= 0) return null;
 
   return (
-    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center px-1 bg-[#9E2B25] text-white text-[10px] font-bold rounded-full shadow-lg">
+    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center px-1 bg-zhusha-red text-white text-[10px] font-bold rounded-full shadow-red-glow-sm">
       {count > 99 ? '99+' : count}
     </span>
   );
@@ -796,20 +797,20 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+    <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
       {icon && (
-        <div className="w-16 h-16 rounded-full bg-[#18181F] border border-[#2A2A36] flex items-center justify-center mb-4">
+        <div className="w-18 h-18 rounded-full bg-xuan-black-50/50 border border-liujin-gold/20 flex items-center justify-center mb-5" style={{ width: '72px', height: '72px' }}>
           {icon}
         </div>
       )}
       <h3 className="text-lg font-medium text-white mb-2">{title}</h3>
       {description && (
-        <p className="text-sm text-[#6B6B78] max-w-sm mb-6">{description}</p>
+        <p className="text-sm text-ink-gray-50 max-w-sm mb-7">{description}</p>
       )}
       {action && (
         <button
           onClick={action.onClick}
-          className="px-6 py-2.5 bg-[#9E2B25] text-white rounded-full font-medium hover:bg-[#B8342D] transition-colors"
+          className="px-7 py-3 bg-zhusha-red text-white rounded-full font-medium hover:bg-zhusha-red-light transition-colors shadow-red-glow-sm"
         >
           {action.label}
         </button>
@@ -843,19 +844,19 @@ export function VisibilitySelector({ value, onChange }: VisibilitySelectorProps)
           key={option.value}
           onClick={() => onChange(option.value)}
           className={`
-            w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left
+            w-full flex items-center gap-3 p-4 rounded-xl border transition-all text-left
             ${value === option.value
-              ? 'border-[#CFAF6E]/50 bg-[#CFAF6E]/5'
-              : 'border-[#2A2A36] hover:border-[#2A2A36]/80'
+              ? 'border-liujin-gold/40 bg-liujin-gold/5'
+              : 'border-liujin-gold/15 hover:border-liujin-gold/25 bg-xuan-black-50/30'
             }
           `}
         >
-          <option.icon className={`w-5 h-5 ${value === option.value ? 'text-[#CFAF6E]' : 'text-[#6B6B78]'}`} />
+          <option.icon className={`w-5 h-5 ${value === option.value ? 'text-liujin-gold' : 'text-ink-gray-50'}`} />
           <div>
-            <p className={`text-sm font-medium ${value === option.value ? 'text-white' : 'text-[#B0B0B8]'}`}>
+            <p className={`text-sm font-medium ${value === option.value ? 'text-white' : 'text-rice-paper/60'}`}>
               {option.label}
             </p>
-            <p className="text-xs text-[#6B6B78]">{option.desc}</p>
+            <p className="text-xs text-ink-gray-50">{option.desc}</p>
           </div>
         </button>
       ))}
@@ -879,14 +880,14 @@ export function SearchBar({ value, onChange, onSearch, placeholder }: SearchBarP
   const _placeholder = placeholder || (isZh ? '搜索...' : 'Search...');
   return (
     <div className="relative">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B6B78]" />
+      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-gray-50" />
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && onSearch(value)}
         placeholder={_placeholder}
-        className="w-full bg-[#18181F] border border-[#2A2A36] rounded-full pl-10 pr-4 py-2.5 text-sm text-white placeholder-[#6B6B78] focus:border-[#CFAF6E]/50 focus:outline-none transition-colors"
+        className="w-full bg-xuan-black-50/50 border border-liujin-gold/15 rounded-full pl-11 pr-5 py-3 text-sm text-white placeholder-ink-gray-50 focus:border-liujin-gold/40 focus:outline-none transition-colors"
       />
     </div>
   );

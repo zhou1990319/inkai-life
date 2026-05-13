@@ -4,6 +4,11 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&display=swap');
 
+/* ============================================
+   新中式暗黑国风 - 全局样式系统
+   未来东方美学 | Future Oriental Aesthetics
+   ============================================ */
+
 * {
   margin: 0;
   padding: 0;
@@ -11,20 +16,42 @@
 }
 
 :root {
-  --china-red: #C41E3A;
-  --china-red-dark: #8B0000;
+  /* 核心配色变量 */
+  --xuan-black: #0A0A0D;
+  --xuan-black-50: #1A1A20;
+  --xuan-black-100: #2A2A30;
+  
+  --zhusha-red: #A62323;
+  --zhusha-red-light: #C63333;
+  --zhusha-red-dark: #861818;
+  
+  --liujin-gold: #D4AF37;
+  --liujin-gold-light: #E4BF47;
+  --liujin-gold-dark: #B49F27;
+  
+  --cyber-cyan: #2A4D69;
+  --cyber-cyan-light: #3A5D79;
+  --cyber-cyan-dark: #1A3D59;
+  
+  --ink-gray-50: #4A5568;
+  --ink-gray-100: #2D3748;
+  
+  --rice-paper: #F5F0E8;
+  
+  /* 保留兼容 */
+  --china-red: #A62323;
+  --china-red-dark: #861818;
   --imperial-gold: #D4AF37;
   --gold-leaf: #C9A050;
-  --ink-black: #0A0A0A;
+  --ink-black: #0A0A0D;
   --ink-dark: #141414;
-  --rice-paper: #F5F0E8;
 }
 
 body {
   font-family: 'Inter', 'Noto Sans SC', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(180deg, #0A0A0A 0%, #1A0A0A 50%, #0A0A0A 100%);
+  background: linear-gradient(180deg, #0A0A0D 0%, #1A1A20 50%, #0A0A0D 100%);
   color: #F5F0E8;
   min-height: 100vh;
 }
@@ -34,17 +61,316 @@ h1, h2, h3 {
   font-weight: 700;
 }
 
+/* ============================================
+   毛玻璃效果
+   ============================================ */
+.glass-effect {
+  background: rgba(10, 10, 13, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.glass-effect-dark {
+  background: rgba(10, 10, 13, 0.95);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(42, 42, 48, 0.5);
+}
+
+/* ============================================
+   霓虹边框效果 - 双层发光
+   ============================================ */
+.neon-border-gold {
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  box-shadow: 
+    0 0 10px rgba(212, 175, 55, 0.15),
+    inset 0 0 10px rgba(212, 175, 55, 0.05);
+}
+
+.neon-border-red {
+  border: 1px solid rgba(166, 35, 35, 0.5);
+  box-shadow: 
+    0 0 15px rgba(166, 35, 35, 0.2),
+    inset 0 0 10px rgba(166, 35, 35, 0.05);
+}
+
+.neon-border-cyan {
+  border: 1px solid rgba(42, 77, 105, 0.5);
+  box-shadow: 
+    0 0 12px rgba(42, 77, 105, 0.25),
+    inset 0 0 8px rgba(42, 77, 105, 0.1);
+}
+
+/* ============================================
+   水墨渐变背景
+   ============================================ */
+.ink-wash-bg {
+  background: 
+    radial-gradient(ellipse at 50% 0%, rgba(42, 77, 105, 0.12) 0%, transparent 50%),
+    linear-gradient(180deg, #0A0A0D 0%, #1A1A20 100%);
+}
+
+.ink-wash-bg-dark {
+  background: 
+    radial-gradient(ellipse at 30% 20%, rgba(166, 35, 35, 0.08) 0%, transparent 40%),
+    radial-gradient(ellipse at 70% 80%, rgba(42, 77, 105, 0.1) 0%, transparent 40%),
+    linear-gradient(180deg, #0A0A0D 0%, #0F0F12 100%);
+}
+
+/* ============================================
+   悬浮动效
+   ============================================ */
+.hover-gold-glow {
+  transition: all 0.3s ease;
+}
+
+.hover-gold-glow:hover {
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.35);
+  border-color: rgba(212, 175, 55, 0.6);
+}
+
+.hover-red-glow {
+  transition: all 0.3s ease;
+}
+
+.hover-red-glow:hover {
+  box-shadow: 0 0 25px rgba(166, 35, 35, 0.4);
+  border-color: rgba(166, 35, 35, 0.7);
+}
+
+.hover-cyan-glow {
+  transition: all 0.3s ease;
+}
+
+.hover-cyan-glow:hover {
+  box-shadow: 0 0 20px rgba(42, 77, 105, 0.45);
+  border-color: rgba(42, 77, 105, 0.7);
+}
+
+/* 水墨渐隐动效 */
+.hover-ink-fade {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-ink-fade:hover {
+  opacity: 0.85;
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   中式云纹暗纹背景
+   ============================================ */
+.cloud-pattern {
+  position: relative;
+}
+
+.cloud-pattern::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100'%3E%3Cpath d='M20,50 Q40,20 70,50 T120,50 T170,50' stroke='%23D4AF37' stroke-width='0.5' fill='none' opacity='0.08'/%3E%3Cpath d='M10,70 Q35,40 60,70 T110,70 T160,70' stroke='%23A62323' stroke-width='0.3' fill='none' opacity='0.05'/%3E%3C/svg%3E");
+  background-size: 200px 100px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.cloud-pattern:hover::before {
+  opacity: 1;
+}
+
+/* ============================================
+   鎏金渐变文字
+   ============================================ */
+.text-liujin-gradient {
+  background: linear-gradient(90deg, #B49F27 0%, #D4AF37 30%, #E4BF47 50%, #D4AF37 70%, #B49F27 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-liujin-gradient-animated {
+  background: linear-gradient(90deg, #B49F27 0%, #D4AF37 30%, #E4BF47 50%, #D4AF37 70%, #B49F27 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+/* ============================================
+   卡片样式
+   ============================================ */
+.card-xuan {
+  background: rgba(26, 26, 32, 0.6);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 1rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.card-xuan:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.15);
+  transform: translateY(-2px);
+}
+
+.card-zhusha {
+  background: linear-gradient(180deg, rgba(166, 35, 35, 0.15) 0%, rgba(10, 10, 13, 0.9) 100%);
+  border: 2px solid rgba(166, 35, 35, 0.4);
+  border-radius: 1.5rem;
+  box-shadow: 0 0 25px rgba(166, 35, 35, 0.2);
+}
+
+/* ============================================
+   按钮样式
+   ============================================ */
+.btn-zhusha {
+  background: linear-gradient(135deg, #A62323 0%, #861818 100%);
+  color: white;
+  font-weight: 600;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(166, 35, 35, 0.3);
+}
+
+.btn-zhusha:hover {
+  background: linear-gradient(135deg, #C63333 0%, #A62323 100%);
+  box-shadow: 0 0 30px rgba(166, 35, 35, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-liujin {
+  background: linear-gradient(90deg, #B49F27 0%, #D4AF37 50%, #E4BF47 100%);
+  color: #0A0A0D;
+  font-weight: 700;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+}
+
+.btn-liujin:hover {
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-outline-gold {
+  background: transparent;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: #D4AF37;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-gold:hover {
+  background: rgba(212, 175, 55, 0.1);
+  border-color: rgba(212, 175, 55, 0.6);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+}
+
+/* ============================================
+   滚动条样式
+   ============================================ */
 .scrollbar-luxury::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 .scrollbar-luxury::-webkit-scrollbar-track {
-  background: #141414;
+  background: #1A1A20;
   border-radius: 4px;
 }
 
 .scrollbar-luxury::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #D4AF37 0%, #C41E3A 100%);
+  background: linear-gradient(180deg, #D4AF37 0%, #A62323 100%);
   border-radius: 4px;
+}
+
+.scrollbar-luxury::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #E4BF47 0%, #C63333 100%);
+}
+
+/* ============================================
+   输入框样式
+   ============================================ */
+.input-xuan {
+  background: rgba(26, 26, 32, 0.8);
+  border: 1px solid rgba(42, 42, 48, 0.6);
+  border-radius: 0.75rem;
+  color: #F5F0E8;
+  transition: all 0.3s ease;
+}
+
+.input-xuan:focus {
+  outline: none;
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+}
+
+.input-xuan::placeholder {
+  color: rgba(74, 85, 104, 0.8);
+}
+
+/* ============================================
+   动画关键帧
+   ============================================ */
+@keyframes ink-spread {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+    filter: blur(4px);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0.5deg);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.6;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(1.1);
+  }
+}
+
+/* ============================================
+   响应式调整
+   ============================================ */
+@media (max-width: 768px) {
+  .glass-effect {
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+  }
+  
+  .card-xuan:hover {
+    transform: none;
+  }
+}
+
+/* ============================================
+   选中文字样式
+   ============================================ */
+::selection {
+  background: rgba(166, 35, 35, 0.4);
+  color: #F5F0E8;
+}
+
+::-moz-selection {
+  background: rgba(166, 35, 35, 0.4);
+  color: #F5F0E8;
 }

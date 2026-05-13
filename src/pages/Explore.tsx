@@ -1,6 +1,6 @@
-// ============================================
+﻿// ============================================
 // InkAI 社区首页 (Explore)
-// 小红书式 UGC Feed 流，支持推荐/最新/热门/关注切换
+// 新中式暗黑国风设计 - 未来东方美学
 // ============================================
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -169,27 +169,27 @@ export default function Explore() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E]">
+    <div className="min-h-screen bg-xuan-black">
       {/* Sticky Header */}
-      <div className="sticky top-16 z-40 bg-[#0B0B0E]/95 backdrop-blur-md border-b border-[#2A2A36]">
-        <div className="max-w-7xl mx-auto px-4 py-4 space-y-4">
+      <div className="sticky top-16 z-40 bg-xuan-black/95 backdrop-blur-xl border-b border-liujin-gold/15">
+        <div className="max-w-7xl mx-auto px-4 py-5 space-y-5">
           {/* 标题栏 */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#18181F] border border-[#2A2A36] flex items-center justify-center">
-                <Users className="w-4 h-4 text-[#9E2B25]" />
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-xuan-black-50/50 border border-liujin-gold/20 flex items-center justify-center">
+                <Users className="w-5 h-5 text-zhusha-red" />
               </div>
               <div>
-                <h1 className="text-[17px] font-bold text-white leading-tight">{t('explore.title')}</h1>
-                <p className="text-[#6B6B78] text-[11px]">{isZh ? '发现 · 分享 · 连接' : 'Discover · Share · Connect'}</p>
+                <h1 className="text-lg font-bold text-white leading-tight">{t('explore.title')}</h1>
+                <p className="text-ink-gray-50 text-xs">{isZh ? '发现 · 分享 · 连接' : 'Discover · Share · Connect'}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {/* 通知入口 */}
               {currentUser && (
                 <button
                   onClick={() => navigate('/notifications')}
-                  className="relative p-2 rounded-xl bg-[#18181F] border border-[#2A2A36] text-[#B0B0B8] hover:text-[#CFAF6E] hover:border-[#CFAF6E]/40 transition-colors"
+                  className="relative p-2.5 rounded-xl bg-xuan-black-50/50 border border-liujin-gold/15 text-rice-paper/50 hover:text-liujin-gold hover:border-liujin-gold/35 transition-colors"
                 >
                   <Bell className="w-4 h-4" />
                   <NotificationBadge count={unreadCount} />
@@ -199,7 +199,7 @@ export default function Explore() {
               {currentUser ? (
                 <button
                   onClick={() => navigate('/create')}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-[#9E2B25] text-white rounded-full text-sm font-medium hover:bg-[#B8342D] transition-colors"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-zhusha-red to-zhusha-red-dark text-white rounded-full text-sm font-medium hover:from-zhusha-red-light hover:to-zhusha-red transition-all shadow-red-glow-sm"
                 >
                   <Plus className="w-4 h-4" />
                   {t('create.post')}
@@ -207,7 +207,7 @@ export default function Explore() {
               ) : (
                 <button
                   onClick={() => navigate('/login')}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-[#9E2B25] text-white rounded-full text-sm font-medium hover:bg-[#B8342D] transition-colors"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-zhusha-red to-zhusha-red-dark text-white rounded-full text-sm font-medium hover:from-zhusha-red-light hover:to-zhusha-red transition-all shadow-red-glow-sm"
                 >
                   {t('auth.sign_up_link')}
                 </button>
@@ -224,22 +224,22 @@ export default function Explore() {
           />
 
           {/* 排序切换 */}
-          <div className="flex gap-2 overflow-x-auto scrollbar-thin pb-0.5">
+          <div className="flex gap-2.5 overflow-x-auto scrollbar-thin pb-0.5">
             {getSortOptions(isZh).map(option => (
               <button
                 key={option.id}
                 onClick={() => handleSortChange(option.id)}
                 disabled={option.id === 'following' && !currentUser}
                 className={`
-                  flex items-center gap-1.5 px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all text-xs font-medium
+                  flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-all text-xs font-medium
                   disabled:opacity-40 disabled:cursor-not-allowed
                   ${activeSort === option.id
-                    ? 'bg-[#9E2B25] text-white border border-[#9E2B25]'
-                    : 'bg-[#18181F] text-[#B0B0B8] border border-[#2A2A36] hover:border-[#9E2B25]/40 hover:text-white'
+                    ? 'bg-zhusha-red text-white border border-zhusha-red shadow-red-glow-sm'
+                    : 'bg-xuan-black-50/50 text-rice-paper/60 border border-liujin-gold/15 hover:border-zhusha-red/40 hover:text-white'
                   }
                 `}
               >
-                <option.icon className="w-3 h-3" />
+                <option.icon className="w-3.5 h-3.5" />
                 {option.label}
               </button>
             ))}
@@ -247,7 +247,7 @@ export default function Explore() {
 
           {/* 热门标签 */}
           {trendingTags.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto scrollbar-thin pb-0.5 -mx-4 px-4">
+            <div className="flex gap-2.5 overflow-x-auto scrollbar-thin pb-0.5 -mx-4 px-4">
               {trendingTags.map(tag => (
                 <TagBadge
                   key={tag.id}
@@ -263,16 +263,16 @@ export default function Explore() {
       </div>
 
       {/* Feed 流 */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-8">
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {Array.from({ length: 12 }).map((_, i) => (
               <SkeletonCard key={i} />
             ))}
           </div>
         ) : posts.length === 0 ? (
           <EmptyState
-            icon={<Users className="w-8 h-8 text-[#6B6B78]" />}
+            icon={<Users className="w-9 h-9 text-ink-gray-50" />}
             title={searchQuery ? t('explore.no_results') : t('notifications.no_notifications')}
             description={searchQuery ? (isZh ? '试试不同的关键词或按标签浏览' : 'Try different keywords or browse by tags') : t('profile.no_posts')}
             action={!searchQuery && currentUser ? {
@@ -285,7 +285,7 @@ export default function Explore() {
           />
         ) : (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               <AnimatePresence mode="popLayout">
                 {posts.map((post, index) => (
                   <motion.div
@@ -307,12 +307,12 @@ export default function Explore() {
             </div>
 
             {/* 加载更多触发器 */}
-            <div ref={loadMoreRef} className="flex justify-center py-8">
+            <div ref={loadMoreRef} className="flex justify-center py-10">
               {loadingMore && (
-                <div className="w-8 h-8 border-2 border-[#9E2B25] border-t-transparent rounded-full animate-spin" />
+                <div className="w-9 h-9 border-2 border-zhusha-red border-t-transparent rounded-full animate-spin" />
               )}
               {!hasMore && posts.length > 0 && (
-                <p className="text-[#6B6B78] text-sm">{t('explore.load_more')}</p>
+                <p className="text-ink-gray-50 text-sm">{t('explore.load_more')}</p>
               )}
             </div>
           </>
