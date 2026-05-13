@@ -5,17 +5,17 @@ import { Heart, MessageCircle, Sparkles, ArrowRight, Flame, Star } from 'lucide-
 import { supabase } from '../supabase/client';
 import { useLanguage } from '../contexts/LanguageContext';
 
-// 纹身风格配置 - 点击跳转到社区筛选
+// 纹身风格配置 - 新中式暗黑国风配色
 const TATTOO_STYLES = [
-  { id: 'chinese',            name: 'Chinese 中式',     icon: '🏯', tag: 'ChineseTattoo',     color: '#C41E3A' },
-  { id: 'japanese',           name: 'Japanese 日式',     icon: '⛩️', tag: 'JapaneseTattoo',   color: '#DC2626' },
+  { id: 'chinese',            name: 'Chinese 中式',     icon: '🏯', tag: 'ChineseTattoo',     color: '#A62323' },
+  { id: 'japanese',           name: 'Japanese 日式',     icon: '⛩️', tag: 'JapaneseTattoo',   color: '#C63333' },
   { id: 'american-traditional',name: 'Traditional',     icon: '🦅', tag: 'Traditional',      color: '#D4AF37' },
-  { id: 'neo-traditional',    name: 'Neo-Traditional',  icon: '🎨', tag: 'NeoTraditional',   color: '#D97706' },
-  { id: 'dark-blackwork',      name: 'Blackwork 暗黑',   icon: '🖤', tag: 'BlackAndGrey',     color: '#4B5563' },
-  { id: 'watercolor',          name: 'Watercolor 水彩',  icon: '💧', tag: 'WatercolorTattoo', color: '#0891B2' },
+  { id: 'neo-traditional',    name: 'Neo-Traditional',  icon: '🎨', tag: 'NeoTraditional',   color: '#D4AF37' },
+  { id: 'dark-blackwork',      name: 'Blackwork 暗黑',   icon: '🖤', tag: 'BlackAndGrey',     color: '#4A5568' },
+  { id: 'watercolor',          name: 'Watercolor 水彩',  icon: '💧', tag: 'WatercolorTattoo', color: '#2A4D69' },
   { id: 'minimalist',          name: 'Minimalist 极简',   icon: '✒️', tag: 'FineLineTattoo',  color: '#6B7280' },
-  { id: 'realism',             name: 'Realism 写实',      icon: '📸', tag: 'RealisticTattoo', color: '#7C3AED' },
-  { id: 'tribal',             name: 'Tribal 部落',       icon: '🔥', tag: 'GeometricTattoo', color: '#B45309' },
+  { id: 'realism',             name: 'Realism 写实',      icon: '📸', tag: 'RealisticTattoo', color: '#2A4D69' },
+  { id: 'tribal',             name: 'Tribal 部落',       icon: '🔥', tag: 'GeometricTattoo', color: '#A62323' },
 ];
 
 // 推荐热门风格
@@ -38,21 +38,28 @@ interface Post {
   user: { username: string; avatar_url: string };
 }
 
-// 传统云纹背景装饰组件
-const CloudDecoration = ({ className = '' }: { className?: string }) => (
-  <svg className={`absolute opacity-10 ${className}`} viewBox="0 0 200 100" preserveAspectRatio="xMidYMid slice">
+// 科技感水墨云纹装饰组件
+const InkCloudDecoration = ({ className = '' }: { className?: string }) => (
+  <svg className={`absolute opacity-15 ${className}`} viewBox="0 0 200 100" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="inkGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#D4AF37" stopOpacity="0.3" />
+        <stop offset="50%" stopColor="#2A4D69" stopOpacity="0.5" />
+        <stop offset="100%" stopColor="#D4AF37" stopOpacity="0.3" />
+      </linearGradient>
+    </defs>
     <path
       d="M20,50 Q40,20 70,50 T120,50 T170,50"
-      stroke="#D4AF37"
+      stroke="url(#inkGradient)"
       strokeWidth="1"
       fill="none"
     />
     <path
       d="M10,70 Q35,40 60,70 T110,70 T160,70"
-      stroke="#C41E3A"
+      stroke="#A62323"
       strokeWidth="0.5"
       fill="none"
-      opacity="0.5"
+      opacity="0.4"
     />
   </svg>
 );
@@ -76,62 +83,69 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-ink-black via-china-red-950/20 to-ink-black">
-
-      {/* ── Hero ── */}
-      <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
-        {/* 红色光晕背景 */}
+    <div className="min-h-screen bg-ink-wash-bg">
+      {/* ── Hero Banner - 科技感水墨风格 ── */}
+      <section className="relative h-[85vh] flex items-center justify-center overflow-hidden">
+        {/* 多层光晕背景 */}
         <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-china-red-600/20 rounded-full blur-[120px] animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-imperial-gold-500/10 rounded-full blur-[100px]" />
+          {/* 朱砂红光晕 */}
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-zhusha-red/15 rounded-full blur-[140px] animate-pulse" />
+          {/* 冷青蓝科技光晕 */}
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-cyber-cyan/10 rounded-full blur-[120px]" />
+          {/* 鎏金点缀 */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-liujin-gold/5 rounded-full blur-[100px]" />
         </div>
         
-        {/* 传统纹样装饰 */}
-        <CloudDecoration className="top-20 left-10 w-64 h-32" />
-        <CloudDecoration className="bottom-20 right-10 w-64 h-32" />
+        {/* 科技感水墨纹装饰 */}
+        <InkCloudDecoration className="top-24 left-8 w-72 h-36" />
+        <InkCloudDecoration className="bottom-24 right-8 w-72 h-36" />
+        <InkCloudDecoration className="top-1/3 right-1/4 w-48 h-24 opacity-10" />
         
-        <div className="absolute inset-0 bg-gradient-to-b from-ink-black/50 via-transparent to-ink-black" />
+        {/* 渐变遮罩 */}
+        <div className="absolute inset-0 bg-gradient-to-b from-xuan-black/60 via-transparent to-xuan-black" />
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           className="relative z-10 text-center px-4 max-w-5xl mx-auto"
         >
-          {/* Logo mark - 印章风格 */}
+          {/* 印章风格 Logo */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.15 }}
-            className="w-20 h-20 mx-auto mb-8 rounded-2xl border-2 border-imperial-gold-500/60 bg-china-red-500/20 flex items-center justify-center shadow-gold-lg"
+            className="w-24 h-24 mx-auto mb-10 rounded-2xl border-2 border-liujin-gold/50 bg-zhusha-red/15 flex items-center justify-center shadow-gold-glow relative overflow-hidden"
           >
-            <span className="text-4xl font-display font-bold text-imperial-gold-400">墨</span>
+            {/* 内部光效 */}
+            <div className="absolute inset-0 bg-gradient-to-br from-liujin-gold/10 to-transparent" />
+            <span className="text-5xl font-display font-bold text-liujin-gold relative z-10">墨</span>
           </motion.div>
 
-          {/* Wordmark - 超大金色渐变标题 */}
-          <h1 className="text-6xl md:text-8xl lg:text-9xl font-display font-bold mb-4 tracking-tight">
-            <span className="bg-gradient-to-r from-imperial-gold-300 via-imperial-gold-500 to-imperial-gold-300 bg-clip-text text-transparent animate-glow">
+          {/* 超大鎏金渐变标题 */}
+          <h1 className="text-6xl md:text-8xl lg:text-9xl font-display font-bold mb-6 tracking-tight">
+            <span className="text-liujin-gradient-animated">
               InkAI
             </span>
           </h1>
-          <p className="text-lg md:text-2xl text-imperial-gold-400/80 mb-3 font-display tracking-[0.3em] uppercase">
+          <p className="text-lg md:text-2xl text-liujin-gold/70 mb-4 font-display tracking-[0.3em] uppercase">
             {t('home.hero_subtitle')}
           </p>
-          <p className="text-rice-paper/60 mb-12 max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
+          <p className="text-rice-paper/50 mb-14 max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
             {t('home.hero_title')}
           </p>
 
-          {/* CTAs - 奢华按钮 */}
-          <div className="flex flex-wrap gap-4 justify-center">
+          {/* CTA 按钮 */}
+          <div className="flex flex-wrap gap-5 justify-center">
             <Link
               to="/ai-studio"
-              className="group px-8 py-4 bg-gradient-to-r from-china-red-600 to-china-red-700 text-white font-bold rounded-full hover:from-china-red-500 hover:to-china-red-600 transition-all flex items-center gap-3 text-base shadow-red-glow hover:shadow-lg"
+              className="group px-10 py-4 bg-gradient-to-r from-zhusha-red to-zhusha-red-dark text-white font-bold rounded-full hover:from-zhusha-red-light hover:to-zhusha-red transition-all flex items-center gap-3 text-base shadow-red-glow hover:shadow-red-glow-lg"
             >
               <Sparkles size={20} className="group-hover:animate-spin" />
               {t('home.get_started')}
             </Link>
             <Link
               to="/explore"
-              className="px-8 py-4 border border-imperial-gold-500/40 text-imperial-gold-400 font-semibold rounded-full hover:border-imperial-gold-500 hover:bg-imperial-gold-500/10 transition-all text-base backdrop-blur-sm"
+              className="px-10 py-4 border border-liujin-gold/35 text-liujin-gold font-semibold rounded-full hover:border-liujin-gold/60 hover:bg-liujin-gold/10 transition-all text-base backdrop-blur-sm hover:shadow-gold-glow-sm"
             >
               {t('home.view_examples')}
             </Link>
@@ -139,23 +153,23 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* ── Popular Styles ── */}
-      <section className="py-16 px-4">
+      {/* ── Popular Styles - 瀑布流风格卡片 ── */}
+      <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-10">
             <h2 className="text-2xl font-display font-bold text-rice-paper flex items-center gap-3">
-              <Flame className="text-china-red-500" size={24} />
+              <Flame className="text-zhusha-red" size={26} />
               {t('home.popular_styles') || 'Popular Tattoo Styles'}
             </h2>
             <Link
               to="/explore"
-              className="text-imperial-gold-400 hover:text-imperial-gold-300 flex items-center gap-2 text-sm transition-colors"
+              className="text-liujin-gold hover:text-liujin-gold-light flex items-center gap-2 text-sm transition-colors"
             >
               {t('home.explore_all')} <ArrowRight size={16} />
             </Link>
           </div>
           
-          {/* 风格网格 - 金色边框卡片 */}
+          {/* 风格网格 - 鎏金边框卡片 */}
           <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-3">
             {TATTOO_STYLES.map((style, i) => (
               <motion.div
@@ -166,20 +180,20 @@ export default function Home() {
               >
                 <Link to={`/explore?tag=${style.tag}`} className="block group">
                   <div className={`
-                    bg-white/5 backdrop-blur-sm border border-imperial-gold-500/20 rounded-2xl p-4 text-center 
-                    hover:border-imperial-gold-500/60 hover:bg-imperial-gold-500/10 hover:scale-105 hover:shadow-gold
+                    bg-xuan-black-50/40 backdrop-blur-sm border border-liujin-gold/15 rounded-2xl p-4 text-center 
+                    hover:border-liujin-gold/50 hover:bg-liujin-gold/5 hover:scale-105 hover:shadow-gold-glow-sm
                     transition-all duration-300 relative overflow-hidden
                   `}>
                     {/* Trending indicator */}
                     {TRENDING_STYLES.includes(style.tag) && (
                       <div className="absolute top-2 right-2">
-                        <span className="text-[9px] px-2 py-0.5 bg-china-red-500 text-white rounded-full font-bold">
+                        <span className="text-[9px] px-2 py-0.5 bg-zhusha-red text-white rounded-full font-bold shadow-red-glow-sm">
                           HOT
                         </span>
                       </div>
                     )}
                     <span className="text-3xl mb-2 block group-hover:scale-110 transition-transform">{style.icon}</span>
-                    <p className="text-rice-paper font-medium text-xs leading-tight">{style.name}</p>
+                    <p className="text-rice-paper/80 font-medium text-xs leading-tight">{style.name}</p>
                   </div>
                 </Link>
               </motion.div>
@@ -188,34 +202,35 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── AI Feature Banner ── */}
-      <section className="py-8 px-4">
+      {/* ── AI Feature Banner - 科技感水墨 ── */}
+      <section className="py-10 px-4">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-china-red-900/40 to-ink-black border border-imperial-gold-500/30 p-10 md:p-14"
+            className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-zhusha-red/20 via-xuan-black to-cyber-cyan/15 border border-liujin-gold/25 p-12 md:p-16"
           >
-            {/* 金色装饰线 */}
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-imperial-gold-500 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-imperial-gold-500/50 to-transparent" />
+            {/* 鎏金装饰线 */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-liujin-gold/50 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-liujin-gold/30 to-transparent" />
             
             {/* 背景光晕 */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-32 bg-china-red-500/20 rounded-full blur-3xl" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-40 bg-cyber-cyan/15 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 right-1/4 w-64 h-32 bg-zhusha-red/10 rounded-full blur-3xl" />
 
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
               <div>
-                <p className="text-imperial-gold-400 text-sm font-bold tracking-widest uppercase mb-2">{t('ai.title')}</p>
-                <h3 className="text-3xl md:text-4xl font-display font-bold text-rice-paper mb-3">
+                <p className="text-liujin-gold text-sm font-bold tracking-widest uppercase mb-3">{t('ai.title')}</p>
+                <h3 className="text-3xl md:text-4xl font-display font-bold text-rice-paper mb-4">
                   {t('home.feature_ai_title')}
                 </h3>
-                <p className="text-rice-paper/60 text-base max-w-lg">
+                <p className="text-rice-paper/50 text-base max-w-lg leading-relaxed">
                   {t('home.feature_ai_desc')}
                 </p>
               </div>
               <Link
                 to="/ai-studio"
-                className="px-8 py-4 bg-gradient-to-r from-china-red-600 to-china-red-700 text-white font-bold rounded-full hover:from-china-red-500 hover:to-china-red-600 transition-all flex items-center gap-3 whitespace-nowrap text-base shadow-red-glow"
+                className="px-10 py-4 bg-gradient-to-r from-zhusha-red to-zhusha-red-dark text-white font-bold rounded-full hover:from-zhusha-red-light hover:to-zhusha-red transition-all flex items-center gap-3 whitespace-nowrap text-base shadow-red-glow hover:shadow-red-glow-lg"
               >
                 <Sparkles size={20} />
                 {t('ai.generate')}
@@ -225,44 +240,44 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Featured Works ── */}
-      <section className="py-16 px-4">
+      {/* ── Featured Works - 瀑布流作品展示 ── */}
+      <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-10">
             <h2 className="text-2xl font-display font-bold text-rice-paper flex items-center gap-3">
-              <Star className="text-imperial-gold-400" size={24} />
+              <Star className="text-liujin-gold" size={26} />
               {t('home.feature_artist_title')}
             </h2>
           </div>
 
           {loading ? (
-            <div className="flex justify-center py-20">
-              <div className="w-10 h-10 border-3 border-imperial-gold-500 border-t-transparent rounded-full animate-spin" />
+            <div className="flex justify-center py-24">
+              <div className="w-12 h-12 border-3 border-liujin-gold border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
-            <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+            <div className="columns-2 md:columns-3 lg:columns-4 gap-5 space-y-5">
               {posts.map((post, index) => (
                 <motion.div
                   key={post.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.03 }}
-                  className="break-inside-avoid group relative bg-white/5 border border-imperial-gold-500/20 rounded-2xl overflow-hidden cursor-pointer hover:border-imperial-gold-500/50 hover:shadow-gold transition-all duration-300"
+                  className="break-inside-avoid group relative bg-xuan-black-50/30 border border-liujin-gold/15 rounded-2xl overflow-hidden cursor-pointer hover:border-liujin-gold/40 hover:shadow-gold-glow-sm transition-all duration-300"
                 >
                   <img src={post.image_url} alt={post.title} className="w-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <div className="absolute inset-0 bg-gradient-to-t from-xuan-black/95 via-xuan-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute bottom-0 left-0 right-0 p-5">
                       <h3 className="text-white font-medium text-sm mb-2 leading-tight">{post.title}</h3>
-                      <div className="flex items-center gap-4 text-rice-paper/70 text-xs">
-                        <span className="flex items-center gap-1"><Heart size={12} className="text-china-red-500" /> {post.likes_count}</span>
+                      <div className="flex items-center gap-4 text-rice-paper/60 text-xs">
+                        <span className="flex items-center gap-1"><Heart size={12} className="text-zhusha-red" /> {post.likes_count}</span>
                         <span className="flex items-center gap-1"><MessageCircle size={12} /> {post.comments_count}</span>
                       </div>
                     </div>
                   </div>
                   {post.style?.length > 0 && (
-                    <div className="absolute top-3 left-3 flex gap-1">
+                    <div className="absolute top-4 left-4 flex gap-1">
                       {post.style.slice(0, 1).map(s => (
-                        <span key={s} className="px-3 py-1 bg-ink-black/80 text-imperial-gold-400 text-[10px] rounded-full border border-imperial-gold-500/30 backdrop-blur-sm">
+                        <span key={s} className="px-3 py-1 bg-xuan-black/85 text-liujin-gold text-[10px] rounded-full border border-liujin-gold/25 backdrop-blur-sm">
                           {s}
                         </span>
                       ))}
@@ -275,35 +290,36 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Top Artists ── */}
-      <section className="py-16 px-4 border-t border-imperial-gold-500/20">
+      {/* ── Top Artists - 艺术家卡片 ── */}
+      <section className="py-20 px-4 border-t border-liujin-gold/15">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-display font-bold text-rice-paper mb-8 flex items-center gap-3">
-            <Star className="text-imperial-gold-400" size={24} />
+          <h2 className="text-2xl font-display font-bold text-rice-paper mb-10 flex items-center gap-3">
+            <Star className="text-liujin-gold" size={26} />
             {t('home.feature_community_title')}
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
             {FEATURED_ARTISTS.map((artist, i) => (
               <motion.div
                 key={artist.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-white/5 backdrop-blur-sm border border-imperial-gold-500/20 rounded-3xl p-6 text-center hover:border-imperial-gold-500/50 hover:bg-imperial-gold-500/5 transition-all cursor-pointer group"
+                className="bg-xuan-black-50/30 backdrop-blur-sm border border-liujin-gold/15 rounded-3xl p-7 text-center hover:border-liujin-gold/40 hover:bg-liujin-gold/5 transition-all cursor-pointer group"
               >
                 <div className="relative inline-block">
                   <img
                     src={artist.avatar}
                     alt={artist.name}
-                    className="w-16 h-16 rounded-full mx-auto mb-4 border-2 border-imperial-gold-500/30 group-hover:border-imperial-gold-500/60 transition-colors"
+                    className="w-18 h-18 rounded-full mx-auto mb-5 border-2 border-liujin-gold/25 group-hover:border-liujin-gold/50 transition-colors"
+                    style={{ width: '72px', height: '72px' }}
                   />
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-imperial-gold-500 rounded-full flex items-center justify-center">
-                    <Star size={12} className="text-ink-black" fill="currentColor" />
+                  <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-liujin-gold rounded-full flex items-center justify-center shadow-gold-glow-sm">
+                    <Star size={14} className="text-xuan-black" fill="currentColor" />
                   </div>
                 </div>
                 <h3 className="text-rice-paper font-semibold text-base">{artist.name}</h3>
-                <p className="text-rice-paper/50 text-sm mt-1">{artist.works} {t('profile.posts').toLowerCase()}</p>
-                <div className="flex items-center justify-center gap-1 mt-3 text-imperial-gold-400 text-sm">
+                <p className="text-rice-paper/40 text-sm mt-1">{artist.works} {t('profile.posts').toLowerCase()}</p>
+                <div className="flex items-center justify-center gap-1 mt-4 text-liujin-gold text-sm">
                   <Star size={14} fill="currentColor" /> {artist.rating}
                 </div>
               </motion.div>
