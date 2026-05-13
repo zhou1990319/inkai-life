@@ -26,8 +26,8 @@ const NOTIFICATION_CONFIG: Record<NotificationType, {
   iconBg: string;
   iconColor: string;
 }> = {
-  like: { icon: Heart, iconBg: 'bg-[#9E2B25]/20', iconColor: 'text-[#9E2B25]' },
-  comment: { icon: MessageCircle, iconBg: 'bg-[#CFAF6E]/20', iconColor: 'text-[#CFAF6E]' },
+  like: { icon: Heart, iconBg: 'bg-black/20', iconColor: 'text-[#9E2B25]' },
+  comment: { icon: MessageCircle, iconBg: 'bg-amber-50', iconColor: 'text-amber-600' },
   follow: { icon: UserPlus, iconBg: 'bg-emerald-500/20', iconColor: 'text-emerald-400' },
   mention: { icon: AtSign, iconBg: 'bg-blue-500/20', iconColor: 'text-blue-400' },
 };
@@ -128,22 +128,22 @@ export default function Notifications() {
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E]">
+    <div className="min-h-screen bg-white">
       {/* 顶部导航 */}
-      <div className="sticky top-16 z-40 bg-[#0B0B0E]/95 backdrop-blur-md border-b border-[#2A2A36]">
+      <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate(-1)}
-              className="text-[#B0B0B8] hover:text-white transition-colors"
+              className="text-gray-500 hover:text-black transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <h1 className="text-white font-semibold flex items-center gap-2">
-              <Bell className="w-5 h-5 text-[#CFAF6E]" />
+              <Bell className="w-5 h-5 text-amber-600" />
               {t('notifications.title')}
               {unreadCount > 0 && (
-                <span className="px-2 py-0.5 bg-[#9E2B25] text-white text-xs rounded-full">
+                <span className="px-2 py-0.5 bg-black text-white text-xs rounded-full">
                   {unreadCount}
                 </span>
               )}
@@ -153,7 +153,7 @@ export default function Notifications() {
             <button
               onClick={markAllAsRead}
               disabled={markingAllRead}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-[#CFAF6E] text-sm hover:bg-[#CFAF6E]/10 rounded-lg transition-colors disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-amber-600 text-sm hover:bg-amber-50 rounded-lg transition-colors disabled:opacity-50"
             >
               {markingAllRead ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -174,7 +174,7 @@ export default function Notifications() {
           </div>
         ) : notifications.length === 0 ? (
           <EmptyState
-            icon={<Bell className="w-8 h-8 text-[#6B6B78]" />}
+            icon={<Bell className="w-8 h-8 text-gray-400" />}
             title={t('notifications.no_notifications')}
             description={isZh ? '当有人点赞、评论或关注你时，你会在这里看到' : "When someone likes, comments, or follows you, you'll see it here"}
           />
@@ -194,14 +194,14 @@ export default function Notifications() {
                   className={`
                     flex items-start gap-3 p-4 rounded-xl cursor-pointer transition-all
                     ${!notification.is_read
-                      ? 'bg-[#18181F] border border-[#9E2B25]/20 hover:border-[#9E2B25]/30'
-                      : 'hover:bg-[#18181F]/50'
+                      ? 'bg-gray-50 border border-red-200 hover:border-red-200'
+                      : 'hover:bg-gray-50/50'
                     }
                   `}
                 >
                   {/* 未读指示器 */}
                   {!notification.is_read && (
-                    <span className="absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-[#9E2B25] rounded-full" />
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-black rounded-full" />
                   )}
 
                   {/* 头像 */}
@@ -222,20 +222,20 @@ export default function Notifications() {
                       <Link
                         to={`/profile/${notification.actor?.username}`}
                         onClick={(e) => e.stopPropagation()}
-                        className="font-semibold text-white hover:text-[#CFAF6E] transition-colors"
+                        className="font-semibold text-white hover:text-amber-600 transition-colors"
                       >
                         {notification.actor?.display_name || notification.actor?.username || (isZh ? '某人' : 'Someone')}
                       </Link>
                       {' '}
-                      <span className="text-[#B0B0B8]">{notification.message}</span>
+                      <span className="text-gray-500">{notification.message}</span>
                     </p>
-                    <p className="text-[#6B6B78] text-xs mt-1">{timeAgo(notification.created_at || '')}</p>
+                    <p className="text-gray-400 text-xs mt-1">{timeAgo(notification.created_at || '')}</p>
                   </div>
 
                   {/* 查看按钮 */}
                   {notification.post_id && (
-                    <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-[#1E1E27]">
-                      <Eye className="w-4 h-4 text-[#6B6B78] m-auto mt-4" />
+                    <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
+                      <Eye className="w-4 h-4 text-gray-400 m-auto mt-4" />
                     </div>
                   )}
                 </motion.div>
@@ -248,7 +248,7 @@ export default function Notifications() {
                 <button
                   onClick={loadMore}
                   disabled={loadingMore}
-                  className="px-6 py-2.5 bg-[#18181F] border border-[#2A2A36] text-[#B0B0B8] rounded-full text-sm font-medium hover:border-[#CFAF6E]/40 hover:text-[#CFAF6E] transition-colors disabled:opacity-50"
+                  className="px-6 py-2.5 bg-gray-50 border border-gray-200 text-gray-500 rounded-full text-sm font-medium hover:border-amber-200 hover:text-amber-600 transition-colors disabled:opacity-50"
                 >
                   {loadingMore ? (
                     <div className="flex items-center gap-2">
@@ -261,7 +261,7 @@ export default function Notifications() {
             )}
 
             {!hasMore && notifications.length > 0 && (
-              <p className="text-center text-[#6B6B78] text-sm py-6">
+              <p className="text-center text-gray-400 text-sm py-6">
                 {isZh ? '已全部查看！' : "You're all caught up!"}
               </p>
             )}

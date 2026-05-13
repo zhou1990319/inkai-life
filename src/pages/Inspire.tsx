@@ -18,7 +18,7 @@ const PROMPT_TEMPLATES: PromptTemplate[] = [
     style: 'Ink Wash',
     styleZh: '水墨',
     icon: '水',
-    accent: 'bg-[#1E2530] border-[#2A3A50]',
+    accent: 'bg-gray-100 border-gray-200',
     prompts: [
       {
         title: 'Mountain & Mist', titleZh: '山水景观',
@@ -42,7 +42,7 @@ const PROMPT_TEMPLATES: PromptTemplate[] = [
     style: 'Dragon & Phoenix',
     styleZh: '龙凤',
     icon: '龙',
-    accent: 'bg-[#25181A] border-[#3A2020]',
+    accent: 'bg-gray-100 border-gray-200',
     prompts: [
       {
         title: 'Azure Dragon', titleZh: '青龙',
@@ -66,7 +66,7 @@ const PROMPT_TEMPLATES: PromptTemplate[] = [
     style: 'Dunhuang',
     styleZh: '敦煌',
     icon: '敦',
-    accent: 'bg-[#201C10] border-[#342E18]',
+    accent: 'bg-gray-100 border-gray-200',
     prompts: [
       {
         title: 'Flying Apsara', titleZh: '飞天',
@@ -90,7 +90,7 @@ const PROMPT_TEMPLATES: PromptTemplate[] = [
     style: 'Mythical Beasts',
     styleZh: '神兽',
     icon: '兽',
-    accent: 'bg-[#161E1A] border-[#223028]',
+    accent: 'bg-gray-100 border-gray-200',
     prompts: [
       {
         title: 'Qilin', titleZh: '麒麟',
@@ -114,7 +114,7 @@ const PROMPT_TEMPLATES: PromptTemplate[] = [
     style: 'Calligraphy',
     styleZh: '书法',
     icon: '墨',
-    accent: 'bg-[#1A1A1A] border-[#2A2A2A]',
+    accent: 'bg-gray-100 border-gray-200',
     prompts: [
       {
         title: 'Single Character Art', titleZh: '单字艺术',
@@ -138,7 +138,7 @@ const PROMPT_TEMPLATES: PromptTemplate[] = [
     style: 'Opera Mask',
     styleZh: '脸谱',
     icon: '谱',
-    accent: 'bg-[#22141A] border-[#381E28]',
+    accent: 'bg-gray-100 border-gray-200',
     prompts: [
       {
         title: 'Monkey King', titleZh: '孙悟空',
@@ -162,7 +162,7 @@ const PROMPT_TEMPLATES: PromptTemplate[] = [
     style: 'Koi & Lotus',
     styleZh: '锦鲤荷花',
     icon: '鲤',
-    accent: 'bg-[#141E22] border-[#1E303A]',
+    accent: 'bg-gray-100 border-gray-200',
     prompts: [
       {
         title: 'Koi Ascending', titleZh: '锦鲤跃龙门',
@@ -186,7 +186,7 @@ const PROMPT_TEMPLATES: PromptTemplate[] = [
     style: 'Totem & Pattern',
     styleZh: '图腾纹样',
     icon: '纹',
-    accent: 'bg-[#1A1422] border-[#2A1E38]',
+    accent: 'bg-gray-100 border-gray-200',
     prompts: [
       {
         title: 'Cloud Totem', titleZh: '祥云图腾',
@@ -226,19 +226,19 @@ export default function Inspire() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E]">
+    <div className="min-h-screen bg-white">
 
       {/* Sticky header */}
-      <div className="sticky top-16 z-40 bg-[#0B0B0E]/95 backdrop-blur-md border-b border-[#2A2A36]">
+      <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-4">
           {/* Title row */}
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-9 h-9 rounded-xl bg-[#18181F] border border-[#2A2A36] flex items-center justify-center">
-              <BookOpen className="w-4.5 h-4.5 text-[#CFAF6E]" />
+            <div className="w-9 h-9 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center">
+              <BookOpen className="w-4.5 h-4.5 text-amber-600" />
             </div>
             <div>
               <h1 className="text-[17px] font-bold text-white leading-tight">{t('inspire.title')}</h1>
-              <p className="text-[#6B6B78] text-[11px] tracking-wide">
+              <p className="text-gray-400 text-[11px] tracking-wide">
                 {t('inspire.subtitle')}
               </p>
             </div>
@@ -250,8 +250,8 @@ export default function Inspire() {
               onClick={() => setActiveStyle('all')}
               className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                 activeStyle === 'all'
-                  ? 'bg-[#CFAF6E] text-[#0B0B0E] font-bold'
-                  : 'bg-[#18181F] text-[#B0B0B8] border border-[#2A2A36] hover:border-[#CFAF6E]/30 hover:text-white'
+                  ? 'bg-amber-600 text-white font-bold'
+                  : 'bg-gray-50 text-gray-500 border border-gray-200 hover:border-amber-200 hover:text-black'
               }`}
             >
               {t('home.features_title')}
@@ -262,8 +262,8 @@ export default function Inspire() {
                 onClick={() => setActiveStyle(t.id)}
                 className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                   activeStyle === t.id
-                    ? 'bg-[#CFAF6E] text-[#0B0B0E] font-bold'
-                    : 'bg-[#18181F] text-[#B0B0B8] border border-[#2A2A36] hover:border-[#CFAF6E]/30 hover:text-white'
+                    ? 'bg-amber-600 text-white font-bold'
+                    : 'bg-gray-50 text-gray-500 border border-gray-200 hover:border-amber-200 hover:text-black'
                 }`}
               >
                 <span className="text-[10px]">{t.icon}</span>
@@ -287,15 +287,15 @@ export default function Inspire() {
             <div className="flex items-center gap-3 mb-5">
               {/* Chinese char badge */}
               <div className={`w-10 h-10 rounded-xl ${template.accent} border flex items-center justify-center`}>
-                <span className="text-[#CFAF6E] font-bold text-lg leading-none">{template.icon}</span>
+                <span className="text-amber-600 font-bold text-lg leading-none">{template.icon}</span>
               </div>
               <div>
                 <h2 className="text-[15px] font-bold text-white">{isZh ? template.styleZh : template.style}</h2>
-                <span className="text-[#6B6B78] text-[11px]">{template.styleZh}</span>
+                <span className="text-gray-400 text-[11px]">{template.styleZh}</span>
               </div>
               {/* Decorative divider */}
-              <div className="flex-1 h-px bg-gradient-to-r from-[#2A2A36] via-[#CFAF6E]/20 to-transparent ml-2" />
-              <span className="text-[#6B6B78] text-[10px] bg-[#18181F] border border-[#2A2A36] px-2 py-0.5 rounded-full">
+              <div className="flex-1 h-px bg-gradient-to-r from-[#2A2A36] via-amber-200 to-transparent ml-2" />
+              <span className="text-gray-400 text-[10px] bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-full">
                 {template.prompts.length} {isZh ? '个提示' : 'prompts'}
               </span>
             </div>
@@ -312,16 +312,16 @@ export default function Inspire() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: tIdx * 0.06 + pIdx * 0.04 }}
-                    className="group relative bg-[#18181F] border border-[#2A2A36] rounded-xl overflow-hidden hover:border-[#CFAF6E]/30 transition-colors"
+                    className="group relative bg-gray-50 border border-gray-200 rounded-xl overflow-hidden hover:border-amber-200 transition-colors"
                   >
                     {/* Top gold line accent */}
-                    <div className="h-px bg-gradient-to-r from-transparent via-[#CFAF6E]/30 to-transparent" />
+                    <div className="h-px bg-gradient-to-r from-transparent via-amber-200 to-transparent" />
 
                     <div className="p-4">
                       {/* Card header */}
                       <div className="flex items-start justify-between mb-3">
                         <h3 className="text-white font-semibold text-sm flex items-center gap-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-[#CFAF6E] flex-shrink-0" />
+                          <Sparkles className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
                           {isZh ? prompt.titleZh : prompt.title}
                         </h3>
                         <button
@@ -329,7 +329,7 @@ export default function Inspire() {
                           className={`flex-shrink-0 ml-2 p-1.5 rounded-lg transition-all ${
                             isCopied
                               ? 'bg-emerald-500/15 text-emerald-400'
-                              : 'bg-[#0B0B0E] text-[#6B6B78] hover:text-[#CFAF6E] hover:bg-[#CFAF6E]/8'
+                              : 'bg-white text-gray-400 hover:text-amber-600 hover:bg-amber-600/8'
                           }`}
                           title={t('inspire.copy_prompt')}
                         >
@@ -338,7 +338,7 @@ export default function Inspire() {
                       </div>
 
                       {/* Prompt text */}
-                      <p className="text-[#B0B0B8] text-[11.5px] leading-relaxed line-clamp-4 font-mono tracking-tight">
+                      <p className="text-gray-500 text-[11.5px] leading-relaxed line-clamp-4 font-mono tracking-tight">
                         {isZh ? prompt.textZh : prompt.text}
                       </p>
 
@@ -348,7 +348,7 @@ export default function Inspire() {
                         className={`mt-3.5 w-full py-2 rounded-lg text-xs font-semibold tracking-wide transition-all ${
                           isCopied
                             ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25'
-                            : 'bg-[#0B0B0E] text-[#CFAF6E] border border-[#2A2A36] hover:border-[#CFAF6E]/40 hover:bg-[#CFAF6E]/5'
+                            : 'bg-white text-amber-600 border border-gray-200 hover:border-amber-200 hover:bg-amber-600/5'
                         }`}
                       >
                         {isCopied ? `${t('inspire.copied')}!` : t('inspire.copy_prompt')}
@@ -356,7 +356,7 @@ export default function Inspire() {
                     </div>
 
                     {/* Bottom gold line accent */}
-                    <div className="h-px bg-gradient-to-r from-transparent via-[#CFAF6E]/15 to-transparent" />
+                    <div className="h-px bg-gradient-to-r from-transparent via-amber-100 to-transparent" />
                   </motion.div>
                 );
               })}
@@ -369,23 +369,23 @@ export default function Inspire() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="relative rounded-2xl bg-[#18181F] border border-[#2A2A36] overflow-hidden"
+          className="relative rounded-2xl bg-gray-50 border border-gray-200 overflow-hidden"
         >
-          <div className="h-px bg-gradient-to-r from-transparent via-[#CFAF6E]/40 to-transparent" />
+          <div className="h-px bg-gradient-to-r from-transparent via-amber-200 to-transparent" />
           <div className="p-5 flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-[#CFAF6E]/10 border border-[#CFAF6E]/20 flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-amber-600/10 border border-amber-200 flex items-center justify-center flex-shrink-0">
               <span className="text-lg">💡</span>
             </div>
             <div>
-              <p className="text-[#CFAF6E] font-semibold text-sm mb-1">{isZh ? '如何使用这些提示' : 'How to use these prompts'}</p>
-              <p className="text-[#6B6B78] text-xs leading-relaxed">
+              <p className="text-amber-600 font-semibold text-sm mb-1">{isZh ? '如何使用这些提示' : 'How to use these prompts'}</p>
+              <p className="text-gray-400 text-xs leading-relaxed">
                 {isZh ? '复制任意提示并粘贴到' : 'Copy any prompt and paste it into the'}{' '}
-                <strong className="text-[#B0B0B8]">AI Studio</strong>{' '}
+                <strong className="text-gray-500">AI Studio</strong>{' '}
                 {isZh ? '文本输入框中。搭配参考图片进行图生图生成。自由调整关键词以匹配你的创意愿景。' : 'text input. Pair with a reference image for image-to-image generation. Tweak keywords freely to match your creative vision.'}
               </p>
             </div>
           </div>
-          <div className="h-px bg-gradient-to-r from-transparent via-[#CFAF6E]/20 to-transparent" />
+          <div className="h-px bg-gradient-to-r from-transparent via-amber-200 to-transparent" />
         </motion.div>
       </div>
     </div>

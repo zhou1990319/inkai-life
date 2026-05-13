@@ -154,7 +154,7 @@ export default function Blog() {
     return content.split('\n\n').map((paragraph, index) => {
       if (paragraph.startsWith('## ')) {
         return (
-          <h2 key={index} className="text-2xl font-bold text-white mt-8 mb-4">
+          <h2 key={index} className="text-2xl font-bold text-black mt-8 mb-4">
             {paragraph.replace('## ', '')}
           </h2>
         );
@@ -163,8 +163,8 @@ export default function Blog() {
         const boldMatch = paragraph.match(/\*\*(.*?)\*\*/);
         if (boldMatch) {
           return (
-            <p key={index} className="text-[#B0B0B8] mb-4 leading-relaxed">
-              <strong className="text-white">{boldMatch[1]}</strong>
+            <p key={index} className="text-gray-500 mb-4 leading-relaxed">
+              <strong className="text-black">{boldMatch[1]}</strong>
               {paragraph.replace(`**${boldMatch[1]}**`, '')}
             </p>
           );
@@ -173,7 +173,7 @@ export default function Blog() {
       if (paragraph.match(/^\d+\./)) {
         const items = paragraph.split('\n').filter(item => item.match(/^\d+\./));
         return (
-          <ul key={index} className="list-decimal list-inside text-[#B0B0B8] mb-4 space-y-2">
+          <ul key={index} className="list-decimal list-inside text-gray-500 mb-4 space-y-2">
             {items.map((item, i) => (
               <li key={i} className="leading-relaxed">{item.replace(/^\d+\.\s*/, '')}</li>
             ))}
@@ -182,7 +182,7 @@ export default function Blog() {
       }
       if (paragraph.trim()) {
         return (
-          <p key={index} className="text-[#B0B0B8] mb-4 leading-relaxed">
+          <p key={index} className="text-gray-500 mb-4 leading-relaxed">
             {paragraph}
           </p>
         );
@@ -194,13 +194,13 @@ export default function Blog() {
   // Article Detail View
   if (currentPost) {
     return (
-      <div className="min-h-screen bg-[#0B0B0E]">
+      <div className="min-h-screen bg-white">
         {/* Hero */}
-        <div className="relative bg-gradient-to-b from-[#18181F] to-[#0B0B0E] py-16">
+        <div className="relative bg-gradient-to-b from-gray-50 to-white py-16">
           <div className="max-w-4xl mx-auto px-4">
             <button
               onClick={() => setSelectedPost(null)}
-              className="flex items-center gap-2 text-[#CFAF6E] hover:text-white transition-colors mb-8"
+              className="flex items-center gap-2 text-amber-600 hover:text-black transition-colors mb-8"
             >
               <ArrowLeft className="w-5 h-5" />
               {isZh ? '返回博客' : 'Back to Blog'}
@@ -210,15 +210,15 @@ export default function Blog() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <span className="inline-block px-3 py-1 bg-[#9E2B25]/20 text-[#9E2B25] text-sm rounded-full mb-4">
+              <span className="inline-block px-3 py-1 bg-red-50 text-red-600 text-sm rounded-full mb-4">
                 {currentPost.category}
               </span>
               
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+              <h1 className="text-4xl md:text-5xl font-bold text-black mb-6 leading-tight">
                 {currentPost.title}
               </h1>
               
-              <div className="flex items-center gap-6 text-[#6B6B78] mb-8">
+              <div className="flex items-center gap-6 text-gray-400 mb-8">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
                   <span>{currentPost.date}</span>
@@ -241,7 +241,7 @@ export default function Blog() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="prose prose-invert max-w-none"
+            className="prose max-w-none"
           >
             {renderContent(currentPost.content)}
           </motion.div>
@@ -251,46 +251,46 @@ export default function Blog() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="mt-16 p-8 bg-gradient-to-r from-[#9E2B25]/20 to-[#CFAF6E]/20 rounded-2xl border border-[#2A2A36] text-center"
+            className="mt-16 p-8 bg-gradient-to-r from-gray-100 to-gray-50 rounded-2xl border border-gray-200 text-center"
           >
-            <h3 className="text-2xl font-bold text-white mb-4">
+            <h3 className="text-2xl font-bold text-black mb-4">
               {isZh ? '准备好开始了吗？' : 'Ready to Get Started?'}
             </h3>
-            <p className="text-[#B0B0B8] mb-6">
+            <p className="text-gray-500 mb-6">
               {isZh 
                 ? '加入 InkAI，开始用 AI 创造独特的纹身设计！'
                 : 'Join InkAI and start creating unique tattoo designs with AI!'}
             </p>
             <Link
               to="/register"
-              className="inline-block px-8 py-3 bg-[#9E2B25] text-white font-bold rounded-xl hover:bg-[#B8342D] transition-colors"
+              className="inline-block px-8 py-3 bg-black text-white font-bold rounded-xl hover:bg-gray-800 transition-colors"
             >
               {isZh ? '免费开始' : 'Start Free'}
             </Link>
           </motion.div>
 
           {/* Share */}
-          <div className="mt-12 pt-8 border-t border-[#2A2A36]">
+          <div className="mt-12 pt-8 border-t border-gray-200">
             <div className="flex items-center gap-4">
-              <span className="text-[#6B6B78] flex items-center gap-2">
+              <span className="text-gray-400 flex items-center gap-2">
                 <Share2 className="w-4 h-4" />
                 {isZh ? '分享这篇文章' : 'Share this article'}
               </span>
               <button
                 onClick={() => handleShare('twitter')}
-                className="p-2 bg-[#1D9BF0]/20 text-[#1D9BF0] rounded-lg hover:bg-[#1D9BF0]/30 transition-colors"
+                className="p-2 bg-blue-50 text-blue-500 rounded-lg hover:bg-blue-100 transition-colors"
               >
                 <Twitter className="w-5 h-5" />
               </button>
               <button
                 onClick={() => handleShare('facebook')}
-                className="p-2 bg-[#1877F2]/20 text-[#1877F2] rounded-lg hover:bg-[#1877F2]/30 transition-colors"
+                className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
               >
                 <Facebook className="w-5 h-5" />
               </button>
               <button
                 onClick={() => handleShare('linkedin')}
-                className="p-2 bg-[#0A66C2]/20 text-[#0A66C2] rounded-lg hover:bg-[#0A66C2]/30 transition-colors"
+                className="p-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
               >
                 <Linkedin className="w-5 h-5" />
               </button>
@@ -303,14 +303,14 @@ export default function Blog() {
 
   // Blog List View
   return (
-    <div className="min-h-screen bg-[#0B0B0E]">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="bg-gradient-to-b from-[#18181F] to-[#0B0B0E] py-16">
+      <div className="bg-gradient-to-b from-gray-50 to-white py-16">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-bold text-white mb-4"
+            className="text-4xl md:text-5xl font-bold text-black mb-4"
           >
             {isZh ? 'InkAI 博客' : 'InkAI Blog'}
           </motion.h1>
@@ -318,7 +318,7 @@ export default function Blog() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-xl text-[#B0B0B8] max-w-2xl mx-auto"
+            className="text-xl text-gray-500 max-w-2xl mx-auto"
           >
             {isZh 
               ? '探索纹身趋势、AI 技术指南和专业建议'
@@ -338,21 +338,21 @@ export default function Blog() {
             onClick={() => setSelectedPost(seoArticleContent.slug)}
             className="w-full text-left group"
           >
-            <div className="grid md:grid-cols-2 gap-8 bg-[#18181F] rounded-2xl overflow-hidden border border-[#2A2A36] hover:border-[#CFAF6E] transition-colors">
-              <div className="aspect-video md:aspect-auto bg-gradient-to-br from-[#9E2B25]/30 to-[#CFAF6E]/30 flex items-center justify-center">
-                <div className="text-[#CFAF6E] text-6xl">✦</div>
+            <div className="grid md:grid-cols-2 gap-8 bg-gray-50 rounded-2xl overflow-hidden border border-gray-200 hover:border-amber-200 transition-colors">
+              <div className="aspect-video md:aspect-auto bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center">
+                <div className="text-amber-600 text-6xl">✦</div>
               </div>
               <div className="p-8 flex flex-col justify-center">
-                <span className="inline-block px-3 py-1 bg-[#9E2B25]/20 text-[#9E2B25] text-sm rounded-full mb-4 w-fit">
+                <span className="inline-block px-3 py-1 bg-red-50 text-red-600 text-sm rounded-full mb-4 w-fit">
                   {seoArticleContent.category}
                 </span>
-                <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-[#CFAF6E] transition-colors">
+                <h2 className="text-2xl font-bold text-black mb-4 group-hover:text-amber-600 transition-colors">
                   {seoArticleContent.title}
                 </h2>
-                <p className="text-[#B0B0B8] mb-6 line-clamp-3">
+                <p className="text-gray-500 mb-6 line-clamp-3">
                   {seoArticleContent.excerpt || 'Discover how AI technology is transforming the tattoo industry...'}
                 </p>
-                <div className="flex items-center gap-4 text-sm text-[#6B6B78]">
+                <div className="flex items-center gap-4 text-sm text-gray-400">
                   <span>{seoArticleContent.date}</span>
                   <span>•</span>
                   <span>{seoArticleContent.readTime}</span>
@@ -369,7 +369,7 @@ export default function Blog() {
           transition={{ delay: 0.5 }}
           className="mt-12"
         >
-          <h2 className="text-2xl font-bold text-white mb-8">
+          <h2 className="text-2xl font-bold text-black mb-8">
             {isZh ? '更多文章' : 'More Articles'}
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -380,22 +380,22 @@ export default function Blog() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 + index * 0.1 }}
                 onClick={() => setSelectedPost(post.slug)}
-                className="text-left bg-[#18181F] rounded-xl overflow-hidden border border-[#2A2A36] hover:border-[#CFAF6E] transition-colors group"
+                className="text-left bg-gray-50 rounded-xl overflow-hidden border border-gray-200 hover:border-amber-200 transition-colors group"
               >
-                <div className="aspect-video bg-gradient-to-br from-[#2A2A36] to-[#18181F] flex items-center justify-center">
-                  <div className="text-[#CFAF6E]/50 text-4xl">✦</div>
+                <div className="aspect-video bg-gradient-to-br from-gray-200 to-gray-100 flex items-center justify-center">
+                  <div className="text-amber-600/50 text-4xl">✦</div>
                 </div>
                 <div className="p-6">
-                  <span className="inline-block px-2 py-1 bg-[#9E2B25]/10 text-[#9E2B25] text-xs rounded mb-3">
+                  <span className="inline-block px-2 py-1 bg-black/10 text-red-600 text-xs rounded mb-3">
                     {post.category}
                   </span>
-                  <h3 className="font-bold text-white mb-2 group-hover:text-[#CFAF6E] transition-colors line-clamp-2">
+                  <h3 className="font-bold text-black mb-2 group-hover:text-amber-600 transition-colors line-clamp-2">
                     {post.title}
                   </h3>
-                  <p className="text-sm text-[#6B6B78] line-clamp-2 mb-4">
+                  <p className="text-sm text-gray-400 line-clamp-2 mb-4">
                     {post.excerpt}
                   </p>
-                  <div className="flex items-center gap-2 text-xs text-[#6B6B78]">
+                  <div className="flex items-center gap-2 text-xs text-gray-400">
                     <Calendar className="w-3 h-3" />
                     <span>{post.date}</span>
                     <span>•</span>
@@ -413,19 +413,19 @@ export default function Blog() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
-          className="mt-16 p-8 bg-gradient-to-r from-[#9E2B25]/10 to-[#CFAF6E]/10 rounded-2xl border border-[#2A2A36] text-center"
+          className="mt-16 p-8 bg-gradient-to-r from-gray-100 to-gray-50 rounded-2xl border border-gray-200 text-center"
         >
-          <h3 className="text-2xl font-bold text-white mb-4">
+          <h3 className="text-2xl font-bold text-black mb-4">
             {isZh ? '订阅我们的更新' : 'Subscribe to Our Updates'}
           </h3>
-          <p className="text-[#B0B0B8] mb-6 max-w-md mx-auto">
+          <p className="text-gray-500 mb-6 max-w-md mx-auto">
             {isZh 
               ? '获取最新的纹身趋势、AI 技术和独家优惠'
               : 'Get the latest tattoo trends, AI technology updates, and exclusive offers'}
           </p>
           <Link
             to="/register"
-            className="inline-block px-8 py-3 bg-[#9E2B25] text-white font-bold rounded-xl hover:bg-[#B8342D] transition-colors"
+            className="inline-block px-8 py-3 bg-black text-white font-bold rounded-xl hover:bg-gray-800 transition-colors"
           >
             {isZh ? '免费订阅' : 'Subscribe Free'}
           </Link>

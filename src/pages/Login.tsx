@@ -42,29 +42,29 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-[#18181F] border border-[#2A2A36] rounded-2xl p-8"
+        className="w-full max-w-md bg-gray-50 border border-gray-200 rounded-2xl p-8"
       >
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-[#18181F] border border-[#2A2A36] flex items-center justify-center">
-              <span className="text-[#CFAF6E] font-bold text-lg">墨</span>
+            <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center">
+              <span className="text-amber-600 font-bold text-lg">墨</span>
             </div>
-            <span className="text-xl font-bold text-white">InkAI<span className="text-[#CFAF6E]">.life</span></span>
+            <span className="text-xl font-bold text-white">InkAI<span className="text-amber-600">.life</span></span>
           </Link>
           <h1 className="text-2xl font-bold text-white mb-2">{t('auth.welcome_back')}</h1>
-          <p className="text-[#6B6B78]">{t('auth.sign_in_to_continue')}</p>
+          <p className="text-gray-400">{t('auth.sign_in_to_continue')}</p>
         </div>
 
         {error && (
           <motion.div 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-4 p-3 bg-[#9E2B25]/10 border border-[#9E2B25]/30 rounded-xl text-[#FF6B6B] text-sm"
+            className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm"
           >
             {error}
           </motion.div>
@@ -73,14 +73,14 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email */}
           <div>
-            <label className="block text-[#CFAF6E] text-sm font-medium mb-2">{t('auth.email')}</label>
+            <label className="block text-amber-600 text-sm font-medium mb-2">{t('auth.email')}</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B6B78]" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-white placeholder-[#6B6B78] focus:border-[#CFAF6E] focus:outline-none transition-colors"
+                className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-white placeholder-gray-400 focus:border-gray-400 focus:outline-none transition-colors"
                 placeholder={t('auth.enter_email') || 'Enter your email'}
                 required
               />
@@ -89,21 +89,21 @@ export default function Login() {
 
           {/* Password */}
           <div>
-            <label className="block text-[#CFAF6E] text-sm font-medium mb-2">{t('auth.password')}</label>
+            <label className="block text-amber-600 text-sm font-medium mb-2">{t('auth.password')}</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B6B78]" />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-12 py-3 bg-[#0B0B0E] border border-[#2A2A36] rounded-xl text-white placeholder-[#6B6B78] focus:border-[#CFAF6E] focus:outline-none transition-colors"
+                className="w-full pl-10 pr-12 py-3 bg-white border border-gray-200 rounded-xl text-white placeholder-gray-400 focus:border-gray-400 focus:outline-none transition-colors"
                 placeholder={t('auth.enter_password') || 'Enter your password'}
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B6B78] hover:text-white transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -113,7 +113,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-[#9E2B25] text-white font-bold rounded-xl hover:bg-[#B8342D] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+            className="w-full py-3 bg-black text-white font-bold rounded-xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -127,9 +127,9 @@ export default function Login() {
         </form>
 
         <div className="mt-6 text-center space-y-2">
-          <p className="text-[#6B6B78]">
+          <p className="text-gray-400">
             {t('auth.no_account')}{' '}
-            <Link to="/register" className="text-[#CFAF6E] hover:underline font-medium">
+            <Link to="/register" className="text-amber-600 hover:underline font-medium">
               {t('auth.sign_up_link')}
             </Link>
           </p>
@@ -137,7 +137,7 @@ export default function Login() {
 
         {/* 登录后跳转提示 */}
         {redirectTo !== '/' && (
-          <p className="text-center mt-4 text-[#6B6B78] text-xs">
+          <p className="text-center mt-4 text-gray-400 text-xs">
             {isZh ? `登录后将跳转到 ${redirectTo}` : `After signing in, you'll be redirected to ${redirectTo}`}
           </p>
         )}

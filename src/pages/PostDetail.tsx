@@ -148,7 +148,7 @@ export default function PostDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="w-10 h-10 border-2 border-[#9E2B25] border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -156,9 +156,9 @@ export default function PostDetail() {
 
   if (!post) {
     return (
-      <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <EmptyState
-          icon={<MessageCircle className="w-8 h-8 text-[#6B6B78]" />}
+          icon={<MessageCircle className="w-8 h-8 text-gray-400" />}
           title={isZh ? '帖子未找到' : 'Post not found'}
           description={isZh ? '该帖子可能已被删除或不存在' : "This post may have been deleted or doesn't exist"}
           action={{ label: isZh ? '返回社区' : 'Back to Community', onClick: () => navigate('/explore') }}
@@ -172,16 +172,16 @@ export default function PostDetail() {
 
   return (
     <div
-      className="min-h-screen bg-[#0B0B0E]"
+      className="min-h-screen bg-white"
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
       {/* 顶部导航 */}
-      <div className="sticky top-16 z-50 bg-[#0B0B0E]/95 backdrop-blur-md border-b border-[#2A2A36]">
+      <div className="sticky top-16 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-[#B0B0B8] hover:text-white transition-colors"
+            className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="text-sm font-medium">{t('post.share')}</span>
@@ -191,7 +191,7 @@ export default function PostDetail() {
             {/* 分享 */}
             <button
               onClick={handleShare}
-              className="p-2 rounded-xl bg-[#18181F] border border-[#2A2A36] text-[#B0B0B8] hover:text-[#CFAF6E] hover:border-[#CFAF6E]/40 transition-colors"
+              className="p-2 rounded-xl bg-gray-50 border border-gray-200 text-gray-500 hover:text-amber-600 hover:border-amber-200 transition-colors"
             >
               <Share2 className="w-4 h-4" />
             </button>
@@ -199,7 +199,7 @@ export default function PostDetail() {
             <div className="relative" ref={reportRef}>
               <button
                 onClick={() => setShowReportMenu(!showReportMenu)}
-                className="p-2 rounded-xl bg-[#18181F] border border-[#2A2A36] text-[#B0B0B8] hover:text-white hover:border-[#2A2A36]/80 transition-colors"
+                className="p-2 rounded-xl bg-gray-50 border border-gray-200 text-gray-500 hover:text-black hover:border-gray-200/80 transition-colors"
               >
                 <MoreHorizontal className="w-4 h-4" />
               </button>
@@ -209,23 +209,23 @@ export default function PostDetail() {
                     initial={{ opacity: 0, y: -8, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                    className="absolute right-0 top-full mt-2 w-48 bg-[#18181F] border border-[#2A2A36] rounded-xl shadow-xl overflow-hidden z-50"
+                    className="absolute right-0 top-full mt-2 w-48 bg-gray-50 border border-gray-200 rounded-xl shadow-xl overflow-hidden z-50"
                   >
                     <button
                       onClick={() => handleReport('spam')}
-                      className="w-full px-4 py-2.5 text-left text-sm text-[#B0B0B8] hover:bg-[#1E1E27] hover:text-white transition-colors"
+                      className="w-full px-4 py-2.5 text-left text-sm text-gray-500 hover:bg-gray-100 hover:text-black transition-colors"
                     >
                       {t('post.report')} {t('action.delete').toLowerCase()}
                     </button>
                     <button
                       onClick={() => handleReport('inappropriate')}
-                      className="w-full px-4 py-2.5 text-left text-sm text-[#B0B0B8] hover:bg-[#1E1E27] hover:text-white transition-colors"
+                      className="w-full px-4 py-2.5 text-left text-sm text-gray-500 hover:bg-gray-100 hover:text-black transition-colors"
                     >
                       {t('post.report')} {t('action.delete').toLowerCase()}
                     </button>
                     <button
                       onClick={() => handleReport('copyright')}
-                      className="w-full px-4 py-2.5 text-left text-sm text-[#B0B0B8] hover:bg-[#1E1E27] hover:text-white transition-colors"
+                      className="w-full px-4 py-2.5 text-left text-sm text-gray-500 hover:bg-gray-100 hover:text-black transition-colors"
                     >
                       Copyright {t('action.delete')}
                     </button>
@@ -243,7 +243,7 @@ export default function PostDetail() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-[#18181F] rounded-2xl border border-[#2A2A36] overflow-hidden"
+            className="bg-gray-50 rounded-2xl border border-gray-200 overflow-hidden"
           >
             <div className="relative bg-black flex items-center justify-center" style={{ minHeight: '60vh' }}>
               <AnimatePresence mode="wait">
@@ -295,18 +295,18 @@ export default function PostDetail() {
                   <Link
                     key={tag}
                     to={`/explore?tag=${encodeURIComponent(tag)}`}
-                    className="px-2.5 py-1 bg-[#0B0B0E] text-[#CFAF6E] text-xs rounded-full border border-[#CFAF6E]/25 hover:border-[#CFAF6E]/50 transition-colors"
+                    className="px-2.5 py-1 bg-white text-amber-600 text-xs rounded-full border border-amber-200 hover:border-amber-200 transition-colors"
                   >
                     #{tag}
                   </Link>
                 ))}
                 {post.is_ai_generated && (
-                  <span className="px-2.5 py-1 bg-[#9E2B25]/20 text-[#9E2B25] text-xs rounded-full border border-[#9E2B25]/30">
+                  <span className="px-2.5 py-1 bg-black/20 text-red-600 text-xs rounded-full border border-red-200">
                     {isZh ? 'AI 生成' : 'AI Generated'}
                   </span>
                 )}
                 {post.location && (
-                  <span className="flex items-center gap-1 text-[#6B6B78] text-xs">
+                  <span className="flex items-center gap-1 text-gray-400 text-xs">
                     <MapPin className="w-3 h-3" />
                     {post.location}
                   </span>
@@ -314,11 +314,11 @@ export default function PostDetail() {
               </div>
 
               {post.description && (
-                <p className="text-[#B0B0B8] text-sm leading-relaxed">{post.description}</p>
+                <p className="text-gray-500 text-sm leading-relaxed">{post.description}</p>
               )}
 
               {/* 浏览数 */}
-              <div className="flex items-center gap-1 text-[#6B6B78] text-xs">
+              <div className="flex items-center gap-1 text-gray-400 text-xs">
                 <Eye className="w-3 h-3" />
                 {post.views_count || 0} {t('post.comments').toLowerCase()}
               </div>
@@ -332,23 +332,23 @@ export default function PostDetail() {
             className="space-y-4"
           >
             {/* 作者信息卡片 */}
-            <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-4">
+            <div className="bg-gray-50 rounded-2xl border border-gray-200 p-5 space-y-4">
               <Link to={`/profile/${username}`} className="flex items-center gap-3 group">
                 <Avatar user={post.author} size="lg" showBadge />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-white font-semibold group-hover:text-[#CFAF6E] transition-colors truncate">
+                    <p className="text-white font-semibold group-hover:text-amber-600 transition-colors truncate">
                       {displayName}
                     </p>
                     {post.author?.artist_verified && (
-                      <span className="flex-shrink-0 w-4 h-4 bg-[#CFAF6E] rounded-full flex items-center justify-center">
-                        <span className="text-[#0B0B0E] text-[8px] font-bold">✓</span>
+                      <span className="flex-shrink-0 w-4 h-4 bg-amber-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-[8px] font-bold">✓</span>
                       </span>
                     )}
                   </div>
-                  <p className="text-[#6B6B78] text-xs">@{username}</p>
+                  <p className="text-gray-400 text-xs">@{username}</p>
                   {post.author?.bio && (
-                    <p className="text-[#B0B0B8] text-xs mt-1 line-clamp-2">{post.author.bio}</p>
+                    <p className="text-gray-500 text-xs mt-1 line-clamp-2">{post.author.bio}</p>
                   )}
                 </div>
               </Link>
@@ -357,11 +357,11 @@ export default function PostDetail() {
               <div className="flex gap-6 text-sm">
                 <div>
                   <span className="text-white font-semibold">{post.author?.followers_count || 0}</span>
-                  <span className="text-[#6B6B78] ml-1">{t('profile.followers')}</span>
+                  <span className="text-gray-400 ml-1">{t('profile.followers')}</span>
                 </div>
                 <div>
                   <span className="text-white font-semibold">{post.author?.following_count || 0}</span>
-                  <span className="text-[#6B6B78] ml-1">{t('profile.following')}</span>
+                  <span className="text-gray-400 ml-1">{t('profile.following')}</span>
                 </div>
               </div>
 
@@ -373,7 +373,7 @@ export default function PostDetail() {
             </div>
 
             {/* 互动栏 */}
-            <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5">
+            <div className="bg-gray-50 rounded-2xl border border-gray-200 p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-white font-semibold">{t('post.share')}</h3>
               </div>
@@ -385,7 +385,7 @@ export default function PostDetail() {
                 />
                 <button
                   onClick={() => setShowComments(!showComments)}
-                  className="flex items-center gap-1.5 text-[#6B6B78] hover:text-white transition-colors"
+                  className="flex items-center gap-1.5 text-gray-400 hover:text-black transition-colors"
                 >
                   <MessageCircle className="w-5 h-5" />
                   <span className="text-sm">{post.comments_count || 0}</span>
@@ -398,16 +398,16 @@ export default function PostDetail() {
             </div>
 
             {/* 评论区 */}
-            <div id="comments" className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-4">
+            <div id="comments" className="bg-gray-50 rounded-2xl border border-gray-200 p-5 space-y-4">
               <h3 className="text-white font-semibold">
                 {t('post.comments')}
-                <span className="text-[#6B6B78] font-normal ml-2 text-sm">({comments.length})</span>
+                <span className="text-gray-400 font-normal ml-2 text-sm">({comments.length})</span>
               </h3>
 
               {/* 评论列表 */}
               <div className="space-y-4 max-h-80 overflow-y-auto scrollbar-thin">
                 {comments.length === 0 ? (
-                  <p className="text-[#6B6B78] text-sm text-center py-8">
+                  <p className="text-gray-400 text-sm text-center py-8">
                     {t('profile.no_posts')}. {isZh ? `成为第一个${t('post.comments').toLowerCase()}！` : `Be the first to ${t('post.comments').toLowerCase()}!`}
                   </p>
                 ) : (
@@ -446,10 +446,10 @@ export default function PostDetail() {
                 </div>
               ) : (
                 <div className="text-center py-4 space-y-2">
-                  <p className="text-[#6B6B78] text-sm">{t('auth.sign_in_to_generate')} {t('post.comments').toLowerCase()}</p>
+                  <p className="text-gray-400 text-sm">{t('auth.sign_in_to_generate')} {t('post.comments').toLowerCase()}</p>
                   <button
                     onClick={() => navigate('/login')}
-                    className="px-6 py-2 bg-[#9E2B25] text-white rounded-full text-sm font-medium hover:bg-[#B8342D] transition-colors"
+                    className="px-6 py-2 bg-black text-white rounded-full text-sm font-medium hover:bg-gray-800 transition-colors"
                   >
                     {t('auth.sign_in')}
                   </button>

@@ -115,17 +115,17 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center">
-        <div className="w-10 h-10 border-2 border-[#9E2B25] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-10 h-10 border-2 border-black border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <EmptyState
-          icon={<Users className="w-8 h-8 text-[#6B6B78]" />}
+          icon={<Users className="w-8 h-8 text-gray-400" />}
           title={t('common.error')}
           description={t('common.error')}
           action={{ label: t('nav.community'), onClick: () => navigate('/explore') }}
@@ -142,9 +142,9 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E]">
+    <div className="min-h-screen bg-white">
       {/* 个人资料头部 */}
-      <div className="bg-[#18181F] border-b border-[#2A2A36]">
+      <div className="bg-gray-50 border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 py-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -169,24 +169,24 @@ export default function ProfilePage() {
               <div className="flex items-center gap-3 flex-wrap">
                 <h1 className="text-2xl font-bold text-white">{displayName}</h1>
                 {isVerified && (
-                  <span className="px-2 py-0.5 bg-[#CFAF6E]/20 text-[#CFAF6E] text-xs font-medium rounded-full border border-[#CFAF6E]/30">
+                  <span className="px-2 py-0.5 bg-amber-50 text-amber-600 text-xs font-medium rounded-full border border-amber-200">
                     {isZh ? '已认证艺术家' : 'Verified Artist'}
                   </span>
                 )}
                 {isArtist && !isVerified && (
-                  <span className="px-2 py-0.5 bg-[#9E2B25]/20 text-[#9E2B25] text-xs font-medium rounded-full border border-[#9E2B25]/30">
+                  <span className="px-2 py-0.5 bg-black/20 text-red-600 text-xs font-medium rounded-full border border-red-200">
                     {isZh ? '纹身艺术家' : 'Tattoo Artist'}
                   </span>
                 )}
               </div>
 
-              <p className="text-[#6B6B78] text-sm">@{profile.username}</p>
+              <p className="text-gray-400 text-sm">@{profile.username}</p>
 
               {profile.bio && (
-                <p className="text-[#B0B0B8] text-sm leading-relaxed max-w-lg">{profile.bio}</p>
+                <p className="text-gray-500 text-sm leading-relaxed max-w-lg">{profile.bio}</p>
               )}
 
-              <div className="flex items-center gap-4 text-sm text-[#6B6B78]">
+              <div className="flex items-center gap-4 text-sm text-gray-400">
                 {profile.location && (
                   <span className="flex items-center gap-1">
                     <MapPin className="w-3.5 h-3.5" />
@@ -198,7 +198,7 @@ export default function ProfilePage() {
                     href={profile.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 hover:text-[#CFAF6E] transition-colors"
+                    className="flex items-center gap-1 hover:text-amber-600 transition-colors"
                   >
                     <Globe className="w-3.5 h-3" />
                     {isZh ? '网站' : 'Website'}
@@ -213,14 +213,14 @@ export default function ProfilePage() {
                   className="hover:opacity-80 transition-opacity"
                 >
                   <span className="text-white font-semibold">{profile.followers_count || 0}</span>
-                  <span className="text-[#6B6B78] ml-1">{t('profile.followers')}</span>
+                  <span className="text-gray-400 ml-1">{t('profile.followers')}</span>
                 </button>
                 <button
                   onClick={() => setShowFollowModal('following')}
                   className="hover:opacity-80 transition-opacity"
                 >
                   <span className="text-white font-semibold">{profile.following_count || 0}</span>
-                  <span className="text-[#6B6B78] ml-1">{t('profile.following')}</span>
+                  <span className="text-gray-400 ml-1">{t('profile.following')}</span>
                 </button>
               </div>
             </div>
@@ -230,7 +230,7 @@ export default function ProfilePage() {
               {isOwnProfile ? (
                 <button
                   onClick={() => navigate('/settings')}
-                  className="p-2.5 rounded-xl bg-[#18181F] border border-[#2A2A36] text-[#B0B0B8] hover:text-[#CFAF6E] hover:border-[#CFAF6E]/40 transition-colors"
+                  className="p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-500 hover:text-amber-600 hover:border-amber-200 transition-colors"
                 >
                   <Settings className="w-4 h-4" />
                 </button>
@@ -247,7 +247,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Tab 导航 */}
-      <div className="sticky top-16 z-40 bg-[#0B0B0E]/95 backdrop-blur-md border-b border-[#2A2A36]">
+      <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4">
           <div className="flex gap-1 overflow-x-auto scrollbar-thin">
             {TABS.map(tab => (
@@ -259,8 +259,8 @@ export default function ProfilePage() {
                   flex items-center gap-2 px-5 py-3.5 text-sm font-medium whitespace-nowrap transition-all border-b-2
                   disabled:opacity-40 disabled:cursor-not-allowed
                   ${activeTab === tab.id
-                    ? 'text-white border-[#9E2B25]'
-                    : 'text-[#6B6B78] border-transparent hover:text-[#B0B0B8]'
+                    ? 'text-white border-black'
+                    : 'text-gray-400 border-transparent hover:text-gray-500'
                   }
                 `}
               >
@@ -278,7 +278,7 @@ export default function ProfilePage() {
         {activeTab === 'posts' && (
           posts.length === 0 ? (
             <EmptyState
-              icon={<Grid3X3 className="w-8 h-8 text-[#6B6B78]" />}
+              icon={<Grid3X3 className="w-8 h-8 text-gray-400" />}
               title={t('profile.no_posts')}
               description={isOwnProfile ? t('create.post') + '!' : (isZh ? '该用户还没有发布任何内容' : 'This user has not posted anything yet')}
               action={isOwnProfile ? {
@@ -305,7 +305,7 @@ export default function ProfilePage() {
           isOwnProfile ? (
             savedPosts.length === 0 ? (
               <EmptyState
-              icon={<Bookmark className="w-8 h-8 text-[#6B6B78]" />}
+              icon={<Bookmark className="w-8 h-8 text-gray-400" />}
               title={t('profile.saved')}
               description={isZh ? '收藏你喜欢的帖子，方便以后查看' : 'Save posts you love to view them later'}
               />
@@ -323,7 +323,7 @@ export default function ProfilePage() {
             )
           ) : (
             <EmptyState
-              icon={<Bookmark className="w-8 h-8 text-[#6B6B78]" />}
+              icon={<Bookmark className="w-8 h-8 text-gray-400" />}
               title={isZh ? '私密收藏' : 'Private collection'}
               description={isZh ? '该用户的收藏为私密' : "This user's saved posts are private"}
             />
@@ -335,23 +335,23 @@ export default function ProfilePage() {
           <div className="space-y-2">
             {(activeTab === 'followers' ? followers : following).length === 0 ? (
               <EmptyState
-                icon={<Users className="w-8 h-8 text-[#6B6B78]" />}
+                icon={<Users className="w-8 h-8 text-gray-400" />}
                 title={activeTab === 'followers' ? (isZh ? '还没有粉丝' : 'No followers yet') : (isZh ? '还没有关注任何人' : 'Not following anyone yet')}
               />
             ) : (
               (activeTab === 'followers' ? followers : following).map(user => (
                 <div
                   key={user.id}
-                  className="flex items-center gap-3 p-3 bg-[#18181F] rounded-xl border border-[#2A2A36] hover:border-[#2A2A36]/80 transition-colors"
+                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200 hover:border-gray-200/80 transition-colors"
                 >
                   <Link to={`/profile/${user.username}`}>
                     <Avatar user={user} size="md" showBadge />
                   </Link>
                   <Link to={`/profile/${user.username}`} className="flex-1 min-w-0 group">
-                    <p className="text-white font-medium group-hover:text-[#CFAF6E] transition-colors truncate">
+                    <p className="text-white font-medium group-hover:text-amber-600 transition-colors truncate">
                       {user.display_name || user.username}
                     </p>
-                    <p className="text-[#6B6B78] text-xs truncate">@{user.username}</p>
+                    <p className="text-gray-400 text-xs truncate">@{user.username}</p>
                   </Link>
                   {isOwnProfile && (
                     <FollowButton
@@ -379,7 +379,7 @@ export default function ProfilePage() {
             <button
               onClick={() => setPage(p => p + 1)}
               disabled={loadingMore}
-              className="px-6 py-2.5 bg-[#18181F] border border-[#2A2A36] text-[#B0B0B8] rounded-full text-sm font-medium hover:border-[#CFAF6E]/40 hover:text-[#CFAF6E] transition-colors disabled:opacity-50"
+              className="px-6 py-2.5 bg-gray-50 border border-gray-200 text-gray-500 rounded-full text-sm font-medium hover:border-amber-200 hover:text-amber-600 transition-colors disabled:opacity-50"
             >
               {loadingMore ? (
                 <div className="flex items-center gap-2">
@@ -407,16 +407,16 @@ export default function ProfilePage() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="w-full max-w-md bg-[#18181F] rounded-t-2xl sm:rounded-2xl border border-[#2A2A36] max-h-[70vh] overflow-hidden"
+              className="w-full max-w-md bg-gray-50 rounded-t-2xl sm:rounded-2xl border border-gray-200 max-h-[70vh] overflow-hidden"
               onClick={e => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between p-4 border-b border-[#2A2A36]">
+              <div className="flex items-center justify-between p-4 border-b border-gray-200">
                 <h3 className="text-white font-semibold">
                   {showFollowModal === 'followers' ? t('profile.followers') : t('profile.following')}
                 </h3>
                 <button
                   onClick={() => setShowFollowModal(null)}
-                  className="p-1 text-[#6B6B78] hover:text-white transition-colors"
+                  className="p-1 text-gray-400 hover:text-black transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -427,14 +427,14 @@ export default function ProfilePage() {
                     key={user.id}
                     to={`/profile/${user.username}`}
                     onClick={() => setShowFollowModal(null)}
-                    className="flex items-center gap-3 p-2 rounded-xl hover:bg-[#1E1E27] transition-colors"
+                    className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-100 transition-colors"
                   >
                     <Avatar user={user} size="sm" showBadge />
                     <div className="flex-1 min-w-0">
                       <p className="text-white text-sm font-medium truncate">
                         {user.display_name || user.username}
                       </p>
-                      <p className="text-[#6B6B78] text-xs truncate">@{user.username}</p>
+                      <p className="text-gray-400 text-xs truncate">@{user.username}</p>
                     </div>
                   </Link>
                 ))}

@@ -154,13 +154,13 @@ export default function Create() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E]">
+    <div className="min-h-screen bg-white">
       {/* 顶部导航 */}
-      <div className="sticky top-16 z-40 bg-[#0B0B0E]/95 backdrop-blur-md border-b border-[#2A2A36]">
+      <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200">
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
-            className="text-[#B0B0B8] hover:text-white transition-colors"
+            className="text-gray-500 hover:text-black transition-colors"
           >
             {isZh ? '取消' : 'Cancel'}
           </button>
@@ -168,7 +168,7 @@ export default function Create() {
           <button
             onClick={handleSubmit}
             disabled={submitting || !title.trim() || images.length === 0}
-            className="px-4 py-1.5 bg-[#9E2B25] text-white rounded-full text-sm font-medium hover:bg-[#B8342D] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5"
+            className="px-4 py-1.5 bg-black text-white rounded-full text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5"
           >
             {submitting ? (
               <>
@@ -186,7 +186,7 @@ export default function Create() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 bg-[#9E2B25]/10 border border-[#9E2B25]/30 rounded-xl text-[#9E2B25] text-sm flex items-center gap-2"
+            className="p-4 bg-black/10 border border-red-200 rounded-xl text-red-600 text-sm flex items-center gap-2"
           >
             <X className="w-4 h-4 flex-shrink-0" />
             {error}
@@ -194,11 +194,11 @@ export default function Create() {
         )}
 
         {/* 图片上传 */}
-        <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-4">
+        <div className="bg-gray-50 rounded-2xl border border-gray-200 p-5 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-white font-semibold">{t('create.select_images')}</h2>
             {images.length > 0 && (
-              <span className="text-[#6B6B78] text-xs">{images.length}/9</span>
+              <span className="text-gray-400 text-xs">{images.length}/9</span>
             )}
           </div>
           <ImageUploader
@@ -210,7 +210,7 @@ export default function Create() {
         </div>
 
         {/* 标题 */}
-        <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-3">
+        <div className="bg-gray-50 rounded-2xl border border-gray-200 p-5 space-y-3">
           <h2 className="text-white font-semibold">{t('create.title')} *</h2>
           <input
             type="text"
@@ -218,15 +218,15 @@ export default function Create() {
             onChange={(e) => setTitle(e.target.value)}
             placeholder={isZh ? '给你的作品起一个吸引人的标题...' : 'Give your work a compelling title...'}
             maxLength={100}
-            className="w-full bg-[#1E1E27] border border-[#2A2A36] rounded-xl px-4 py-3 text-white placeholder-[#6B6B78] focus:border-[#CFAF6E]/50 focus:outline-none transition-colors text-sm"
+            className="w-full bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:border-gray-400 focus:outline-none transition-colors text-sm"
           />
           <div className="flex items-center justify-between">
-            <span className="text-[#6B6B78] text-xs">{title.length}/100</span>
+            <span className="text-gray-400 text-xs">{title.length}/100</span>
           </div>
         </div>
 
         {/* 描述 */}
-        <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-3">
+        <div className="bg-gray-50 rounded-2xl border border-gray-200 p-5 space-y-3">
           <h2 className="text-white font-semibold">{isZh ? '描述' : 'Description'}</h2>
           <textarea
             value={description}
@@ -234,15 +234,15 @@ export default function Create() {
             placeholder={isZh ? '讲述作品背后的故事 — 灵感、含义、创作过程...' : 'Tell the story behind your work — inspiration, meaning, process...'}
             rows={4}
             maxLength={500}
-            className="w-full bg-[#1E1E27] border border-[#2A2A36] rounded-xl px-4 py-3 text-white placeholder-[#6B6B78] focus:border-[#CFAF6E]/50 focus:outline-none transition-colors resize-none text-sm"
+            className="w-full bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:border-gray-400 focus:outline-none transition-colors resize-none text-sm"
           />
           <div className="flex justify-end">
-            <span className="text-[#6B6B78] text-xs">{description.length}/500</span>
+            <span className="text-gray-400 text-xs">{description.length}/500</span>
           </div>
         </div>
 
         {/* 作品类型 */}
-        <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-3">
+        <div className="bg-gray-50 rounded-2xl border border-gray-200 p-5 space-y-3">
           <h2 className="text-white font-semibold">{t('create.post_type')}</h2>
           <div className="grid grid-cols-2 gap-2">
             {POST_TYPES.map(type => (
@@ -252,25 +252,25 @@ export default function Create() {
                 className={`
                   p-3 rounded-xl border transition-all text-left
                   ${postType === type.id
-                    ? 'border-[#CFAF6E]/50 bg-[#CFAF6E]/5'
-                    : 'border-[#2A2A36] hover:border-[#2A2A36]/80'
+                    ? 'border-amber-200 bg-amber-50'
+                    : 'border-gray-200 hover:border-gray-200/80'
                   }
                 `}
               >
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-lg">{type.icon}</span>
-                  <span className={`text-sm font-medium ${postType === type.id ? 'text-white' : 'text-[#B0B0B8]'}`}>
+                  <span className={`text-sm font-medium ${postType === type.id ? 'text-white' : 'text-gray-500'}`}>
                     {type.label}
                   </span>
                 </div>
-                <p className="text-[#6B6B78] text-[10px]">{type.desc}</p>
+                <p className="text-gray-400 text-[10px]">{type.desc}</p>
               </button>
             ))}
           </div>
         </div>
 
         {/* 风格标签 */}
-        <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-3">
+        <div className="bg-gray-50 rounded-2xl border border-gray-200 p-5 space-y-3">
           <h2 className="text-white font-semibold">{t('create.tags')}</h2>
           <div className="flex flex-wrap gap-2">
             {PRESET_STYLES.map(style => (
@@ -280,8 +280,8 @@ export default function Create() {
                 className={`
                   px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1
                   ${selectedStyles.includes(style)
-                    ? 'bg-[#9E2B25] text-white border border-[#9E2B25]'
-                    : 'bg-[#1E1E27] text-[#B0B0B8] border border-[#2A2A36] hover:border-[#9E2B25]/40'
+                    ? 'bg-black text-white border border-[#9E2B25]'
+                    : 'bg-gray-100 text-gray-500 border border-gray-200 hover:border-gray-300'
                   }
                 `}
               >
@@ -298,11 +298,11 @@ export default function Create() {
               onChange={(e) => setCustomTag(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomTag())}
               placeholder={isZh ? '添加自定义标签...' : 'Add custom tag...'}
-              className="flex-1 bg-[#1E1E27] border border-[#2A2A36] rounded-xl px-3 py-2 text-sm text-white placeholder-[#6B6B78] focus:border-[#CFAF6E]/50 focus:outline-none transition-colors"
+              className="flex-1 bg-gray-100 border border-gray-200 rounded-xl px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-gray-400 focus:outline-none transition-colors"
             />
             <button
               onClick={addCustomTag}
-              className="px-4 py-2 bg-[#1E1E27] border border-[#2A2A36] rounded-xl text-[#B0B0B8] hover:text-[#CFAF6E] hover:border-[#CFAF6E]/40 transition-colors text-sm"
+              className="px-4 py-2 bg-gray-100 border border-gray-200 rounded-xl text-gray-500 hover:text-amber-600 hover:border-amber-200 transition-colors text-sm"
             >
               {isZh ? '添加' : 'Add'}
             </button>
@@ -310,16 +310,16 @@ export default function Create() {
         </div>
 
         {/* 高级选项 */}
-        <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] overflow-hidden">
+        <div className="bg-gray-50 rounded-2xl border border-gray-200 overflow-hidden">
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
             className="w-full p-5 flex items-center justify-between text-left"
           >
             <h2 className="text-white font-semibold">{isZh ? '更多选项' : 'Options'}</h2>
             {showAdvanced ? (
-              <ChevronUp className="w-4 h-4 text-[#6B6B78]" />
+              <ChevronUp className="w-4 h-4 text-gray-400" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-[#6B6B78]" />
+              <ChevronDown className="w-4 h-4 text-gray-400" />
             )}
           </button>
 
@@ -331,7 +331,7 @@ export default function Create() {
             >
               {/* 身体部位 */}
               <div className="space-y-3">
-                <h3 className="text-[#B0B0B8] text-sm">{isZh ? '纹身位置' : 'Body Placement'}</h3>
+                <h3 className="text-gray-500 text-sm">{isZh ? '纹身位置' : 'Body Placement'}</h3>
                 <div className="flex flex-wrap gap-2">
                   {BODY_PARTS.map(part => (
                     <button
@@ -340,8 +340,8 @@ export default function Create() {
                       className={`
                         px-3 py-1.5 rounded-full text-xs transition-all
                         ${selectedBodyPart === part
-                          ? 'bg-[#CFAF6E] text-[#0B0B0E] font-medium'
-                          : 'bg-[#1E1E27] text-[#B0B0B8] border border-[#2A2A36] hover:border-[#2A2A36]/80'
+                          ? 'bg-amber-600 text-[#0B0B0E] font-medium'
+                          : 'bg-gray-100 text-gray-500 border border-gray-200 hover:border-gray-200/80'
                         }
                       `}
                     >
@@ -353,21 +353,21 @@ export default function Create() {
 
               {/* 可见性 */}
               <div className="space-y-3">
-                <h3 className="text-[#B0B0B8] text-sm">{isZh ? '谁可以看' : 'Who Can See This'}</h3>
+                <h3 className="text-gray-500 text-sm">{isZh ? '谁可以看' : 'Who Can See This'}</h3>
                 <VisibilitySelector value={visibility} onChange={setVisibility} />
               </div>
 
               {/* 位置 */}
               <div className="space-y-3">
-                <h3 className="text-[#B0B0B8] text-sm">{isZh ? '位置（可选）' : 'Location (Optional)'}</h3>
+                <h3 className="text-gray-500 text-sm">{isZh ? '位置（可选）' : 'Location (Optional)'}</h3>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B6B78]" />
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     placeholder={isZh ? '例如：北京，中国' : 'e.g. Los Angeles, CA'}
-                    className="w-full bg-[#1E1E27] border border-[#2A2A36] rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-[#6B6B78] focus:border-[#CFAF6E]/50 focus:outline-none transition-colors"
+                    className="w-full bg-gray-100 border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-gray-400 focus:border-gray-400 focus:outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -376,27 +376,27 @@ export default function Create() {
         </div>
 
         {/* 预览区块 */}
-        <div className="bg-[#18181F] rounded-2xl border border-[#2A2A36] p-5 space-y-3">
+        <div className="bg-gray-50 rounded-2xl border border-gray-200 p-5 space-y-3">
           <div className="flex items-center gap-2">
-            <Eye className="w-4 h-4 text-[#6B6B78]" />
+            <Eye className="w-4 h-4 text-gray-400" />
             <h2 className="text-white font-semibold">{isZh ? '预览' : 'Preview'}</h2>
           </div>
           <div className="flex gap-2 flex-wrap">
             {selectedStyles.map(tag => (
               <span
                 key={tag}
-                className="px-2.5 py-1 bg-[#0B0B0E] text-[#CFAF6E] text-xs rounded-full border border-[#CFAF6E]/25"
+                className="px-2.5 py-1 bg-white text-amber-600 text-xs rounded-full border border-amber-200"
               >
                 #{tag}
               </span>
             ))}
             {images.length > 0 && (
-              <span className="px-2.5 py-1 bg-[#0B0B0E] text-[#9E2B25] text-xs rounded-full border border-[#9E2B25]/25">
+              <span className="px-2.5 py-1 bg-white text-red-600 text-xs rounded-full border border-[#9E2B25]/25">
                 {images.length} {images.length === 1 ? (isZh ? '张图片' : 'image') : (isZh ? '张图片' : 'images')}
               </span>
             )}
-            <span className={`px-2.5 py-1 bg-[#0B0B0E] text-xs rounded-full border border-[#2A2A36] flex items-center gap-1 ${
-              visibility === 'public' ? 'text-white' : visibility === 'followers' ? 'text-[#CFAF6E]' : 'text-[#6B6B78]'
+            <span className={`px-2.5 py-1 bg-white text-xs rounded-full border border-gray-200 flex items-center gap-1 ${
+              visibility === 'public' ? 'text-white' : visibility === 'followers' ? 'text-amber-600' : 'text-gray-400'
             }`}>
               {visibility === 'public' && <Globe className="w-3 h-3" />}
               {visibility === 'followers' && <Users className="w-3 h-3" />}

@@ -1,4 +1,4 @@
-﻿import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 // 支持的语言类型
 export type Language = 'en' | 'ja' | 'zh' | 'ko' | 'fr' | 'pt' | 'es' | 'de';
@@ -155,6 +155,13 @@ const translations: Record<Language, Record<string, string>> = {
     'home.cta_title': 'Ready to Start?',
     'home.cta_description': 'Join thousands of creators and discover your next tattoo inspiration.',
     'home.free_signup': 'Sign Up Free',
+    'home.social_users': '10,000+',
+    'home.social_users_label': 'Active Users',
+    'home.social_artworks': '50,000+',
+    'home.social_artworks_label': 'Artworks Created',
+    'home.social_artists': '500+',
+    'home.social_artists_label': 'Professional Artists',
+    'home.featured_works_subtitle': 'Discover amazing tattoo designs from our community',
     'home.feature_ai_title': 'AI Generation',
     'home.feature_ai_desc': 'Generate unique tattoo designs with advanced AI',
     'home.feature_styles_title': 'Multiple Styles',
@@ -638,6 +645,13 @@ const translations: Record<Language, Record<string, string>> = {
     'home.cta_title': '准备好开始了吗？',
     'home.cta_description': '加入数千名创作者，发现你的下一个纹身灵感。',
     'home.free_signup': '免费注册',
+    'home.social_users': '10,000+',
+    'home.social_users_label': '活跃用户',
+    'home.social_artworks': '50,000+',
+    'home.social_artworks_label': '作品创作',
+    'home.social_artists': '500+',
+    'home.social_artists_label': '专业艺术家',
+    'home.featured_works_subtitle': '发现社区中令人惊叹的纹身设计',
     'home.feature_ai_title': 'AI 生成',
     'home.feature_ai_desc': '使用先进 AI 生成独特纹身设计',
     'home.feature_styles_title': '多种风格',
