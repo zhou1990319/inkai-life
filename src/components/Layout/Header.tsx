@@ -178,7 +178,7 @@ export default function Header({ user }: { user: Profile | null }) {
         </div>
       </div>
 
-      {/* 移动端菜单 */}
+      {/* 移动端菜单 - 仅显示语言切换和额外操作 */}
       {isMenuOpen && (
         <div className="md:hidden bg-white border-t border-gray-200">
           <nav className="px-6 py-4 space-y-1">
@@ -190,20 +190,18 @@ export default function Header({ user }: { user: Profile | null }) {
                   to={item.path}
                   onClick={() => setIsMenuOpen(false)}
                   className={`block py-3 text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'text-black'
-                      : 'text-gray-500 hover:text-black'
+                    isActive ? 'text-black' : 'text-gray-500 hover:text-black'
                   }`}
                 >
                   {t(item.labelKey)}
                 </Link>
               );
             })}
-            
-            {/* 语言切换 */}
+
+            {/* 语言切换 - 网格布局 */}
             <div className="pt-4 border-t border-gray-200 mt-4">
-              <div className="text-xs text-gray-400 mb-3">Language / 语言</div>
-              <div className="flex gap-2">
+              <div className="text-xs text-gray-400 mb-3">Language</div>
+              <div className="grid grid-cols-4 gap-2">
                 {LANGUAGES.map((lang) => (
                   <button
                     key={lang.id}
@@ -211,13 +209,13 @@ export default function Header({ user }: { user: Profile | null }) {
                       setLanguage(lang.id as Language);
                       setIsMenuOpen(false);
                     }}
-                    className={`px-3 py-2 text-xs transition-colors ${
+                    className={`px-2 py-2 text-xs text-center transition-colors rounded ${
                       language === lang.id
                         ? 'bg-black text-white'
-                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                        : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
                     }`}
                   >
-                    {lang.flag} {lang.nativeName}
+                    {lang.flag}
                   </button>
                 ))}
               </div>
