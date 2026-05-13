@@ -3,6 +3,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, ArrowRight, CreditCard } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { PLANS, type PlanType } from '../services/subscription';
+import { verifyPayPalPayment } from '../services/payment';
 
 export default function PaymentSuccess() {
   const { language } = useLanguage();
@@ -13,21 +14,33 @@ export default function PaymentSuccess() {
   const [planInfo, setPlanInfo] = useState<{ name: string; price: string } | null>(null);
 
   useEffect(() => {
-    // 从 URL 参数获取方案信息
     const params = new URLSearchParams(location.search);
+    const orderId = params.get('orderId');
     const planParam = params.get('plan') as PlanType | null;
 
-    if (planParam && PLANS[planParam]) {
+    if (orderId) {
+      verifyPayPalPayment(orderId).then(result => {
+        if (result.success && planParam && PLANS[planParam]) {
+          const plan = PLANS[planParam];
+          setPlanInfo({
+            name: isZh ? plan.name : plan.nameEn,
+            price: `${plan.price}`,
+          });
+        }
+        setLoading(false);
+      }).catch(() => {
+        setLoading(false);
+      });
+    } else if (planParam && PLANS[planParam]) {
       const plan = PLANS[planParam];
       setPlanInfo({
         name: isZh ? plan.name : plan.nameEn,
-        price: `$${plan.price}`,
+        price: `${plan.price}`,
       });
+      setLoading(false);
+    } else {
+      setLoading(false);
     }
-
-    // 模拟支付验证
-    const timer = setTimeout(() => setLoading(false), 1500);
-    return () => clearTimeout(timer);
   }, [location.search, isZh]);
 
   return (

@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // InkAI 社区服务层
 // 封装所有社区相关的数据操作
 // ============================================
@@ -198,11 +198,21 @@ export const LikeService = {
         .delete()
         .eq('user_id', userId)
         .eq('post_id', postId);
+      // 减少计数
+      await supabase
+        .from('tattoo_posts')
+        .update({ likes_count: supabase.rpc('decrement', { x: 1 }) as unknown as number })
+        .eq('id', postId);
       return false;
     } else {
       await supabase
         .from('post_likes')
         .insert({ user_id: userId, post_id: postId });
+      // 增加计数
+      await supabase
+        .from('tattoo_posts')
+        .update({ likes_count: supabase.rpc('increment', { x: 1 }) as unknown as number })
+        .eq('id', postId);
 
       // 发送通知
       const { data: post } = await supabase
@@ -250,11 +260,21 @@ export const SaveService = {
         .delete()
         .eq('user_id', userId)
         .eq('post_id', postId);
+      // 减少计数
+      await supabase
+        .from('tattoo_posts')
+        .update({ saves_count: supabase.rpc('decrement', { x: 1 }) as unknown as number })
+        .eq('id', postId);
       return false;
     } else {
       await supabase
         .from('post_saves')
         .insert({ user_id: userId, post_id: postId });
+      // 增加计数
+      await supabase
+        .from('tattoo_posts')
+        .update({ saves_count: supabase.rpc('increment', { x: 1 }) as unknown as number })
+        .eq('id', postId);
       return true;
     }
   },

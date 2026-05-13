@@ -1,12 +1,9 @@
 ﻿import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabase/client';
 import type { Database } from '../supabase/types';
-import { PLANS } from '../services/subscription';
+import { PLANS, type PlanType } from '../services/subscription';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
-
-// Unified PlanType - consistent with subscription.ts
-export type PlanType = 'free' | 'starter' | 'basic_monthly' | 'basic_yearly' | 'pro_monthly' | 'pro_yearly' | 'unlimited';
 
 // Plan benefits config - synced with subscription.ts PLANS
 export const PLAN_BENEFITS: Record<PlanType, {
