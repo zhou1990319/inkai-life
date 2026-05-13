@@ -685,7 +685,7 @@ export function ImageUploader({ images, onChange, maxImages = 9, userId }: Image
           alert(isZh ? '文件 ' + file.name + ' 太大（最大 10MB）' : `File ${file.name} is too large (max 10MB)`);
           continue;
         }
-        const url = await uploadImage(file, 'tattoo-images', `posts/${userId}`);
+        const { publicUrl: url } = await uploadImage(file, 'tattoo-images', `posts/${userId}`);
         newUrls.push(url);
       }
       onChange([...images, ...newUrls]);

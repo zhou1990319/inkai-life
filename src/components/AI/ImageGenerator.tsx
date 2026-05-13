@@ -6,13 +6,13 @@ import { persistGeneratedImage } from '../../services/storage';
 import { analyzeTattooMeaning } from '../../services/aiChat';
 import { useLanguage } from '../../contexts/LanguageContext';
 
-// 海外纹身风格选项 - 2?列布局
+// 海外纹身风格选项 - 2列布局
 const TATTOO_STYLES = [
-  // 第一?  { id: 'oriental', name: 'Oriental', nameZh: '中式', keywords: 'oriental style, traditional chinese art, ink wash painting' },
+  // 第一行  { id: 'oriental', name: 'Oriental', nameZh: '中式', keywords: 'oriental style, traditional chinese art, ink wash painting' },
   { id: 'japanese', name: 'Japanese', nameZh: '日式', keywords: 'japanese tattoo, irezumi, traditional japanese art, bold outlines' },
   { id: 'american-traditional', name: 'American Traditional', nameZh: '美式传统', keywords: 'american traditional tattoo, bold lines, vibrant colors, classic sailor jerry style' },
-  { id: 'neo-traditional', name: 'Neo-Traditional', nameZh: '新传?, keywords: 'neo-traditional tattoo, bold colors, detailed illustrations, modern interpretation' },
-  // 第二?  { id: 'blackwork', name: 'Dark & Blackwork', nameZh: '暗黑黑灰', keywords: 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, gothic style' },
+  { id: 'neo-traditional', name: 'Neo-Traditional', nameZh: '新传统', keywords: 'neo-traditional tattoo, bold colors, detailed illustrations, modern interpretation' },
+  // 第二行  { id: 'blackwork', name: 'Dark & Blackwork', nameZh: '暗黑黑灰', keywords: 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, gothic style' },
   { id: 'watercolor', name: 'Watercolor', nameZh: '水彩', keywords: 'watercolor tattoo style, ink wash effect, flowing colors, artistic brush strokes' },
   { id: 'minimalist', name: 'Minimalist', nameZh: '极简线条', keywords: 'minimalist tattoo, fine line work, delicate designs, single needle technique' },
   { id: 'realism', name: 'Realism', nameZh: '写实', keywords: 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo' },
@@ -30,12 +30,12 @@ const STYLE_KEYWORDS_MAP: Record<string, string> = {
   'realism': 'realistic tattoo, photorealistic style, detailed shading, portrait tattoo, life-like rendering, high detail',
 };
 
-// 身体部位选项 - name: 英文(AI?, nameZh: 中文(UI显示)
+// 身体部位选项 - name: 英文(AI使用), nameZh: 中文(UI显示)
 const BODY_PARTS = [
   { id: 'arm', name: 'arm', nameZh: '手臂', icon: '💪' },
   { id: 'back', name: 'back', nameZh: '背部', icon: '👤' },
   { id: 'chest', name: 'chest', nameZh: '胸部', icon: '❤️' },
-  { id: 'wrist', name: 'wrist', nameZh: '手腕', icon: '? },
+  { id: 'wrist', name: 'wrist', nameZh: '手腕', icon: '🤚' },
   { id: 'collarbone', name: 'collarbone', nameZh: '锁骨', icon: '🦴' },
   { id: 'thigh', name: 'thigh', nameZh: '大腿', icon: '🦵' },
   { id: 'calf', name: 'calf', nameZh: '小腿', icon: '🦶' },
@@ -64,7 +64,7 @@ export default function ImageGenerator() {
       const styleKeywords = selectedStyle ? STYLE_KEYWORDS_MAP[selectedStyle] || '' : '';
       const bodyPartName = selectedBodyPart ? BODY_PARTS.find(b => b.id === selectedBodyPart)?.name : '';
       
-      // 构建完整提示?      const fullPrompt = [
+      // 构建完整提示词      const fullPrompt = [
         prompt,
         styleKeywords,
         bodyPartName ? `${bodyPartName} placement` : '',
