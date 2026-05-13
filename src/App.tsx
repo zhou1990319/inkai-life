@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './supabase/client';
 import type { Database } from './supabase/types';
@@ -47,7 +47,7 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
@@ -98,7 +98,7 @@ function AppContent() {
                 element={user ? <Settings /> : <Navigate to="/login?redirect=/settings" />}
               />
               <Route path="*" element={
-                <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center">
+                <div className="min-h-screen bg-white flex items-center justify-center">
                   <div className="text-center">
                     <h1 className="text-6xl font-bold text-[#CFAF6E] mb-4">404</h1>
                     <p className="text-stone-400 mb-6">Page not found</p>
@@ -121,11 +121,11 @@ function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <BrowserRouter>
-          <div className="min-h-screen bg-[#0B0B0E] text-white">
+        <HashRouter>
+          <div className="min-h-screen bg-white text-white">
             <AppContent />
           </div>
-        </BrowserRouter>
+        </HashRouter>
       </AuthProvider>
     </LanguageProvider>
   );
