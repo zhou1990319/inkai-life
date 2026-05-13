@@ -51,7 +51,7 @@ function AppContent() {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="w-8 h-8 border-2 border-[#CFAF6E] border-t-transparent rounded-full"
+          className="w-8 h-8 border-2 border-black border-t-transparent rounded-full"
         />
       </div>
     );
@@ -100,9 +100,9 @@ function AppContent() {
               <Route path="*" element={
                 <div className="min-h-screen bg-white flex items-center justify-center">
                   <div className="text-center">
-                    <h1 className="text-6xl font-bold text-[#CFAF6E] mb-4">404</h1>
-                    <p className="text-stone-400 mb-6">Page not found</p>
-                    <Link to="/" className="text-[#CFAF6E] hover:underline">Go Home</Link>
+                    <h1 className="text-6xl font-bold text-black mb-4">404</h1>
+                    <p className="text-gray-500 mb-6">Page not found</p>
+                    <Link to="/" className="text-black hover:underline">Go Home</Link>
                   </div>
                 </div>
               } />
@@ -122,7 +122,7 @@ function App() {
     <LanguageProvider>
       <AuthProvider>
         <HashRouter>
-          <div className="min-h-screen bg-white text-white">
+          <div className="min-h-screen bg-white text-black">
             <AppContent />
           </div>
         </HashRouter>
