@@ -84,9 +84,8 @@ export default function Settings() {
 
       // 上传新头像
       if (avatarFile) {
-        const { url, error: uploadError } = await uploadImage(avatarFile, 'avatars');
-        if (uploadError) throw uploadError;
-        newAvatarUrl = url;
+        const { publicUrl } = await uploadImage(avatarFile, 'avatars');
+        newAvatarUrl = publicUrl;
       }
 
       // 更新资料

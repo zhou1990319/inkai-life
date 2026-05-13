@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Upload, Wand2, Image as ImageIcon, AlertCircle, Lock, Crown, Zap, Download, Share2 } from 'lucide-react';
 import { generateImageWithVolcengine } from '../services/volcengineImage';
@@ -17,8 +17,8 @@ function getTattooStyles(isZh: boolean) {
   return [
     { id: 'oriental', name: isZh ? '中式' : 'Oriental', nameZh: '中式', keywords: 'oriental style, traditional chinese art, ink wash painting, chinese dragon, phoenix', icon: '🏯' },
     { id: 'japanese', name: isZh ? '日式' : 'Japanese', nameZh: '日式', keywords: 'japanese tattoo, irezumi, traditional japanese art, bold outlines, cherry blossom, koi fish', icon: '⛩️' },
-    { id: 'american-traditional', name: isZh ? '美式传统' : 'American Traditional', nameZh: '美式传统', keywords: 'american traditional tattoo, bold lines, vibrant colors, nautical themes, eagle, rose', icon: '🦅' },
-    { id: 'neo-traditional', name: isZh ? '新传统' : 'Neo-Traditional', nameZh: '新传统', keywords: 'neo-traditional tattoo, bold colors, detailed illustrations, modern interpretation', icon: '🎨' },
+    { id: 'american_traditional', name: isZh ? '美式传统' : 'American Traditional', nameZh: '美式传统', keywords: 'american traditional tattoo, bold lines, vibrant colors, nautical themes, eagle, rose', icon: '🦅' },
+    { id: 'neo_traditional', name: isZh ? '新传统' : 'Neo-Traditional', nameZh: '新传统', keywords: 'neo-traditional tattoo, bold colors, detailed illustrations, modern interpretation', icon: '🎨' },
     { id: 'blackwork', name: isZh ? '暗黑黑灰' : 'Dark & Blackwork', nameZh: '暗黑黑灰', keywords: 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, tribal influence', icon: '🖤' },
     { id: 'watercolor', name: isZh ? '水彩' : 'Watercolor', nameZh: '水彩', keywords: 'watercolor tattoo style, ink wash effect, flowing colors, artistic brush strokes', icon: '💧' },
     { id: 'minimalist', name: isZh ? '极简线条' : 'Minimalist', nameZh: '极简线条', keywords: 'minimalist tattoo, fine line work, delicate designs, single needle technique', icon: '✒️' },
@@ -30,8 +30,8 @@ function getTattooStyles(isZh: boolean) {
 const STYLE_KEYWORDS_MAP: Record<string, string> = {
   'oriental': 'oriental style, traditional chinese art, ink wash painting, chinese dragon, phoenix, mythological elements',
   'japanese': 'japanese tattoo, irezumi style, traditional japanese art, bold outlines, cherry blossom, koi fish, samurai',
-  'american-traditional': 'american traditional tattoo, bold lines, vibrant colors, nautical themes, eagle, rose, classic tattoo design',
-  'neo-traditional': 'neo-traditional tattoo, bold colors, detailed illustrations, modern twist on classic designs, rich shading',
+  'american_traditional': 'american traditional tattoo, bold lines, vibrant colors, nautical themes, eagle, rose, classic tattoo design',
+  'neo_traditional': 'neo-traditional tattoo, bold colors, detailed illustrations, modern twist on classic designs, rich shading',
   'blackwork': 'blackwork tattoo, dark aesthetic, high contrast, bold black ink, tribal influence, gothic elements',
   'watercolor': 'watercolor tattoo style, ink wash effect, flowing watercolor splashes, artistic brush strokes, colorful',
   'minimalist': 'minimalist tattoo, fine line work, delicate single line designs, subtle, elegant, single needle technique',
@@ -115,7 +115,7 @@ function MembershipStatusBar({ user, membership, t, isZh }: { user: Profile; mem
               )}
             </div>
             <p className={`text-sm mt-1 ${isFree ? 'text-amber-600' : 'text-gray-500'}`}>
-              {message || (benefits.isUnlimited ? (isZh ? '无限次生成！' : 'Unlimited generations!') : (isZh ? `最大分辨率: ${benefits.maxResolution}` : `Max resolution: ${benefits.maxResolution}`))}
+              {message || (benefits.isUnlimited ? t('ai.unlimited') : `${t('ai.max_resolution')} ${benefits.maxResolution}`)}
             </p>
           </div>
         </div>
@@ -240,7 +240,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
   const handleGenerate = async () => {
     if (!user) return;
     if (!canGenerate) {
-      setError(isZh ? '今日生成次数已用完，请明天再来或升级会员！' : 'Daily generation limit reached. Please try again tomorrow or upgrade!');
+      setError(t('ai.daily_limit'));
       return;
     }
     if (!prompt && mode === 'text') return;
@@ -278,11 +278,11 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
         setGeneratedImage(result.image_url);
         recordGeneration(result.image_url, resolution);
       } else {
-        setError(result.error || (isZh ? '生成失败，请重试' : 'Generation failed, please try again'));
+        setError(result.error || t('ai.generation_failed'));
       }
     } catch (err) {
       console.error('Generation failed:', err);
-      setError(err instanceof Error ? err.message : (isZh ? '生成失败，请重试' : 'Generation failed, please try again'));
+      setError(err instanceof Error ? err.message : t('ai.generation_failed'));
     }
     setLoading(false);
   };
@@ -322,7 +322,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
       console.log('[上传] 成功:', result.publicUrl);
     } catch (err) {
       console.error('[上传] 失败:', err);
-      setError(err instanceof Error ? err.message : (isZh ? '图片上传失败，请重试' : 'Image upload failed, please try again'));
+      setError(err instanceof Error ? err.message : t('ai.upload_failed'));
     } finally {
       e.target.value = '';
     }
@@ -389,7 +389,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
                   ) : (
                     <>
                       <Upload className="w-10 h-10 text-amber-600/50 mb-3" />
-                      <span className="text-gray-500">{isZh ? '上传参考图片' : 'Upload reference image'}</span>
+                      <span className="text-gray-500">{t('ai.upload_reference')}</span>
                     </>
                   )}
                   <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
@@ -424,7 +424,7 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
                   >
                     <div className="text-2xl mb-2">{style.icon}</div>
                     <div className="font-bold">{t(`style.${style.id}`)}</div>
-                    <div className="text-xs opacity-70">{style.nameZh}</div>
+                    <div className="text-xs opacity-70">{t(`style.${style.id}`)}</div>
                   </button>
                 ))}
               </div>
@@ -542,13 +542,13 @@ export default function AIGenerator({ user }: AIGeneratorProps) {
                     try {
                       if (navigator.share) {
                         await navigator.share({
-                          title: isZh ? '我的纹身设计' : 'My Tattoo Design',
-                          text: isZh ? '看看我生成的纹身设计' : 'Check out my tattoo design',
+                          title: t('ai.my_design'),
+                          text: t('ai.check_design'),
                           url: generatedImage,
                         });
                       } else {
                         await navigator.clipboard.writeText(generatedImage);
-                        alert(isZh ? '图片链接已复制到剪贴板' : 'Image link copied to clipboard');
+                        alert(t('ai.link_copied'));
                       }
                     } catch (err) {
                       console.error('Share failed:', err);

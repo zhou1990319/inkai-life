@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // InkAI 社区服务层
 // 封装所有社区相关的数据操作
 // ============================================
@@ -674,7 +674,7 @@ export const ProfileService = {
   },
 
   async uploadAvatar(userId: string, file: File): Promise<string> {
-    const avatarUrl = await uploadImage(file, 'tattoo-images', `avatars/${userId}`);
+    const { publicUrl: avatarUrl } = await uploadImage(file, 'tattoo-images', `avatars/${userId}`);
     await this.updateProfile(userId, { avatar_url: avatarUrl });
     return avatarUrl;
   },
