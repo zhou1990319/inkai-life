@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Supabase client config
  * Supabase 配置直接内联，避免 webpack DefinePlugin 注入失败
  */
@@ -20,3 +20,7 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
   },
 });
+
+// 导出 getter 函数，供其他模块使用
+export const getSupabaseUrl = () => supabaseUrl;
+export const getSupabaseAnonKey = () => supabaseAnonKey;

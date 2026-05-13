@@ -1,4 +1,4 @@
-const path = require('path');
+﻿const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 
@@ -95,9 +95,9 @@ module.exports = (env, argv) => {
         inject: 'body'
       })
     ],
-    // 防止terser移除关键代码
+    // 生产环境启用代码压缩
     optimization: {
-      minimize: false,
+      minimize: !isDev,
     }
   };
 };

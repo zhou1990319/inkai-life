@@ -169,19 +169,19 @@ export default function Explore() {
   };
 
   return (
-    <div className="min-h-screen bg-xuan-black">
+    <div className="min-h-screen bg-white">
       {/* Sticky Header */}
-      <div className="sticky top-16 z-40 bg-xuan-black/95 backdrop-blur-xl border-b border-liujin-gold/15">
+      <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-xl border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-5 space-y-5">
           {/* 标题栏 */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-xuan-black-50/50 border border-liujin-gold/20 flex items-center justify-center">
-                <Users className="w-5 h-5 text-zhusha-red" />
+              <div className="w-10 h-10 rounded-xl bg-white-50/50 border border-gray-200 flex items-center justify-center">
+                <Users className="w-5 h-5 text-amber-600" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-white leading-tight">{t('explore.title')}</h1>
-                <p className="text-ink-gray-50 text-xs">{isZh ? '发现 · 分享 · 连接' : 'Discover · Share · Connect'}</p>
+                <h1 className="text-lg font-bold text-black leading-tight">{t('explore.title')}</h1>
+                <p className="text-gray-500 text-xs">{isZh ? '发现 · 分享 · 连接' : 'Discover · Share · Connect'}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -189,7 +189,7 @@ export default function Explore() {
               {currentUser && (
                 <button
                   onClick={() => navigate('/notifications')}
-                  className="relative p-2.5 rounded-xl bg-xuan-black-50/50 border border-liujin-gold/15 text-rice-paper/50 hover:text-liujin-gold hover:border-liujin-gold/35 transition-colors"
+                  className="relative p-2.5 rounded-xl bg-white-50/50 border border-gray-200 text-gray-500 hover:text-amber-600 hover:border-gray-300 transition-colors"
                 >
                   <Bell className="w-4 h-4" />
                   <NotificationBadge count={unreadCount} />
@@ -199,7 +199,7 @@ export default function Explore() {
               {currentUser ? (
                 <button
                   onClick={() => navigate('/create')}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-zhusha-red to-zhusha-red-dark text-white rounded-full text-sm font-medium hover:from-zhusha-red-light hover:to-zhusha-red transition-all shadow-red-glow-sm"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-black to-black text-black rounded-full text-sm font-medium hover:from-black-light hover:to-black transition-all "
                 >
                   <Plus className="w-4 h-4" />
                   {t('create.post')}
@@ -207,7 +207,7 @@ export default function Explore() {
               ) : (
                 <button
                   onClick={() => navigate('/login')}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-zhusha-red to-zhusha-red-dark text-white rounded-full text-sm font-medium hover:from-zhusha-red-light hover:to-zhusha-red transition-all shadow-red-glow-sm"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-black to-black text-black rounded-full text-sm font-medium hover:from-black-light hover:to-black transition-all "
                 >
                   {t('auth.sign_up_link')}
                 </button>
@@ -234,8 +234,8 @@ export default function Explore() {
                   flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-all text-xs font-medium
                   disabled:opacity-40 disabled:cursor-not-allowed
                   ${activeSort === option.id
-                    ? 'bg-zhusha-red text-white border border-zhusha-red shadow-red-glow-sm'
-                    : 'bg-xuan-black-50/50 text-rice-paper/60 border border-liujin-gold/15 hover:border-zhusha-red/40 hover:text-white'
+                    ? 'bg-black text-black border border-black '
+                    : 'bg-white-50/50 text-gray-500 border border-gray-200 hover:border-black/40 hover:text-black'
                   }
                 `}
               >
@@ -272,7 +272,7 @@ export default function Explore() {
           </div>
         ) : posts.length === 0 ? (
           <EmptyState
-            icon={<Users className="w-9 h-9 text-ink-gray-50" />}
+            icon={<Users className="w-9 h-9 text-gray-500" />}
             title={searchQuery ? t('explore.no_results') : t('notifications.no_notifications')}
             description={searchQuery ? (isZh ? '试试不同的关键词或按标签浏览' : 'Try different keywords or browse by tags') : t('profile.no_posts')}
             action={!searchQuery && currentUser ? {
@@ -309,10 +309,10 @@ export default function Explore() {
             {/* 加载更多触发器 */}
             <div ref={loadMoreRef} className="flex justify-center py-10">
               {loadingMore && (
-                <div className="w-9 h-9 border-2 border-zhusha-red border-t-transparent rounded-full animate-spin" />
+                <div className="w-9 h-9 border-2 border-black border-t-transparent rounded-full animate-spin" />
               )}
               {!hasMore && posts.length > 0 && (
-                <p className="text-ink-gray-50 text-sm">{t('explore.load_more')}</p>
+                <p className="text-gray-500 text-sm">{t('explore.load_more')}</p>
               )}
             </div>
           </>

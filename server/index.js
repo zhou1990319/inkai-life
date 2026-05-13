@@ -511,6 +511,16 @@ const PAYPAL_WEBHOOK_ID = process.env.PAYPAL_WEBHOOK_ID || '';
 
 console.log(`[PayPal] 配置已加载 (mode: ${PAYPAL_MODE}, clientId: ${PAYPAL_CLIENT_ID ? '已设置' : '未设置'})`);
 
+// ========== 后端价格验证表（防止前端篡改金额）==========
+const PLAN_PRICES = {
+  'starter': 4.99,
+  'basic_monthly': 9.99,
+  'basic_yearly': 99.99,
+  'pro_monthly': 19.99,
+  'pro_yearly': 199.99,
+  'unlimited': 29.99,
+};
+
 /**
  * 获取 PayPal Access Token
  */
@@ -581,16 +591,29 @@ app.get('/api/paypal/config', (req, res) => {
  * POST /api/paypal/create-order
  * 创建 PayPal 订单
  * Body: { userId, email, planType, planName, amount, currency }
+ * 
+ * 安全修复：后端验证支付金额，不信任前端传入的 amount
  */
 app.post('/api/paypal/create-order', rateLimit(RATE_LIMIT_MAX), async (req, res) => {
   const { userId, email, planType, planName, amount, currency = 'USD' } = req.body;
 
-  if (!userId || !planType || !amount) {
-    return res.status(400).json({ error: 'userId, planType, and amount are required' });
+  if (!userId || !planType) {
+    return res.status(400).json({ error: 'userId and planType are required' });
   }
 
   if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
     return res.status(500).json({ error: 'PayPal is not configured. Please set PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET.' });
+  }
+
+  // 后端验证金额：从预定义价格表获取，不信任前端传入的 amount
+  const actualAmount = PLAN_PRICES[planType];
+  if (!actualAmount) {
+    return res.status(400).json({ error: `Invalid planType: ${planType}. Valid plans: ${Object.keys(PLAN_PRICES).join(', ')}` });
+  }
+
+  // 记录日志，便于审计
+  if (amount && amount !== actualAmount) {
+    console.warn(`[PayPal] 金额不匹配: 前端传入 ${amount}, 后端验证 ${actualAmount} (planType: ${planType}, userId: ${userId})`);
   }
 
   try {
@@ -609,7 +632,7 @@ app.post('/api/paypal/create-order', rateLimit(RATE_LIMIT_MAX), async (req, res)
           description: `InkAI.life - ${planName || planType}`,
           amount: {
             currency_code: currency.toUpperCase(),
-            value: amount.toFixed(2),
+            value: actualAmount.toFixed(2),
           },
           custom_id: JSON.stringify({ userId, planType }),
         }],

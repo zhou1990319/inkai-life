@@ -48,6 +48,7 @@ export function Avatar({ user, username, size = 'md', showBadge }: AvatarProps) 
         <img
           src={avatarUrl}
           alt={name}
+          loading="lazy"
           className={`${sizeClasses[size]} rounded-full object-cover border-2 border-xuan-black-100 transition-colors hover:border-liujin-gold/40`}
           onError={(e) => { (e.target as HTMLImageElement).src = fallbackUrl; }}
         />
@@ -55,6 +56,7 @@ export function Avatar({ user, username, size = 'md', showBadge }: AvatarProps) 
         <img
           src={fallbackUrl}
           alt={name}
+          loading="lazy"
           className={`${sizeClasses[size]} rounded-full border-2 border-xuan-black-100`}
         />
       )}
@@ -705,7 +707,7 @@ export function ImageUploader({ images, onChange, maxImages = 9, userId }: Image
         <div className="grid grid-cols-3 gap-2">
           {images.map((url, index) => (
             <div key={index} className="relative aspect-square bg-xuan-black-100 rounded-xl overflow-hidden border border-liujin-gold/20">
-              <img src={url} alt={`Upload ${index + 1}`} className="w-full h-full object-cover" />
+              <img src={url} alt={`Upload ${index + 1}`} loading="lazy" className="w-full h-full object-cover" />
               <button
                 onClick={() => removeImage(index)}
                 className="absolute top-1.5 right-1.5 w-5 h-5 bg-xuan-black/70 rounded-full flex items-center justify-center hover:bg-xuan-black/90 transition-colors border border-liujin-gold/20"

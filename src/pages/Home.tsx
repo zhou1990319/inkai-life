@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Sparkles, Palette, Share2, ArrowRight } from 'lucide-react';
 import { supabase } from '../supabase/client';
@@ -12,21 +12,21 @@ interface Post {
   user: { username: string; avatar_url: string };
 }
 
-const FEATURES = [
+const getFeatures = (t: (key: string) => string) => [
   {
     icon: Sparkles,
-    title: 'AI 智能生成',
-    desc: '输入想法，AI 为你创造独特纹身设计',
+    title: t('home.feature_1_title'),
+    desc: t('home.feature_1_desc'),
   },
   {
     icon: Palette,
-    title: '多种风格',
-    desc: '支持中式、日式、写实等多种纹身风格',
+    title: t('home.feature_2_title'),
+    desc: t('home.feature_2_desc'),
   },
   {
     icon: Share2,
-    title: '社区分享',
-    desc: '与全球纹身爱好者交流分享创意',
+    title: t('home.feature_3_title'),
+    desc: t('home.feature_3_desc'),
   },
 ];
 
@@ -66,10 +66,10 @@ export default function Home() {
             InkAI
           </h1>
           <p className="text-xl md:text-2xl text-gray-500 mb-6 max-w-2xl mx-auto">
-            AI 驱动的纹身设计平台
+            {t('home.hero_subtitle')}
           </p>
           <p className="text-gray-400 mb-16 max-w-xl mx-auto">
-            将你的想法转化为独特的纹身艺术，让 AI 成为你的创意伙伴
+            {t('home.hero_description')}
           </p>
 
           {/* CTA Buttons */}
@@ -78,13 +78,13 @@ export default function Home() {
               to="/ai-studio"
               className="px-10 py-4 bg-black text-white font-medium hover:shadow-[0_0_0_2px_#D4AF37] transition-all"
             >
-              开始创作
+              {t('home.get_started')}
             </Link>
             <Link
               to="/explore"
               className="px-10 py-4 border border-black text-black font-medium hover:border-[#D4AF37] hover:text-[#D4AF37] transition-all"
             >
-              浏览作品
+              {t('home.view_examples')}
             </Link>
           </div>
         </div>
@@ -95,13 +95,13 @@ export default function Home() {
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-semibold text-black mb-4">
-              核心功能
+              {t('home.features_title')}
             </h2>
-            <p className="text-gray-500">简单三步，创造属于你的纹身设计</p>
+            <p className="text-gray-500">{t('home.features_subtitle')}</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-12">
-            {FEATURES.map((feature, index) => (
+            {getFeatures(t).map((feature, index) => (
               <div key={index} className="text-center">
                 <div className="w-16 h-16 mx-auto mb-6 bg-black flex items-center justify-center">
                   <feature.icon className="w-8 h-8 text-white" />
@@ -124,15 +124,15 @@ export default function Home() {
           <div className="flex items-center justify-between mb-16">
             <div>
               <h2 className="text-4xl md:text-5xl font-semibold text-black mb-2">
-                精选作品
+                {t('home.featured_works')}
               </h2>
-              <p className="text-gray-500">来自社区的优质设计</p>
+              <p className="text-gray-500">{t('home.featured_works_subtitle')}</p>
             </div>
             <Link
               to="/explore"
               className="hidden md:flex items-center gap-2 text-black hover:text-[#D4AF37] transition-colors"
             >
-              查看全部 <ArrowRight className="w-4 h-4" />
+              {t('home.view_all')} <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
@@ -154,6 +154,7 @@ export default function Home() {
                   <img
                     src={post.image_url}
                     alt={post.title}
+                    loading="lazy"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 </div>
@@ -169,7 +170,7 @@ export default function Home() {
               to="/explore"
               className="inline-flex items-center gap-2 text-black hover:text-[#D4AF37] transition-colors"
             >
-              查看全部 <ArrowRight className="w-4 h-4" />
+              {t('home.view_all')} <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -179,16 +180,16 @@ export default function Home() {
       <section className="py-32 px-6 bg-black">
         <div className="max-w-[1200px] mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-semibold text-white mb-6">
-            准备好开始了吗？
+            {t('home.cta_title')}
           </h2>
           <p className="text-gray-400 mb-12 max-w-xl mx-auto">
-            加入数千名创作者，用 AI 释放你的创意潜能
+            {t('home.cta_description')}
           </p>
           <Link
             to="/register"
             className="inline-block px-12 py-4 bg-white text-black font-medium hover:shadow-[0_0_0_2px_#D4AF37] transition-all"
           >
-            免费注册
+            {t('home.free_signup')}
           </Link>
         </div>
       </section>

@@ -251,6 +251,7 @@ export default function PostDetail() {
                   key={currentImageIndex}
                   src={imageUrls[currentImageIndex]}
                   alt={post.title}
+                  loading="lazy"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}

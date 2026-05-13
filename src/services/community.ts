@@ -189,6 +189,10 @@ export const LikeService = {
     return !!data;
   },
 
+  /**
+   * 切换点赞状态
+   * 修复：移除手动计数器更新，完全依赖数据库触发器
+   */
   async toggleLike(userId: string, postId: string): Promise<boolean> {
     const isCurrentlyLiked = await this.isLiked(userId, postId);
 
@@ -198,21 +202,13 @@ export const LikeService = {
         .delete()
         .eq('user_id', userId)
         .eq('post_id', postId);
-      // 减少计数
-      await supabase
-        .from('tattoo_posts')
-        .update({ likes_count: supabase.rpc('decrement', { x: 1 }) as unknown as number })
-        .eq('id', postId);
+      // 计数器由数据库触发器自动更新，不再手动维护
       return false;
     } else {
       await supabase
         .from('post_likes')
         .insert({ user_id: userId, post_id: postId });
-      // 增加计数
-      await supabase
-        .from('tattoo_posts')
-        .update({ likes_count: supabase.rpc('increment', { x: 1 }) as unknown as number })
-        .eq('id', postId);
+      // 计数器由数据库触发器自动更新，不再手动维护
 
       // 发送通知
       const { data: post } = await supabase
@@ -251,6 +247,10 @@ export const SaveService = {
     return !!data;
   },
 
+  /**
+   * 切换收藏状态
+   * 修复：移除手动计数器更新，完全依赖数据库触发器
+   */
   async toggleSave(userId: string, postId: string): Promise<boolean> {
     const isCurrentlySaved = await this.isSaved(userId, postId);
 
@@ -260,21 +260,13 @@ export const SaveService = {
         .delete()
         .eq('user_id', userId)
         .eq('post_id', postId);
-      // 减少计数
-      await supabase
-        .from('tattoo_posts')
-        .update({ saves_count: supabase.rpc('decrement', { x: 1 }) as unknown as number })
-        .eq('id', postId);
+      // 计数器由数据库触发器自动更新，不再手动维护
       return false;
     } else {
       await supabase
         .from('post_saves')
         .insert({ user_id: userId, post_id: postId });
-      // 增加计数
-      await supabase
-        .from('tattoo_posts')
-        .update({ saves_count: supabase.rpc('increment', { x: 1 }) as unknown as number })
-        .eq('id', postId);
+      // 计数器由数据库触发器自动更新，不再手动维护
       return true;
     }
   },
