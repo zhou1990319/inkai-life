@@ -1,4 +1,4 @@
-services:
+﻿services:
   - type: web
     name: inkai-life
     runtime: node
@@ -22,6 +22,16 @@ services:
         value: ark-6b3fbf0f-2778-4bf6-a09f-c06b08d6b69d-796cd
       - key: KEEP_ALIVE_URL
         value: https://inkai.life/health
+      # PayPal 支付配置
+      # 拿到 PayPal API 凭证后，替换以下值为实际值
+      - key: PAYPAL_CLIENT_ID
+        value: "你的PayPal_Client_ID"
+      - key: PAYPAL_CLIENT_SECRET
+        value: "你的PayPal_Client_Secret"
+      - key: PAYPAL_MODE
+        value: "sandbox"
+      - key: PAYPAL_WEBHOOK_ID
+        value: ""
       # 可选：添加 Sentry DSN 启用错误监控
       # - key: SENTRY_DSN
       #   value: your-sentry-dsn-here

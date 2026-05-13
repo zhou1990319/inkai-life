@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -99,7 +99,9 @@
     }
   }
   </script>
-</head>
+
+  <!-- PayPal JS SDK 将通过前端动态加载，client-id 从后端 /api/paypal/config 获取 -->
+  <!-- 这样可以避免在 HTML 中暴露 PayPal Client ID --></head>
 <body>
   <div id="root"></div>
 </body>

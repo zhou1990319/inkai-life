@@ -1,10 +1,17 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Sparkles, Crown, Zap, Star, Package } from 'lucide-react';
+import { Check, Sparkles, Crown, Zap, Star, Package, Loader2, X } from 'lucide-react';
 import { supabase } from '../supabase/client';
 import type { Database } from '../supabase/types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { PLANS, PLAN_CATEGORIES, formatPrice, getMonthlyEquivalent, type PlanType } from '../services/subscription';
+import {
+  getPayPalConfig,
+  loadPayPalSDK,
+  createPayPalOrder,
+  capturePayPalOrder,
+  type PayPalConfig,
+} from '../services/payment';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
@@ -27,6 +34,12 @@ export default function Pricing({ user }: PricingProps) {
   const [loading, setLoading] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<string>('free');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<PlanType | null>(null);
+  const [paypalLoading, setPaypalLoading] = useState(false);
+  const [paypalError, setPaypalError] = useState<string | null>(null);
+  const [paypalConfig, setPaypalConfig] = useState<PayPalConfig | null>(null);
+  const [sdkLoaded, setSdkLoaded] = useState(false);
+  const paypalContainerRef = useRef<HTMLDivElement>(null);
   const isZh = language === 'zh';
 
   useEffect(() => {
@@ -63,7 +76,102 @@ export default function Pricing({ user }: PricingProps) {
       return;
     }
 
+    // 选中付费方案，打开支付弹窗
+    setSelectedPlan(planId as PlanType);
     setShowPaymentModal(true);
+    setPaypalError(null);
+    setPaypalLoading(true);
+
+    try {
+      // 1. 获取 PayPal 配置
+      const config = await getPayPalConfig();
+      setPaypalConfig(config);
+
+      if (!config.clientId) {
+        setPaypalError(isZh
+          ? 'PayPal 支付尚未配置，请联系管理员'
+          : 'PayPal is not configured yet. Please contact support.');
+        setPaypalLoading(false);
+        return;
+      }
+
+      // 2. 加载 PayPal JS SDK
+      if (!sdkLoaded) {
+        await loadPayPalSDK(config);
+        setSdkLoaded(true);
+      }
+
+      // 3. 创建 PayPal 订单
+      const plan = PLANS[planId as PlanType];
+      const orderResult = await createPayPalOrder(
+        user.id,
+        user.email || '',
+        planId as PlanType,
+        plan.price,
+        config.currency
+      );
+
+      if (!orderResult) {
+        setPaypalError(isZh ? '创建订单失败，请重试' : 'Failed to create order. Please try again.');
+        setPaypalLoading(false);
+        return;
+      }
+
+      // 4. 渲染 PayPal 按钮
+      if (paypalContainerRef.current && (window as any).paypal) {
+        paypalContainerRef.current.innerHTML = '';
+        (window as any).paypal.Buttons({
+          style: {
+            layout: 'vertical',
+            color: 'gold',
+            shape: 'rect',
+            label: 'pay',
+            height: 45,
+          },
+          fundingSource: undefined,
+          createOrder: () => {
+            return orderResult.orderId;
+          },
+          onApprove: async (data: any) => {
+            setPaypalLoading(true);
+            try {
+              const result = await capturePayPalOrder(
+                data.orderID,
+                user.id,
+                planId as PlanType
+              );
+
+              if (result.success) {
+                setCurrentPlan(planId);
+                setShowPaymentModal(false);
+                // 跳转到支付成功页
+                window.location.hash = '#/payment/success?plan=' + planId;
+              } else {
+                setPaypalError(result.error || (isZh ? '支付失败，请重试' : 'Payment failed. Please try again.'));
+              }
+            } catch (err) {
+              setPaypalError(isZh ? '支付处理出错' : 'Payment processing error');
+            } finally {
+              setPaypalLoading(false);
+            }
+          },
+          onError: () => {
+            setPaypalError(isZh ? 'PayPal 支付出错，请重试' : 'PayPal error. Please try again.');
+            setPaypalLoading(false);
+          },
+          onCancel: () => {
+            setPaypalError(isZh ? '支付已取消' : 'Payment cancelled');
+            setPaypalLoading(false);
+          },
+        }).render(paypalContainerRef.current);
+      }
+
+      setPaypalLoading(false);
+    } catch (err) {
+      console.error('[Pricing] PayPal init error:', err);
+      setPaypalError(isZh ? '支付系统初始化失败' : 'Payment system initialization failed');
+      setPaypalLoading(false);
+    }
   };
 
   const getPeriodLabel = (plan: PlanType): string => {
@@ -132,7 +240,7 @@ export default function Pricing({ user }: PricingProps) {
             </div>
           </div>
 
-          {/* Price - 大字体价格显示 */}
+          {/* Price */}
           <div className="mb-8">
             <div className="flex items-baseline gap-2">
               <span className="text-imperial-gold-400 text-2xl font-bold">$</span>
@@ -186,6 +294,8 @@ export default function Pricing({ user }: PricingProps) {
     );
   };
 
+  const selectedPlanDetails = selectedPlan ? PLANS[selectedPlan] : null;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-ink-black via-china-red-950/30 to-ink-black py-16 px-4">
       {/* Header */}
@@ -235,33 +345,70 @@ export default function Pricing({ user }: PricingProps) {
         </div>
       </div>
 
-      {/* Payment Coming Soon Modal */}
-      {showPaymentModal && (
+      {/* PayPal Payment Modal */}
+      {showPaymentModal && selectedPlan && selectedPlanDetails && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-black/80 backdrop-blur-sm">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-gradient-to-b from-china-red-900/80 to-ink-black border border-imperial-gold-500/30 rounded-3xl p-10 max-w-md mx-4 shadow-gold-lg"
+            className="bg-gradient-to-b from-china-red-900/80 to-ink-black border border-imperial-gold-500/30 rounded-3xl p-8 max-w-md mx-4 shadow-gold-lg w-full"
           >
-            <div className="text-center">
-              <div className="w-20 h-20 rounded-full bg-imperial-gold-500/20 flex items-center justify-center mx-auto mb-6">
-                <Sparkles className="w-10 h-10 text-imperial-gold-400" />
+            {/* Close Button */}
+            <button
+              onClick={() => setShowPaymentModal(false)}
+              className="absolute top-4 right-4 text-rice-paper/50 hover:text-rice-paper transition-colors"
+              style={{ position: 'absolute', top: '16px', right: '16px' }}
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-imperial-gold-500/20 flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="w-8 h-8 text-imperial-gold-400" />
               </div>
-              <h2 className="text-2xl font-display font-bold text-rice-paper mb-4">
-                {isZh ? '支付功能即将上线' : 'Payment Coming Soon'}
+              <h2 className="text-xl font-display font-bold text-rice-paper mb-2">
+                {isZh ? '升级到' : 'Upgrade to'} {isZh ? selectedPlanDetails.name : selectedPlanDetails.nameEn}
               </h2>
-              <p className="text-rice-paper/60 mb-8 leading-relaxed">
+              <div className="flex items-baseline justify-center gap-1 mb-1">
+                <span className="text-imperial-gold-400 text-lg">$</span>
+                <span className="text-3xl font-display font-bold text-rice-paper">{selectedPlanDetails.price}</span>
+                <span className="text-rice-paper/50 text-sm">{getPeriodLabel(selectedPlan)}</span>
+              </div>
+              {selectedPlanDetails.billing === 'yearly' && (
+                <p className="text-imperial-gold-400 text-xs">
+                  ≈ {getMonthlyEquivalent(selectedPlanDetails.price)}/mo
+                </p>
+              )}
+            </div>
+
+            {/* PayPal Loading */}
+            {paypalLoading && (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-8 h-8 text-imperial-gold-400 animate-spin mr-3" />
+                <span className="text-rice-paper/60">
+                  {isZh ? '正在初始化支付...' : 'Initializing payment...'}
+                </span>
+              </div>
+            )}
+
+            {/* PayPal Error */}
+            {paypalError && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-4">
+                <p className="text-red-400 text-sm text-center">{paypalError}</p>
+              </div>
+            )}
+
+            {/* PayPal Buttons Container */}
+            <div ref={paypalContainerRef} className="min-h-[50px]" />
+
+            {/* Security Note */}
+            <div className="mt-6 text-center">
+              <p className="text-rice-paper/30 text-xs">
                 {isZh
-                  ? '我们正在集成 Stripe 支付系统，敬请期待！您可以通过联系客服完成购买。'
-                  : 'We are integrating Stripe payment. Coming soon! Contact support to purchase.'
+                  ? '由 PayPal 安全支付 | 7天无理由退款'
+                  : 'Secured by PayPal | 7-day money-back guarantee'
                 }
               </p>
-              <button
-                onClick={() => setShowPaymentModal(false)}
-                className="w-full py-4 rounded-2xl font-bold bg-gradient-to-r from-imperial-gold-500 to-imperial-gold-600 hover:from-imperial-gold-400 hover:to-imperial-gold-500 text-ink-black transition-all"
-              >
-                {isZh ? '我知道了' : 'Got it'}
-              </button>
             </div>
           </motion.div>
         </div>
@@ -306,8 +453,8 @@ export default function Pricing({ user }: PricingProps) {
             {
               q: isZh ? '支持哪些支付方式？' : 'What payment methods are supported?',
               a: isZh
-                ? '支持信用卡、PayPal、Apple Pay、Google Pay。'
-                : 'Credit card, PayPal, Apple Pay, and Google Pay are supported.',
+                ? '支持 PayPal（包括信用卡、借记卡、PayPal 余额）。'
+                : 'PayPal supported (including credit cards, debit cards, and PayPal balance).',
             },
           ].map((faq, i) => (
             <div key={i} className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-imperial-gold-500/20 hover:border-imperial-gold-500/40 transition-colors">
@@ -321,8 +468,8 @@ export default function Pricing({ user }: PricingProps) {
       {/* Footer Note */}
       <div className="text-center mt-16 text-rice-paper/40 text-sm">
         <p>{isZh
-          ? '所有价格以美元计价。支持 PayPal / 信用卡 / Apple Pay / Google Pay'
-          : 'All prices in USD. PayPal / Credit Card / Apple Pay / Google Pay accepted'
+          ? '所有价格以美元计价。通过 PayPal 安全支付'
+          : 'All prices in USD. Secure payment via PayPal'
         }</p>
         <p className="mt-3">
           {isZh ? '有疑问？' : 'Questions?'} {' '}

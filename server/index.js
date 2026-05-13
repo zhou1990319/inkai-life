@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const path = require('path');
 const crypto = require('crypto');
 
@@ -499,6 +499,507 @@ app.post('/api/generate-image', authenticateApiKey, rateLimit(RATE_LIMIT_GENERAT
   }
 });
 
+
+// ========== PayPal 支付配置 ==========
+const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID || '';
+const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET || '';
+const PAYPAL_MODE = process.env.PAYPAL_MODE || 'sandbox'; // 'sandbox' 或 'live'
+const PAYPAL_BASE_URL = PAYPAL_MODE === 'live'
+  ? 'https://api-m.paypal.com'
+  : 'https://api-m.sandbox.paypal.com';
+const PAYPAL_WEBHOOK_ID = process.env.PAYPAL_WEBHOOK_ID || '';
+
+console.log(`[PayPal] 配置已加载 (mode: ${PAYPAL_MODE}, clientId: ${PAYPAL_CLIENT_ID ? '已设置' : '未设置'})`);
+
+/**
+ * 获取 PayPal Access Token
+ */
+async function getPayPalAccessToken() {
+  const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`).toString('base64');
+  const response = await fetch(`${PAYPAL_BASE_URL}/v1/oauth2/token`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Basic ${auth}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'grant_type=client_credentials',
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    console.error('[PayPal] 获取 access token 失败:', data);
+    throw new Error(data.error_description || 'Failed to get PayPal access token');
+  }
+  return data.access_token;
+}
+
+/**
+ * 验证 PayPal Webhook 签名
+ */
+async function verifyPayPalWebhook(headers, body) {
+  if (!PAYPAL_WEBHOOK_ID) {
+    console.warn('[PayPal] WEBHOOK_ID 未配置，跳过签名验证');
+    return true;
+  }
+
+  const accessToken = await getPayPalAccessToken();
+  const response = await fetch(`${PAYPAL_BASE_URL}/v1/notifications/verify-webhook-signature`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      auth_algo: headers['paypal-auth-algo'],
+      cert_url: headers['paypal-cert-url'],
+      transmission_id: headers['paypal-transmission-id'],
+      transmission_sig: headers['paypal-transmission-sig'],
+      transmission_time: headers['paypal-transmission-time'],
+      webhook_id: PAYPAL_WEBHOOK_ID,
+      webhook_event: body,
+    }),
+  });
+
+  const data = await response.json();
+  return data.verification_status === 'SUCCESS';
+}
+
+// ========== PayPal API 端点 ==========
+
+/**
+ * GET /api/paypal/config
+ * 返回 PayPal 客户端配置（client-id 等），供前端初始化 SDK
+ */
+app.get('/api/paypal/config', (req, res) => {
+  res.json({
+    clientId: PAYPAL_CLIENT_ID,
+    mode: PAYPAL_MODE,
+    currency: 'USD',
+  });
+});
+
+/**
+ * POST /api/paypal/create-order
+ * 创建 PayPal 订单
+ * Body: { userId, email, planType, planName, amount, currency }
+ */
+app.post('/api/paypal/create-order', rateLimit(RATE_LIMIT_MAX), async (req, res) => {
+  const { userId, email, planType, planName, amount, currency = 'USD' } = req.body;
+
+  if (!userId || !planType || !amount) {
+    return res.status(400).json({ error: 'userId, planType, and amount are required' });
+  }
+
+  if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
+    return res.status(500).json({ error: 'PayPal is not configured. Please set PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET.' });
+  }
+
+  try {
+    const accessToken = await getPayPalAccessToken();
+
+    const response = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        intent: 'CAPTURE',
+        purchase_units: [{
+          reference_id: `${userId}_${planType}_${Date.now()}`,
+          description: `InkAI.life - ${planName || planType}`,
+          amount: {
+            currency_code: currency.toUpperCase(),
+            value: amount.toFixed(2),
+          },
+          custom_id: JSON.stringify({ userId, planType }),
+        }],
+        application_context: {
+          brand_name: 'InkAI.life',
+          shipping_preference: 'NO_SHIPPING',
+          user_action: 'PAY_NOW',
+          return_url: `${req.protocol}://${req.get('host')}/payment/success`,
+          cancel_url: `${req.protocol}://${req.get('host')}/payment/cancel`,
+        },
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('[PayPal] 创建订单失败:', data);
+      return res.status(response.status).json({ error: data.message || 'Failed to create PayPal order' });
+    }
+
+    const approveLink = data.links?.find((link) => link.rel === 'approve');
+
+    res.json({
+      orderId: data.id,
+      status: data.status,
+      approveUrl: approveLink?.href || null,
+    });
+  } catch (err) {
+    console.error('[PayPal] 创建订单异常:', err);
+    res.status(500).json({ error: err.message || 'Internal server error' });
+  }
+});
+
+/**
+ * POST /api/paypal/capture-order
+ * 捕获 PayPal 支付
+ * Body: { orderId, userId, planType }
+ */
+app.post('/api/paypal/capture-order', rateLimit(RATE_LIMIT_MAX), async (req, res) => {
+  const { orderId, userId, planType } = req.body;
+
+  if (!orderId || !userId || !planType) {
+    return res.status(400).json({ error: 'orderId, userId, and planType are required' });
+  }
+
+  if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
+    return res.status(500).json({ error: 'PayPal is not configured' });
+  }
+
+  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+  if (!SUPABASE_SERVICE_KEY) {
+    return res.status(500).json({ error: 'Missing SUPABASE_SERVICE_KEY' });
+  }
+
+  try {
+    const accessToken = await getPayPalAccessToken();
+
+    const captureResponse = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders/${orderId}/capture`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const captureData = await captureResponse.json();
+
+    if (!captureResponse.ok) {
+      console.error('[PayPal] 捕获支付失败:', captureData);
+      return res.status(captureResponse.status).json({ error: captureData.message || 'Failed to capture payment' });
+    }
+
+    const captureStatus = captureData.status;
+    if (captureStatus !== 'COMPLETED') {
+      console.warn('[PayPal] 订单状态非 COMPLETED:', captureStatus);
+      return res.status(400).json({ error: `Payment not completed. Status: ${captureStatus}` });
+    }
+
+    const capture = captureData.purchase_units?.[0]?.payments?.captures?.[0];
+    const payerEmail = captureData.payer?.email_address || '';
+    const payerName = captureData.payer?.name?.given_name || '';
+    const transactionId = capture?.id || orderId;
+
+    const now = new Date();
+    let expiresAt = null;
+    const planBillingMap = {
+      starter: 'one_time',
+      basic_monthly: 'monthly',
+      basic_yearly: 'yearly',
+      pro_monthly: 'monthly',
+      pro_yearly: 'yearly',
+      unlimited: 'monthly',
+    };
+    const billing = planBillingMap[planType] || 'monthly';
+    if (billing === 'monthly') {
+      expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    } else if (billing === 'yearly') {
+      expiresAt = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000).toISOString();
+    }
+
+    await fetch(`${SUPABASE_URL}/rest/v1/subscriptions?user_id=eq.${userId}&status=eq.active`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'apikey': SUPABASE_SERVICE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({ status: 'cancelled' }),
+    }).catch(err => console.warn('[PayPal] 取消旧订阅失败:', err));
+
+    const subResponse = await fetch(`${SUPABASE_URL}/rest/v1/subscriptions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'apikey': SUPABASE_SERVICE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation',
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        plan_type: planType,
+        status: 'active',
+        started_at: now.toISOString(),
+        expires_at: expiresAt,
+        payment_id: transactionId,
+        payment_provider: 'paypal',
+        auto_renew: billing === 'monthly' || billing === 'yearly',
+      }),
+    });
+
+    const subData = await subResponse.json();
+    if (!subResponse.ok) {
+      console.error('[PayPal] 创建订阅记录失败:', subData);
+    }
+
+    await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'apikey': SUPABASE_SERVICE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({
+        current_plan: planType,
+        subscription_status: 'active',
+      }),
+    }).catch(err => console.warn('[PayPal] 更新 profile 失败:', err));
+
+    console.log(`[PayPal] 支付成功: userId=${userId}, plan=${planType}, orderId=${orderId}, transactionId=${transactionId}`);
+
+    res.json({
+      success: true,
+      orderId: captureData.id,
+      transactionId,
+      status: captureStatus,
+      planType,
+      payerEmail,
+      payerName,
+      amount: capture?.amount?.value,
+      currency: capture?.amount?.currency_code,
+    });
+  } catch (err) {
+    console.error('[PayPal] 捕获支付异常:', err);
+    res.status(500).json({ error: err.message || 'Internal server error' });
+  }
+});
+
+/**
+ * GET /api/paypal/verify?orderId=xxx
+ * 验证 PayPal 订单状态
+ */
+app.get('/api/paypal/verify', rateLimit(RATE_LIMIT_MAX), async (req, res) => {
+  const { orderId } = req.query;
+
+  if (!orderId) {
+    return res.status(400).json({ error: 'orderId is required' });
+  }
+
+  if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
+    return res.status(500).json({ error: 'PayPal is not configured' });
+  }
+
+  try {
+    const accessToken = await getPayPalAccessToken();
+
+    const response = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders/${orderId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: data.message || 'Failed to verify order' });
+    }
+
+    const isCompleted = data.status === 'COMPLETED';
+    const capture = data.purchase_units?.[0]?.payments?.captures?.[0];
+
+    res.json({
+      success: isCompleted,
+      status: data.status,
+      orderId: data.id,
+      transactionId: capture?.id || null,
+      amount: capture?.amount?.value || null,
+      currency: capture?.amount?.currency_code || null,
+    });
+  } catch (err) {
+    console.error('[PayPal] 验证订单异常:', err);
+    res.status(500).json({ error: err.message || 'Internal server error' });
+  }
+});
+
+/**
+ * POST /api/paypal/cancel-subscription
+ * 取消订阅（将用户方案重置为 free）
+ * Body: { userId }
+ */
+app.post('/api/paypal/cancel-subscription', rateLimit(RATE_LIMIT_MAX), async (req, res) => {
+  const { userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ error: 'userId is required' });
+  }
+
+  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+  if (!SUPABASE_SERVICE_KEY) {
+    return res.status(500).json({ error: 'Missing SUPABASE_SERVICE_KEY' });
+  }
+
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/subscriptions?user_id=eq.${userId}&status=eq.active`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'apikey': SUPABASE_SERVICE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({ status: 'cancelled' }),
+    });
+
+    await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'apikey': SUPABASE_SERVICE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({
+        current_plan: 'free',
+        subscription_status: 'cancelled',
+      }),
+    });
+
+    console.log(`[PayPal] 订阅已取消: userId=${userId}`);
+    res.json({ success: true, message: 'Subscription cancelled successfully' });
+  } catch (err) {
+    console.error('[PayPal] 取消订阅异常:', err);
+    res.status(500).json({ error: err.message || 'Internal server error' });
+  }
+});
+
+/**
+ * POST /api/paypal/webhook
+ * PayPal Webhook 处理
+ */
+app.post('/api/paypal/webhook', async (req, res) => {
+  const webhookEvent = req.body;
+
+  const isValid = await verifyPayPalWebhook(req.headers, webhookEvent);
+  if (!isValid) {
+    console.warn('[PayPal] Webhook 签名验证失败');
+    return res.status(401).json({ error: 'Webhook signature verification failed' });
+  }
+
+  console.log(`[PayPal] 收到 Webhook: ${webhookEvent.event_type}`);
+
+  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+  if (!SUPABASE_SERVICE_KEY) {
+    console.error('[PayPal] Webhook 处理失败: 缺少 SUPABASE_SERVICE_KEY');
+    return res.status(200).send('OK');
+  }
+
+  try {
+    if (webhookEvent.event_type === 'PAYMENT.CAPTURE.COMPLETED' ||
+        webhookEvent.event_type === 'CHECKOUT.ORDER.APPROVED') {
+
+      const resource = webhookEvent.resource;
+      const orderId = resource.id || resource.supplementary_purchase?.reference_id;
+      const customId = resource.custom_id;
+
+      let userId = null;
+      let planType = null;
+
+      if (customId) {
+        try {
+          const parsed = JSON.parse(customId);
+          userId = parsed.userId;
+          planType = parsed.planType;
+        } catch (e) {
+          console.warn('[PayPal] 无法解析 custom_id:', customId);
+        }
+      }
+
+      if (userId && planType) {
+        const capture = resource.purchase_units?.[0]?.payments?.captures?.[0];
+        const transactionId = capture?.id || orderId;
+
+        const now = new Date();
+        let expiresAt = null;
+        const planBillingMap = {
+          starter: 'one_time',
+          basic_monthly: 'monthly',
+          basic_yearly: 'yearly',
+          pro_monthly: 'monthly',
+          pro_yearly: 'yearly',
+          unlimited: 'monthly',
+        };
+        const billing = planBillingMap[planType] || 'monthly';
+        if (billing === 'monthly') {
+          expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        } else if (billing === 'yearly') {
+          expiresAt = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000).toISOString();
+        }
+
+        await fetch(`${SUPABASE_URL}/rest/v1/subscriptions?user_id=eq.${userId}&status=eq.active`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+            'apikey': SUPABASE_SERVICE_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal',
+          },
+          body: JSON.stringify({ status: 'cancelled' }),
+        }).catch(err => console.warn('[PayPal] Webhook: 取消旧订阅失败:', err));
+
+        await fetch(`${SUPABASE_URL}/rest/v1/subscriptions`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+            'apikey': SUPABASE_SERVICE_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal',
+          },
+          body: JSON.stringify({
+            user_id: userId,
+            plan_type: planType,
+            status: 'active',
+            started_at: now.toISOString(),
+            expires_at: expiresAt,
+            payment_id: transactionId,
+            payment_provider: 'paypal',
+            auto_renew: billing === 'monthly' || billing === 'yearly',
+          }),
+        }).catch(err => console.warn('[PayPal] Webhook: 创建订阅失败:', err));
+
+        await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+            'apikey': SUPABASE_SERVICE_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal',
+          },
+          body: JSON.stringify({
+            current_plan: planType,
+            subscription_status: 'active',
+          }),
+        }).catch(err => console.warn('[PayPal] Webhook: 更新 profile 失败:', err));
+
+        console.log(`[PayPal] Webhook: 自动更新订阅成功: userId=${userId}, plan=${planType}`);
+      }
+    }
+
+    res.status(200).send('OK');
+  } catch (err) {
+    console.error('[PayPal] Webhook 处理异常:', err);
+    res.status(200).send('OK');
+  }
+});
+
+
+
 // SPA fallback（无需鉴权）
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
@@ -512,4 +1013,5 @@ app.listen(PORT, () => {
   console.log(`[Sentry] 错误监控: ${Sentry ? '已启用' : '未配置'}`);
   console.log(`[Auth] API 鉴权: ${process.env.API_KEY ? '已启用' : '未配置（开发模式，所有请求放行）'}`);
   console.log(`[RateLimit] 速率限制已启用 (全局 ${RATE_LIMIT_MAX}/min, generate-image ${RATE_LIMIT_GENERATE_MAX}/min)`);
+  console.log('[PayPal] 支付系统: ' + (PAYPAL_CLIENT_ID ? '已配置' : '未配置（请设置环境变量）'));
 });
