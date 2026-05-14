@@ -1,30 +1,46 @@
-import urllib.request, json
+#!/usr/bin/env python3
+"""
+Render Deploy Hook 触发器
+绕过GitHub，直接用Render的Deploy Hook部署
+"""
+import urllib.request
+import urllib.error
+import sys
 
-API_KEY = "rnd_tyiW7WIySgyfHaDrMgHwkO85gABq"
-BASE = "https://api.render.com/v1"
-SERVICE_ID = "srv-d7vc9obeo5us73eit02g"
+# Render Deploy Hook URL（需要你在Render Dashboard里获取）
+# 获取方式：
+# 1. 登录 https://dashboard.render.com
+# 2. 进入 inkai-life 服务
+# 3. Settings → Deploy Hook
+# 4. 复制 URL（格式：https://api.render.com/v1/services/srv-xxx/deploys）
 
-headers = {
-    "Authorization": "Bearer " + API_KEY,
-    "Accept": "application/json",
-    "Content-Type": "application/json"
-}
+RENDER_DEPLOY_HOOK = "https://api.render.com/v1/services/srv-d7vc9obeo5us73eit02g/deploys"
 
-# 触发部署 - 空body
-req = urllib.request.Request(
-    BASE + "/services/" + SERVICE_ID + "/deploys",
-    data=b'{}',
-    headers=headers,
-    method="POST"
-)
+def trigger_deploy():
+    """触发Render重新部署"""
+    try:
+        req = urllib.request.Request(
+            RENDER_DEPLOY_HOOK,
+            method='POST',
+            headers={
+                'Content-Type': 'application/json',
+            }
+        )
+        
+        with urllib.request.urlopen(req, timeout=30) as response:
+            print(f"✅ Deploy triggered successfully!")
+            print(f"Status: {response.status}")
+            print(f"Response: {response.read().decode('utf-8')}")
+            return True
+            
+    except urllib.error.HTTPError as e:
+        print(f"❌ HTTP Error: {e.code}")
+        print(f"Response: {e.read().decode('utf-8')}")
+        return False
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-try:
-    with urllib.request.urlopen(req, timeout=30) as r:
-        result = json.loads(r.read())
-        print("✅ 部署已触发!")
-        print(json.dumps(result, indent=2))
-except urllib.error.HTTPError as e:
-    print(f"❌ HTTP错误: {e.code}")
-    print(e.read().decode())
-except Exception as e:
-    print(f"❌ 错误: {e}")
+if __name__ == "__main__":
+    print("🚀 Triggering Render deploy...")
+    trigger_deploy()
