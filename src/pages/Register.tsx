@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, Sparkles, Eye, EyeOff, Check, X } from 'lucide-react';
@@ -20,9 +20,9 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // 密码强度检查
+  // 密码强度检�?
   const passwordChecks = [
-    { test: password.length >= 8, label: isZh ? '8+ 个字符' : '8+ characters' },
+    { test: password.length >= 8, label: isZh ? '8+ 个字�? : '8+ characters' },
     { test: /[A-Z]/.test(password), label: isZh ? '大写字母' : 'Uppercase letter' },
     { test: /[a-z]/.test(password), label: isZh ? '小写字母' : 'Lowercase letter' },
     { test: /[0-9]/.test(password), label: isZh ? '数字' : 'Number' },
@@ -36,17 +36,17 @@ export default function Register() {
 
     // 基本验证
     if (username.length < 3) {
-      setError(isZh ? '用户名至少需要3个字符' : 'Username must be at least 3 characters');
+      setError(isZh ? '用户名至少需�?个字�? : 'Username must be at least 3 characters');
       setLoading(false);
       return;
     }
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      setError(isZh ? '用户名只能包含字母、数字和下划线' : 'Username can only contain letters, numbers, and underscores');
+      setError(isZh ? '用户名只能包含字母、数字和下划�? : 'Username can only contain letters, numbers, and underscores');
       setLoading(false);
       return;
     }
     if (strengthScore < 3) {
-      setError(isZh ? '密码太弱，请包含大写字母、小写字母和数字。' : 'Password is too weak. Please include uppercase, lowercase, and numbers.');
+      setError(isZh ? '密码太弱，请包含大写字母、小写字母和数字�? : 'Password is too weak. Please include uppercase, lowercase, and numbers.');
       setLoading(false);
       return;
     }
@@ -56,13 +56,13 @@ export default function Register() {
       
       if (signUpError) throw signUpError;
       
-      // 注册成功（自动登录），直接跳转
+      // 注册成功（自动登录），直接跳�?
       navigate(redirectTo);
     } catch (err: any) {
       if (err.message?.includes('already registered')) {
-        setError(isZh ? '该邮箱已注册，请直接登录。' : 'This email is already registered. Try signing in.');
+        setError(isZh ? '该邮箱已注册，请直接登录�? : 'This email is already registered. Try signing in.');
       } else {
-        setError(err.message || (isZh ? '注册失败，请重试。' : 'Registration failed. Please try again.'));
+        setError(err.message || (isZh ? '注册失败，请重试�? : 'Registration failed. Please try again.'));
       }
     } finally {
       setLoading(false);
@@ -80,7 +80,7 @@ export default function Register() {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center">
-              <span className="text-amber-600 font-bold text-lg">墨</span>
+              <span className="text-amber-600 font-bold text-lg">�?/span>
             </div>
             <span className="text-xl font-bold text-white">InkAI<span className="text-amber-600">.life</span></span>
           </Link>
@@ -108,14 +108,14 @@ export default function Register() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-white placeholder-gray-400 focus:border-gray-400 focus:outline-none transition-colors"
+                className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-black placeholder-gray-500 focus:border-gray-400 focus:outline-none transition-colors"
                 placeholder={t('auth.choose_username') || 'Choose a username'}
                 required
                 minLength={3}
                 pattern="[a-zA-Z0-9_]+"
               />
             </div>
-            <p className="text-gray-400 text-xs mt-1">{isZh ? "仅支持字母、数字和下划线" : "Letters, numbers, and underscores only"}</p>
+            <p className="text-gray-400 text-xs mt-1">{isZh ? "仅支持字母、数字和下划�? : "Letters, numbers, and underscores only"}</p>
           </div>
 
           {/* Email */}
@@ -127,7 +127,7 @@ export default function Register() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-white placeholder-gray-400 focus:border-gray-400 focus:outline-none transition-colors"
+                className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-black placeholder-gray-500 focus:border-gray-400 focus:outline-none transition-colors"
                 placeholder={t('auth.enter_email') || 'Enter your email'}
                 required
               />
@@ -143,7 +143,7 @@ export default function Register() {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-12 py-3 bg-white border border-gray-200 rounded-xl text-white placeholder-gray-400 focus:border-gray-400 focus:outline-none transition-colors"
+                className="w-full pl-10 pr-12 py-3 bg-white border border-gray-200 rounded-xl text-black placeholder-gray-500 focus:border-gray-400 focus:outline-none transition-colors"
                 placeholder={t('auth.create_password') || 'Create a password'}
                 required
                 minLength={8}
@@ -194,9 +194,9 @@ export default function Register() {
 
           {/* Terms */}
           <p className="text-gray-400 text-xs text-center">
-            {isZh ? '注册即表示您同意我们的' : 'By signing up, you agree to our'}{' '}
+            {isZh ? '注册即表示您同意我们�? : 'By signing up, you agree to our'}{' '}
             <Link to="/terms" className="text-amber-600 hover:underline">{isZh ? '服务条款' : 'Terms'}</Link>
-            {' '}{isZh ? '和' : 'and'}{' '}
+            {' '}{isZh ? '�? : 'and'}{' '}
             <Link to="/privacy" className="text-amber-600 hover:underline">{isZh ? '隐私政策' : 'Privacy Policy'}</Link>
           </p>
 

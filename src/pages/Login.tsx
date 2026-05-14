@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
@@ -28,11 +28,11 @@ export default function Login() {
 
     if (signInError) {
       if (signInError.message?.includes('Invalid login credentials')) {
-        setError(isZh ? '邮箱或密码错误，请重试。' : 'Incorrect email or password. Please try again.');
+        setError(isZh ? '邮箱或密码错误，请重试�? : 'Incorrect email or password. Please try again.');
       } else if (signInError.message?.includes('Email not confirmed')) {
-        setError(isZh ? '请先验证您的邮箱。请查看收件箱中的确认链接。' : 'Please verify your email first. Check your inbox for the confirmation link.');
+        setError(isZh ? '请先验证您的邮箱。请查看收件箱中的确认链接�? : 'Please verify your email first. Check your inbox for the confirmation link.');
       } else {
-        setError(signInError.message || (isZh ? '登录失败，请重试。' : 'Sign in failed. Please try again.'));
+        setError(signInError.message || (isZh ? '登录失败，请重试�? : 'Sign in failed. Please try again.'));
       }
       setLoading(false);
     } else {
@@ -52,7 +52,7 @@ export default function Login() {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center">
-              <span className="text-amber-600 font-bold text-lg">墨</span>
+              <span className="text-amber-600 font-bold text-lg">�?/span>
             </div>
             <span className="text-xl font-bold text-white">InkAI<span className="text-amber-600">.life</span></span>
           </Link>
@@ -80,7 +80,7 @@ export default function Login() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-white placeholder-gray-400 focus:border-gray-400 focus:outline-none transition-colors"
+                className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-black placeholder-gray-500 focus:border-gray-400 focus:outline-none transition-colors"
                 placeholder={t('auth.enter_email') || 'Enter your email'}
                 required
               />
@@ -96,7 +96,7 @@ export default function Login() {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-12 py-3 bg-white border border-gray-200 rounded-xl text-white placeholder-gray-400 focus:border-gray-400 focus:outline-none transition-colors"
+                className="w-full pl-10 pr-12 py-3 bg-white border border-gray-200 rounded-xl text-black placeholder-gray-500 focus:border-gray-400 focus:outline-none transition-colors"
                 placeholder={t('auth.enter_password') || 'Enter your password'}
                 required
               />
@@ -135,10 +135,10 @@ export default function Login() {
           </p>
         </div>
 
-        {/* 登录后跳转提示 */}
+        {/* 登录后跳转提�?*/}
         {redirectTo !== '/' && (
           <p className="text-center mt-4 text-gray-400 text-xs">
-            {isZh ? `登录后将跳转到 ${redirectTo}` : `After signing in, you'll be redirected to ${redirectTo}`}
+            {isZh ? `登录后将跳转�?${redirectTo}` : `After signing in, you'll be redirected to ${redirectTo}`}
           </p>
         )}
       </motion.div>

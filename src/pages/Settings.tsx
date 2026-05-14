@@ -1,6 +1,6 @@
-// ============================================
+﻿// ============================================
 // InkAI 用户设置页面 (Settings)
-// 编辑个人资料、账号设置、退出登录
+// 编辑个人资料、账号设置、退出登�?
 // ============================================
 
 import { useState, useEffect, useRef } from 'react';
@@ -29,7 +29,7 @@ export default function Settings() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // 表单状态
+  // 表单状�?
   const [displayName, setDisplayName] = useState('');
   const [bio, setBio] = useState('');
   const [location, setLocation] = useState('');
@@ -82,7 +82,7 @@ export default function Settings() {
     try {
       let newAvatarUrl = avatarUrl;
 
-      // 上传新头像
+      // 上传新头�?
       if (avatarFile) {
         const { publicUrl } = await uploadImage(avatarFile, 'avatars');
         newAvatarUrl = publicUrl;
@@ -105,7 +105,7 @@ export default function Settings() {
 
       // 刷新用户数据
       await refreshUser();
-      setSuccess(isZh ? '个人资料更新成功！' : 'Profile updated successfully!');
+      setSuccess(isZh ? '个人资料更新成功�? : 'Profile updated successfully!');
     } catch (err: any) {
       setError(err.message || (isZh ? '更新资料失败' : 'Failed to update profile'));
     } finally {
@@ -113,9 +113,9 @@ export default function Settings() {
     }
   };
 
-  // 退出登录
+  // 退出登�?
   const handleLogout = async () => {
-    if (!confirm(isZh ? '确定要退出登录吗？' : 'Are you sure you want to sign out?')) return;
+    if (!confirm(isZh ? '确定要退出登录吗�? : 'Are you sure you want to sign out?')) return;
     await signOut();
     navigate('/');
   };
@@ -197,7 +197,7 @@ export default function Settings() {
             </div>
             <div>
               <p className="text-white font-medium">{isZh ? "头像照片" : "Profile Photo"}</p>
-              <p className="text-gray-400 text-sm">{isZh ? "支持 JPG、PNG 或 GIF 格式，最大 5MB" : "JPG, PNG or GIF. Max 5MB."}</p>
+              <p className="text-gray-400 text-sm">{isZh ? "支持 JPG、PNG �?GIF 格式，最�?5MB" : "JPG, PNG or GIF. Max 5MB."}</p>
             </div>
           </div>
         </div>
@@ -221,7 +221,7 @@ export default function Settings() {
                   className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-400 cursor-not-allowed"
                 />
               </div>
-              <p className="text-gray-400 text-xs mt-1">{isZh ? "用户名不可更改" : "Username cannot be changed"}</p>
+              <p className="text-gray-400 text-xs mt-1">{isZh ? "用户名不可更�? : "Username cannot be changed"}</p>
             </div>
 
             {/* Display Name */}
@@ -231,7 +231,7 @@ export default function Settings() {
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-white focus:border-gray-400 focus:outline-none transition-colors"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-black focus:border-gray-400 focus:outline-none transition-colors"
                 placeholder={isZh ? "输入你的显示名称" : "Your display name"}
                 maxLength={50}
               />
@@ -239,11 +239,11 @@ export default function Settings() {
 
             {/* Bio */}
             <div>
-              <label className="block text-gray-400 text-sm mb-2">{isZh ? "个人简介" : "Bio"}</label>
+              <label className="block text-gray-400 text-sm mb-2">{isZh ? "个人简�? : "Bio"}</label>
               <textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-white focus:border-gray-400 focus:outline-none transition-colors resize-none"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-black focus:border-gray-400 focus:outline-none transition-colors resize-none"
                 placeholder={isZh ? "介绍一下你自己..." : "Tell us about yourself..."}
                 rows={3}
                 maxLength={300}
@@ -261,8 +261,8 @@ export default function Settings() {
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-white focus:border-gray-400 focus:outline-none transition-colors"
-                placeholder={isZh ? "城市，国家" : "City, Country"}
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-black focus:border-gray-400 focus:outline-none transition-colors"
+                placeholder={isZh ? "城市，国�? : "City, Country"}
                 maxLength={100}
               />
             </div>
@@ -277,7 +277,7 @@ export default function Settings() {
                 type="url"
                 value={website}
                 onChange={(e) => setWebsite(e.target.value)}
-                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-white focus:border-gray-400 focus:outline-none transition-colors"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-black focus:border-gray-400 focus:outline-none transition-colors"
                 placeholder="https://yourwebsite.com"
               />
             </div>
@@ -321,7 +321,7 @@ export default function Settings() {
           className="w-full py-3 bg-gray-50 border border-red-200 text-red-600 font-medium rounded-xl hover:bg-red-50 transition-all flex items-center justify-center gap-2"
         >
           <LogOut className="w-5 h-5" />
-          {isZh ? '退出登录' : 'Sign Out'}
+          {isZh ? '退出登�? : 'Sign Out'}
         </button>
       </div>
     </div>
