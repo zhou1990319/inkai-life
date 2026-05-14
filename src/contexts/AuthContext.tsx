@@ -45,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // 初始化：加载session（只运行一次，不依赖 loadProfile 引用）
   useEffect(() => {
     let mounted = true;
+    let timeoutId: NodeJS.Timeout;
 
     const initAuth = async () => {
       try {
@@ -62,11 +63,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
+    // 超时保护：10秒后强制结束loading
+    timeoutId = setTimeout(() => {
+      if (mounted && loading) {
+        console.warn('Auth init timeout, proceeding anyway');
+        setLoading(false);
+      }
+    }, 10000);
+
     initAuth();
 
     // 监听auth变化（INITIAL_SESSION 事件跳过，避免重复加载）
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-      if (event === 'INITIAL_SESSION') return; // 初始化已在 initAuth 中处理
+      if (event === 'INITIAL_SESSION') return;
       if (!mounted) return;
 
       setSession(newSession);
@@ -82,6 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => {
       mounted = false;
+      clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
