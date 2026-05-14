@@ -89,10 +89,6 @@ function AppContent() {
               <Route path="*" element={<div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center"><div className="text-center"><h1 className="text-6xl font-bold text-[#CFAF6E] mb-4">404</h1><p className="text-stone-400 mb-6">Page not found</p><Link to="/" className="text-[#CFAF6E] hover:underline">Go Home</Link></div></div>} />
             </Routes>
           </Suspense>
-                </div>
-              } />
-            </Routes>
-          </Suspense>
         </AnimatePresence>
       </main>
       <Footer />
