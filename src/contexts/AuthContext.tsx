@@ -42,43 +42,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [loadProfile]);
 
-  // 初始化：加载session
+  // 初始化：加载session（只运行一次，不依赖 loadProfile 引用）
   useEffect(() => {
+    let mounted = true;
+
     const initAuth = async () => {
       try {
         const { data: { session: initialSession } } = await supabase.auth.getSession();
+        if (!mounted) return;
         if (initialSession?.user) {
           setSession(initialSession);
           const profile = await loadProfile(initialSession.user.id);
-          setUser(profile);
+          if (mounted) setUser(profile);
         }
       } catch (error) {
         console.error('Auth init error:', error);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
 
     initAuth();
 
-    // 监听auth变化
+    // 监听auth变化（INITIAL_SESSION 事件跳过，避免重复加载）
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-      console.log('Auth event:', event);
+      if (event === 'INITIAL_SESSION') return; // 初始化已在 initAuth 中处理
+      if (!mounted) return;
+
       setSession(newSession);
-      
+
       if (newSession?.user) {
         const profile = await loadProfile(newSession.user.id);
-        setUser(profile);
+        if (mounted) setUser(profile);
       } else {
         setUser(null);
       }
-      setLoading(false);
+      if (mounted) setLoading(false);
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
-  }, [loadProfile]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 登录
   const signIn = async (email: string, password: string) => {

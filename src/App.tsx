@@ -66,24 +66,16 @@ function AppContent() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/explore" element={<Explore />} />
+              <Route path="/community" element={<Navigate to="/explore" replace />} />
               <Route path="/post/:id" element={<PostDetail />} />
               <Route path="/profile/:username?" element={<Profile />} />
-              <Route
-                path="/create"
-                element={user ? <Create /> : <Navigate to="/login?redirect=/create" />}
-              />
+              <Route path="/create" element={user ? <Create /> : <Navigate to="/login?redirect=/create" />} />
               <Route path="/inspire" element={<Inspire />} />
               <Route path="/blog" element={<Blog />} />
-              <Route
-                path="/notifications"
-                element={user ? <Notifications /> : <Navigate to="/login?redirect=/notifications" />}
-              />
+              <Route path="/notifications" element={user ? <Notifications /> : <Navigate to="/login?redirect=/notifications" />} />
               <Route path="/ai-studio" element={user ? <AIGenerator user={user} /> : <Navigate to="/login?redirect=/ai-studio" />} />
               <Route path="/artist/:id" element={<ArtistDetail />} />
-              <Route
-                path="/artist-apply"
-                element={user ? <ArtistOnboarding /> : <Navigate to="/login?redirect=/artist-apply" />}
-              />
+              <Route path="/artist-apply" element={user ? <ArtistOnboarding /> : <Navigate to="/login?redirect=/artist-apply" />} />
               <Route path="/pricing" element={<Pricing user={user} />} />
               <Route path="/payment/success" element={<PaymentSuccess />} />
               <Route path="/payment/cancel" element={<PaymentCancel />} />
@@ -93,17 +85,10 @@ function AppContent() {
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/disclaimer" element={<Disclaimer />} />
-              <Route
-                path="/settings"
-                element={user ? <Settings /> : <Navigate to="/login?redirect=/settings" />}
-              />
-              <Route path="*" element={
-                <div className="min-h-screen bg-white flex items-center justify-center">
-                  <div className="text-center">
-                    <h1 className="text-6xl font-bold text-black mb-4">404</h1>
-                    <p className="text-gray-500 mb-6">Page not found</p>
-                    <Link to="/" className="text-black hover:underline">Go Home</Link>
-                  </div>
+              <Route path="/settings" element={user ? <Settings /> : <Navigate to="/login?redirect=/settings" />} />
+              <Route path="*" element={<div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center"><div className="text-center"><h1 className="text-6xl font-bold text-[#CFAF6E] mb-4">404</h1><p className="text-stone-400 mb-6">Page not found</p><Link to="/" className="text-[#CFAF6E] hover:underline">Go Home</Link></div></div>} />
+            </Routes>
+          </Suspense>
                 </div>
               } />
             </Routes>
