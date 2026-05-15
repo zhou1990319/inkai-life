@@ -6,9 +6,15 @@ const SUPABASE_URL = 'https://zgolsxdwilktnxbzxfcw.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpnb2xzeGR3aWxrdG54Ynp4ZmN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyOTI5MDAsImV4cCI6MjA5Mzg2ODkwMH0.atU-vi-uwJKNegdmptDkvOyC4wPiK7ckNRwEJCDao8I';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // 只允许 POST 和 GET
-  if (!['POST', 'GET', 'PUT', 'PATCH', 'DELETE'].includes(req.method || '')) {
-    return res.status(405).json({ error: 'Method not allowed' });
+  // CORS 头 — 允许所有来源
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, apikey, Prefer');
+  res.setHeader('Access-Control-Max-Age', '86400');
+
+  // 处理 preflight OPTIONS 请求
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
 
   const path = req.query.path as string;
@@ -17,7 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const targetUrl = `${SUPABASE_URL}/rest/v1/${path}`;
-  
+
   try {
     const headers: Record<string, string> = {
       'apikey': SUPABASE_ANON_KEY,
@@ -25,7 +31,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       'Content-Type': 'application/json',
     };
 
-    // 处理认证
     const authHeader = req.headers.authorization;
     if (authHeader) {
       headers['Authorization'] = authHeader;
@@ -38,6 +43,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
     const data = await response.json();
+    // 透传响应头
+    response.headers.forEach((value, key) => {
+      if (!['content-encoding', 'transfer-encoding', 'connection'].includes(key.toLowerCase())) {
+        res.setHeader(key, value);
+      }
+    });
     res.status(response.status).json(data);
   } catch (error: any) {
     console.error('Proxy error:', error);
