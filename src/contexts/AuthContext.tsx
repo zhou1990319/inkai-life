@@ -104,69 +104,77 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 注册（注册后立即登录，无需邮箱验证）
   const signUp = async (email: string, password: string, username: string) => {
-    // 先检查用户名是否已存在
-    const { data: existingUser } = await supabase
-      .from('profiles')
-      .select('username')
-      .eq('username', username)
-      .single();
+    try {
+      // 先检查用户名是否已存在
+      const { data: existingUser } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('username', username)
+        .single();
 
-    if (existingUser) {
-      return { error: { message: 'Username already taken' } };
-    }
+      if (existingUser) {
+        return { error: { message: 'Username already taken' } };
+      }
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          username,
-          display_name: username,
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            username,
+            display_name: username,
+          },
         },
-      },
-    });
+      });
 
-    // 如果注册成功且有用户，尝试立即登录（无需邮箱验证）
-    if (data.user && !error) {
-      // 自动登录（使用同一套凭据）
-      await supabase.auth.signInWithPassword({ email, password });
-      
-      const profile = await loadProfile(data.user.id);
-      if (!profile) {
-        // 手动创建profile（包含完整字段）
-        const { error: profileError } = await supabase.from('profiles').insert({
-          id: data.user.id,
-          username,
-          display_name: username,
-          email: data.user.email,
-          subscription_status: 'free',
-          current_plan: 'free',
-          trial_available: true,
-          followers_count: 0,
-          following_count: 0,
-          is_artist: false,
-          artist_verified: false,
-        });
-        if (profileError) {
-          console.error('Profile creation error:', profileError);
+      if (error) {
+        return { error };
+      }
+
+      // 注册成功，自动登录
+      if (data.user) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        if (signInError) {
+          // 登录失败也继续，因为用户已在Supabase创建
+          console.warn('Auto sign-in after registration failed, proceeding anyway:', signInError.message);
         }
 
-        // 创建默认订阅记录
-        const { error: subError } = await supabase.from('subscriptions').insert({
-          user_id: data.user.id,
-          plan_type: 'free',
-          status: 'active',
-          started_at: new Date().toISOString(),
-          auto_renew: false,
-        });
-        if (subError) {
-          console.error('Subscription creation error:', subError);
+        // 创建profile（如果不存在）
+        const profile = await loadProfile(data.user.id);
+        if (!profile) {
+          const { error: profileError } = await supabase.from('profiles').insert({
+            id: data.user.id,
+            username,
+            display_name: username,
+            email: data.user.email,
+            subscription_status: 'free',
+            current_plan: 'free',
+            trial_available: true,
+            followers_count: 0,
+            following_count: 0,
+            is_artist: false,
+            artist_verified: false,
+          });
+          if (profileError) {
+            console.warn('Profile creation failed:', profileError.message);
+          }
+
+          // 创建默认订阅记录
+          await supabase.from('subscriptions').insert({
+            user_id: data.user.id,
+            plan_type: 'free',
+            status: 'active',
+            started_at: new Date().toISOString(),
+            auto_renew: false,
+          });
         }
       }
-    }
 
-    // 不再需要确认，直接返回成功
-    return { error };
+      return { error: null };
+    } catch (err: any) {
+      console.error('SignUp error:', err);
+      return { error: { message: err.message || 'Registration failed. Please try again.' } };
+    }
   };
 
   // 登出
